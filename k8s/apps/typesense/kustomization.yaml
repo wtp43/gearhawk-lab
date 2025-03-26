@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: typesense
 
 resources:
-  # - typesense-apikey.yaml
+  - typesense-apikey.yaml
   - crd.yaml
   - ns.yaml
   - rbac.yaml
