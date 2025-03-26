@@ -4,6 +4,8 @@ kind: ServiceAccount
 metadata:
   namespace: "default"
   name: typesense-operator-sa
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

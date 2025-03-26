@@ -6,6 +6,8 @@ metadata:
     app: typesense-operator
   name: typesense-operator
   namespace: typesense
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   replicas: 1
   selector:

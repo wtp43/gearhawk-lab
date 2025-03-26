@@ -3,5 +3,7 @@ kind: OnePasswordItem
 metadata:
   name: typesense-apikey
   namespace: typesense
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   itemPath: "vaults/gearhawk-k8s/items/typesense-apikey"

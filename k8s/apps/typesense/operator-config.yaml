@@ -3,6 +3,8 @@ apiVersion: typesenseproject.org/v1
 kind: TypesenseOperator
 metadata:
   name: type-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   replicas: 1
   namespace: typesense

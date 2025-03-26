@@ -3,6 +3,8 @@ kind: HTTPRoute
 metadata:
   name: typesense
   namespace: typesense
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
 spec:
   parentRefs:
     - name: external

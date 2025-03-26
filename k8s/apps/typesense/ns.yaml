@@ -2,5 +2,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: typesense
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
   labels:
     operator.1password.io/auto-restart: "true"
