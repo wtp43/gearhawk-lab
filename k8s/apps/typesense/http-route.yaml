@@ -7,8 +7,6 @@ spec:
   parentRefs:
     - name: external
       namespace: gateway
-    - name: internal
-      namespace: gateway
   hostnames:
     - typesense.gearhawk.io
   rules:
@@ -17,5 +15,5 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: typesense-service
-          port: 443
+        - name: typesense-svc
+          port: 8108

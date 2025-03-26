@@ -3,10 +3,10 @@ kind: Kustomization
 namespace: typesense
 
 resources:
+  # - typesense-apikey.yaml
+  - crd.yaml
   - ns.yaml
-  - typesense-apikey.yaml
+  - rbac.yaml
   - operator.yaml
   - operator-config.yaml
-  - rbac.yaml
-  - crd.yaml
   - http-route.yaml

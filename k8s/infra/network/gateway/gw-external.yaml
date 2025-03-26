@@ -17,7 +17,6 @@ spec:
         certificateRefs:
           - name: cert-gearhawk
             kind: Secret
-            # group: "" # required
       allowedRoutes:
         namespaces:
           from: All

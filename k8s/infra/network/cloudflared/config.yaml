@@ -10,13 +10,13 @@ warp-routing:
 ingress:
   - hostname: hello.gearhawk.io
     service: hello_world
-  - hostname: proxmox.gearhawk.io
-    service: https://cilium-gateway-tls-passthrough.gateway.svc.cluster.local:443
-    originRequest:
-      originServerName: proxmox.gearhawk.io
   - hostname: "*.gearhawk.io"
     service: https://cilium-gateway-external.gateway.svc.cluster.local:443
     originRequest:
       originServerName: "*.gearhawk.io"
-      noTLSverify: true # No valid cert during testing
+      noTLSVerify: true # No valid cert during testing
+  - hostname: proxmox.gearhawk.io
+    service: https://cilium-gateway-tls-passthrough.gateway.svc.cluster.local:443
+    originRequest:
+      originServerName: proxmox.gearhawk.io
   - service: http_status:404
