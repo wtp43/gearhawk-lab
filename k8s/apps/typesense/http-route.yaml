@@ -17,5 +17,5 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: typesense-service 
-          port: 8108
+        - name: typesense-service
+          port: 443

@@ -7,5 +7,7 @@ spec:
   selector:
     app: typesense-operator
   ports:
-    - protocol: TCP
-      port: 8108
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 8108
