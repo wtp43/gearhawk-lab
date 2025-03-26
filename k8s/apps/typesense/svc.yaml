@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: typesense-service
+spec:
+  type: ClusterIP
+  selector:
+    app: typesense-operator
+  ports:
+    - protocol: TCP
+      port: 8108

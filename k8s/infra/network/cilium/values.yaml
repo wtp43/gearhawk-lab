@@ -1,39 +1,32 @@
+# https://github.com/cilium/cilium/blob/main/install/kubernetes/cilium/values.yaml
 cluster:
   name: talos
   id: 1
 
-kubeProxyReplacement:
-  true
+kubeProxyReplacement: true
 
-  # Talos specific
+ # Talos specific
 k8sServiceHost: localhost
 k8sServicePort: 7445
 securityContext:
   capabilities:
-    ciliumAgent:
-      [
-        CHOWN,
-        KILL,
-        NET_ADMIN,
-        NET_RAW,
-        IPC_LOCK,
-        SYS_ADMIN,
-        SYS_RESOURCE,
-        DAC_OVERRIDE,
-        FOWNER,
-        SETGID,
-        SETUID,
-      ]
-    cleanCiliumState: [NET_ADMIN, SYS_ADMIN, SYS_RESOURCE]
+    ciliumAgent: [ CHOWN, KILL, NET_ADMIN, NET_RAW, IPC_LOCK, SYS_ADMIN, SYS_RESOURCE, DAC_OVERRIDE, FOWNER, SETGID, SETUID ]
+    cleanCiliumState: [ NET_ADMIN, SYS_ADMIN, SYS_RESOURCE ]
 
 cgroup:
   autoMount:
     enabled: false
   hostRoot: /sys/fs/cgroup
 
+# https://www.talos.dev/latest/talos-guides/network/host-dns/#forwarding-kube-dns-to-host-dns
+# https://docs.cilium.io/en/stable/operations/performance/tuning/#ebpf-host-routing
+bpf:
+  hostLegacyRouting: true
+
 # https://docs.cilium.io/en/stable/network/concepts/ipam/
 ipam:
   mode: kubernetes
+  multiPoolPreAllocation: ""
 
 operator:
   rollOutPods: true
@@ -81,7 +74,7 @@ envoy:
   securityContext:
     capabilities:
       keepCapNetBindService: true
-      envoy: [NET_ADMIN, PERFMON, BPF]
+      envoy: [ NET_ADMIN, PERFMON, BPF ]
 
 hubble:
   enabled: true
@@ -98,7 +91,7 @@ ingressController:
   loadbalancerMode: shared
   service:
     annotations:
-      io.cilium/lb-ipam-ips: 192.168.50.75
+      io.cilium/lb-ipam-ips: 192.168.50.85
 
 # mTLS
 authentication:

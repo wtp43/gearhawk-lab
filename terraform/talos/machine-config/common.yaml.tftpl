@@ -1,0 +1,28 @@
+machine:
+  nodeLabels:
+    topology.kubernetes.io/region: ${cluster_name}
+    topology.kubernetes.io/zone: ${node_name}
+  network:
+    hostname: ${hostname}
+    interfaces:
+      - deviceSelector:
+          hardwareAddr: ${mac_address}
+        addresses:
+          - ${ip}/${subnet_mask}
+        routes:
+          - network: 0.0.0.0/0
+            gateway: ${gateway}
+        dhcp: false
+%{ if vip != null }
+        vip:
+          ip: ${vip}
+%{ endif }
+  kubelet:
+    extraMounts:
+      - destination: /var/lib/longhorn
+        type: bind
+        source: /var/lib/longhorn
+        options:
+          - bind
+          - rshared
+          - rw

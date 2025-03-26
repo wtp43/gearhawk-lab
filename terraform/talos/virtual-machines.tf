@@ -40,9 +40,8 @@ resource "proxmox_virtual_environment_vm" "this" {
     discard      = "on"
     ssd          = true
     file_format  = "raw"
-    size         = each.value.machine_type == "controlplane" ? 32 : (each.value.datastore_id == "local" ? 200 : 500)
+    size         = each.value.machine_type == "controlplane" ? 32 : 200
     file_id      = proxmox_virtual_environment_download_file.this["${each.value.host_node}_${each.value.update == true ? local.update_image_id : local.image_id}"].id
-
   }
 
   boot_order = ["scsi0"]
@@ -53,9 +52,18 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   initialization {
     datastore_id = each.value.datastore_id
+
+    # Optional DNS Block.  Update Nodes with a list value to use.
+    dynamic "dns" {
+      for_each = try(each.value.dns, null) != null ? { "enabled" = each.value.dns } : {}
+      content {
+        servers = each.value.dns
+      }
+    }
+
     ip_config {
       ipv4 {
-        address = "${each.value.ip}/24"
+        address = "${each.value.ip}/${var.cluster.subnet_mask}"
         gateway = var.cluster.gateway
       }
     }

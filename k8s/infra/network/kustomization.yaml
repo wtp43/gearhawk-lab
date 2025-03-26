@@ -1,8 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-commonLabels:
-  gearhawk.lab: network
-  app.kubernetes.io/managed-by: argocd
+labels:
+  - includeSelectors: true
+    pairs:
+      gearhawk.lab: network
+      app.kubernetes.io/managed-by: argocd
 
 resources:
   - project.yaml

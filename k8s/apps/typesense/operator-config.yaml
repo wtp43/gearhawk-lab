@@ -1,0 +1,47 @@
+# Configuration of Typesense fed to the operator goes here
+apiVersion: typesenseproject.org/v1
+kind: TypesenseOperator
+metadata:
+  name: type-operator
+spec:
+  replicas: 1
+  namespace: typesense
+  image: typesense/typesense:27.1
+  env:
+  - name: APIKEY
+    valueFrom:
+      secretKeyRef:
+        name: typesense-apikey
+        key: apikey
+  resources:
+    requests:
+      memory: 100Mi
+      cpu: "100m"
+    limits:
+      memory: 200Mi
+      cpu: "100m"
+  nodeSelector:
+    kubernetes.io/os: linux
+  # topologySpreadConstraints:
+  #   - labelSelector:
+  #       matchLabels:
+  #         app: typesense
+  #     maxSkew: 1
+  #     topologyKey: kubernetes.io/hostname
+  #     whenUnsatisfiable: DoNotSchedule
+  # storageClass:
+  #   name: standard
+  #   size: "100Mi"
+  # startupProbe:
+  #  failureThreshold: 10
+  #  periodSeconds: 10
+  # livenessProbe:    
+  #  failureThreshold: 2
+  #  periodSeconds: 10
+config:
+  # Name of the secret
+  secret: "typesense-apikey"
+  # Define all environment variables here.
+  # NOTE: This will add / override existing env variables defined as default for the operator
+  env:
+    TYPESENSE_ENABLE_CORS: "true"

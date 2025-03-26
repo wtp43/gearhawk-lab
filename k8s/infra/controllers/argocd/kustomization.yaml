@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ns.yaml
   - 1password-item.yaml
+  - http-route.yaml
 
 helmCharts:
   - name: argo-cd

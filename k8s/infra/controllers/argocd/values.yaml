@@ -5,6 +5,7 @@ configs:
     create: true
     application.resourceTrackingMethod: "annotation+label"
     admin.enabled: true
+    url: https://argocd.gearhawk.io
   cmp:
     create: true
     plugins:

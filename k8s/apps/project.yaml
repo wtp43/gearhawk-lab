@@ -11,6 +11,8 @@ spec:
       server: "*"
     - namespace: "gearhawk-workers"
       server: "*"
+    - namespace: "typesense"
+      server: "*"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"

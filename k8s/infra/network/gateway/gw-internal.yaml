@@ -1,0 +1,24 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: internal
+  namespace: gateway
+spec:
+  gatewayClassName: cilium
+  infrastructure:
+    annotations:
+      io.cilium/lb-ipam-ips: 192.168.50.71
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "*.gearhawk.io"
+      tls:
+        certificateRefs:
+          - name: cert-gearhawk
+            kind: Secret
+            # group: ""
+      allowedRoutes:
+        namespaces:
+          from: All
+

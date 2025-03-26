@@ -8,7 +8,7 @@ spec:
     - name: internal
       namespace: gateway
   hostnames:
-    - "lab.gearhawk.app"
+    - "argocd.gearhawk.io"
   rules:
     - matches:
         - path:
@@ -17,4 +17,3 @@ spec:
       backendRefs:
         - name: argocd-server
           port: 80
-
