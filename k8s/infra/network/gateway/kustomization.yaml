@@ -7,5 +7,4 @@ resources:
   - ns.yaml
   - gw-external.yaml
   - gw-internal.yaml
-  - gw-tcp.yaml
   - gw-tls-passthrough.yaml

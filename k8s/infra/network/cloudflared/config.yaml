@@ -8,6 +8,7 @@ warp-routing:
   enabled: true
 
 ingress:
+  # https://ryan-schachte.com/blog/cf_tunnel_tcp/
   - hostname: cnpg.gearhawk.io
     service: tcp://postgres-cluster-rw.cnpg-database.svc.cluster.local:5432
   - hostname: proxmox.gearhawk.io
