@@ -1,0 +1,106 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-cluster
+  namespace: gearhawk-postgres
+  annotations:
+    - argocd.argoproj.io/sync-wave: "2"
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.5
+  instances: 3
+  startDelay: 300
+  stopDelay: 300
+  primaryUpdateStrategy: unsupervised
+
+  postgresql:
+    parameters:
+      shared_buffers: 256MB
+      pg_stat_statements.max: "10000"
+      pg_stat_statements.track: all
+      auto_explain.log_min_duration: "10s"
+    pg_hba:
+      # - host all all 10.244.0.0/16 md5
+      - host all all all md5
+
+  bootstrap:
+    initdb:
+      database: gearhawk
+      owner: gearhawk-postgres-user
+      secret:
+        name: gearhawk-postgres-user
+    # Alternative bootstrap method: start from a backup
+    #recovery:
+    #  backup:
+    #    name: backup-example
+
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: gearhawk-postgres-superuser
+
+  storage:
+    storageClass: standard
+    size: 10Gi
+  managed:
+    roles:
+      # - name: app
+      #   createdb: true
+      #   login: true
+      - name: pipeline-worker
+        ensure: present
+        login: true
+        superuser: false
+        createdb: true
+        createrole: false
+        inherit: false
+        replication: false
+        bypassrls: false
+        passwordSecret:
+          name: gearhawk-pipeline-worker
+    services:
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: "mydb-lb"
+              labels:
+                test-label: "true"
+              annotations:
+                test-annotation: "true"
+            spec:
+              type: LoadBalancer
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://gearhawk-postgres-backup/
+      endpointURL: https://s3.us-east-2.amazonaws.com
+      s3Credentials:
+        accessKeyId:
+          name: aws-s3-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: aws-s3-creds
+          key: ACCESS_SECRET_KEY
+      wal:
+        compression: gzip
+        encryption: AES256
+      data:
+        compression: gzip
+        encryption: AES256
+        immediateCheckpoint: false
+        jobs: 2
+    retentionPolicy: "30d"
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "1"
+    limits:
+      memory: "4Gi"
+      cpu: "6"
+
+  affinity:
+    enablePodAntiAffinity: true
+
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: false

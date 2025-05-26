@@ -1,0 +1,13 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+namespace: gearhawk-postgres
+metadata:
+  name: backup-schedule
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  schedule: "0 0 0 * * *" # At midnight every day
+  backupOwnerReference: self
+  cluster:
+    name: gearhawk-postgres
+  immediate: true

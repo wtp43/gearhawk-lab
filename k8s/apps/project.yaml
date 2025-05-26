@@ -13,6 +13,8 @@ spec:
       server: "*"
     - namespace: "typesense"
       server: "*"
+    - namespace: "gearhawk-postgres"
+      server: "*"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"

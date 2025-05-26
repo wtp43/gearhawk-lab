@@ -1,0 +1,21 @@
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: postgres-route
+  namespace: gearhawk-postgres
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  parentRefs:
+    - name: external
+      namespace: gateway
+  hostnames:
+    - postgres.gearhawk.io
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: gearhawk-postgres
+          port: 5432
