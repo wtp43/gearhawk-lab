@@ -20,15 +20,9 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
-
     - name: tcp
       protocol: TCP
       port: 8080
-      hostname: "*.gearhawk.io"
-      tls:
-        certificateRefs:
-          - name: cert-gearhawk
-            kind: Secret
       allowedRoutes:
         namespaces:
           from: All
