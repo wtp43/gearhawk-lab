@@ -1,31 +1,38 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: applications
+  name: database
   namespace: argocd
   labels:
-    gearhawk.lab: application
+    gearhawk.lab: database
 spec:
   generators:
     - git:
         repoURL: https://github.com/wtp43/gearhawk-lab
         revision: HEAD
         directories:
-          - path: k8s/apps/*
+          - path: k8s/infra/database/*
   template:
     metadata:
       name: "{{ path.basename }}"
       labels:
-        gearhawk.lab: application
+        gearhawk.lab: database
       finalizers:
         - resources-finalizer.argocd.argoproj.io
     spec:
-      project: applications
+      project: database
       source:
+        plugin:
+          name: kustomize-build-with-helm
         repoURL: https://github.com/wtp43/gearhawk-lab
         targetRevision: HEAD
         path: "{{ path }}"
       destination:
         name: in-cluster
         namespace: argocd
-      # syncPolicy:
+      syncPolicy:
+        # automated:
+        #   selfHeal: true
+        #   prune: true
+        syncOptions: #https://github.com/cloudnative-pg/charts/issues/325
+          - ServerSideApply=true

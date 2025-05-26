@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: applications
+  name: database
   namespace: argocd
 spec:
   sourceRepos:
@@ -9,9 +9,9 @@ spec:
   destinations:
     - namespace: "argocd"
       server: "*"
-    - namespace: "gearhawk-workers"
+    - namespace: "cnpg-database"
       server: "*"
-    - namespace: "typesense"
+    - namespace: "cnpg-system"
       server: "*"
   clusterResourceWhitelist:
     - group: "*"

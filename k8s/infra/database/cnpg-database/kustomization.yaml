@@ -1,10 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: typesense
 
 resources:
   - ns.yaml
-  - operator.yaml
-  - operator-config.yaml
-  - http-route.yaml
+  - pg-cluster.yaml
+  - aws-s3-creds.yaml
+  - backup-schedule.yaml
   - role-secrets.yaml

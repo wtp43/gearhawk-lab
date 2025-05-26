@@ -8,8 +8,8 @@ warp-routing:
   enabled: true
 
 ingress:
-  - hostname: hello.gearhawk.io
-    service: hello_world
+  - hostname: cnpg.gearhawk.io
+    service: tcp://postgres-cluster-rw.cnpg-database.svc.cluster.local:5432
   - hostname: proxmox.gearhawk.io
     service: https://cilium-gateway-tls-passthrough.gateway.svc.cluster.local:443
     originRequest:

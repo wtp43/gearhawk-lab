@@ -2,9 +2,9 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: postgres-cluster
-  namespace: gearhawk-postgres
+  namespace: cnpg-database
   annotations:
-    - argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:17.5
   instances: 3
@@ -24,10 +24,10 @@ spec:
 
   bootstrap:
     initdb:
-      database: gearhawk
-      owner: gearhawk-postgres-user
+      database: postgres
+      owner: app
       secret:
-        name: gearhawk-postgres-user
+        name: gearhawk-postgres-app
     # Alternative bootstrap method: start from a backup
     #recovery:
     #  backup:
@@ -38,14 +38,14 @@ spec:
     name: gearhawk-postgres-superuser
 
   storage:
-    storageClass: standard
+    storageClass: longhorn
     size: 10Gi
   managed:
     roles:
       # - name: app
       #   createdb: true
       #   login: true
-      - name: pipeline-worker
+      - name: gearhawk-pipeline-worker
         ensure: present
         login: true
         superuser: false
