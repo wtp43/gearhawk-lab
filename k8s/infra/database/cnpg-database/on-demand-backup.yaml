@@ -1,0 +1,14 @@
+#On-demand backups do not include Kubernetes secrets for the PostgreSQL superuser or application user.
+#You should ensure these secrets are included in your broader Kubernetes cluster backup strategy.
+
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+metadata:
+  name: on-demand-backup
+  namespace: cnpg-database
+spec:
+  cluster:
+    name: postgres-cluster
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

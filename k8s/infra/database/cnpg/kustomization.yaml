@@ -4,6 +4,8 @@ namespace: cnpg-system
 
 resources:
   - ns.yaml
+  # barman cloud plugin for cnpg backups
+  - https://github.com/cloudnative-pg/plugin-barman-cloud/releases/download/v0.4.0/manifest.yaml
 
 helmCharts:
   - name: cloudnative-pg

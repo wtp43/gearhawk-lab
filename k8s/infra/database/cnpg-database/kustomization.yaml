@@ -5,5 +5,7 @@ resources:
   - ns.yaml
   - pg-cluster.yaml
   - aws-s3-creds.yaml
-  - backup-schedule.yaml
+  - scheduled-backup.yaml
   - role-secrets.yaml
+  - s3-store.yaml
+  - pooler-rw.yaml

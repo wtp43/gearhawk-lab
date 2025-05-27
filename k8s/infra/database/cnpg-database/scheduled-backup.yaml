@@ -1,13 +1,16 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
-  name: backup-schedule
+  name: scheduled-backup
   namespace: cnpg-database
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   schedule: "0 0 0 * * *" # At midnight every day
   backupOwnerReference: self
   cluster:
-    name: gearhawk-postgres
+    name: postgres-cluster
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
   immediate: true

@@ -7,14 +7,20 @@ metadata:
     argocd.argoproj.io/sync-wave: "2"
 spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:17.5
+  imagePullPolicy: IfNotPresent
   instances: 3
   startDelay: 300
   stopDelay: 300
   primaryUpdateStrategy: unsupervised
 
   postgresql:
+    # TODO: performance tuning https://www.enterprisedb.com/postgres-tutorials/introduction-postgresql-performance-tuning-and-optimization?lang=en
     parameters:
+      timezone: "Canada/Eastern"
+      # shared_buffers: 1024MB
       shared_buffers: 256MB
+      # work_mem: 25MB
+      # effective_cache_size: 2048MB
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
       auto_explain.log_min_duration: "10s"
@@ -23,28 +29,29 @@ spec:
       - host all all all md5
 
   bootstrap:
-    initdb:
+    # initdb:
+    #   database: postgres
+    #   owner: app
+    #   secret:
+    #     name: gearhawk-postgres-app
+    recovery:
+      source: s3
       database: postgres
       owner: app
       secret:
         name: gearhawk-postgres-app
-    # Alternative bootstrap method: start from a backup
-    #recovery:
-    #  backup:
-    #    name: backup-example
 
   enableSuperuserAccess: true
   superuserSecret:
     name: gearhawk-postgres-superuser
 
   storage:
+    # TODO: benchmark and use local storage
     storageClass: longhorn
     size: 10Gi
+
   managed:
     roles:
-      # - name: app
-      #   createdb: true
-      #   login: true
       - name: gearhawk-pipeline-worker
         ensure: present
         login: true
@@ -56,40 +63,21 @@ spec:
         bypassrls: false
         passwordSecret:
           name: gearhawk-pipeline-worker
-    services:
-      additional:
-        - selectorType: rw
-          serviceTemplate:
-            metadata:
-              name: "mydb-lb"
-              labels:
-                test-label: "true"
-              annotations:
-                test-annotation: "true"
-            spec:
-              type: LoadBalancer
-
-  backup:
-    barmanObjectStore:
-      destinationPath: s3://gearhawk-postgres-backup/
-      endpointURL: https://s3.us-east-2.amazonaws.com
-      s3Credentials:
-        accessKeyId:
-          name: aws-s3-creds
-          key: ACCESS_KEY_ID
-        secretAccessKey:
-          name: aws-s3-creds
-          key: ACCESS_SECRET_KEY
-      wal:
-        compression: gzip
-        encryption: AES256
-      data:
-        compression: gzip
-        encryption: AES256
-        immediateCheckpoint: false
-        jobs: 2
-    retentionPolicy: "30d"
-
+  externalClusters:
+    - name: s3
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          # Recovery Object Store (pull, read-only)
+          barmanObjectName: s3-store
+          serverName: postgres-cluster
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        # Backup Object Store (push, read-write)
+        barmanObjectName: s3-store
+        serverName: scheduled-backup
   resources:
     requests:
       memory: "512Mi"
@@ -98,8 +86,9 @@ spec:
       memory: "4Gi"
       cpu: "6"
 
-  affinity:
-    enablePodAntiAffinity: true
+  # TODO:
+  # affinity:
+  #   enablePodAntiAffinity: true
 
   nodeMaintenanceWindow:
     inProgress: false
