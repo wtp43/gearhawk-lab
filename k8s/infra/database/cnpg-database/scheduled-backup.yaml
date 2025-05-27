@@ -4,10 +4,9 @@ metadata:
   name: scheduled-backup
   namespace: cnpg-database
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
-  schedule: "0 0 0 * * *" # At midnight every day
-  backupOwnerReference: self
+  schedule: "0 0 0 * * *" # once per day at midnight, 1st field is seconds
   cluster:
     name: postgres-cluster
   method: plugin

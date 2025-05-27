@@ -70,14 +70,15 @@ spec:
         parameters:
           # Recovery Object Store (pull, read-only)
           barmanObjectName: s3-store
-          serverName: postgres-cluster
+          serverName: recovery-target # the target path where base + wal objects are stored, take second last base + all wal
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
         # Backup Object Store (push, read-write)
         barmanObjectName: s3-store
-        serverName: scheduled-backup
+        serverName: scheduled-backup # this s3 path must be empty during recovery
+
   resources:
     requests:
       memory: "512Mi"
@@ -85,7 +86,8 @@ spec:
     limits:
       memory: "4Gi"
       cpu: "6"
-
+  monitoring:
+    enablePodMonitor: true
   # TODO:
   # affinity:
   #   enablePodAntiAffinity: true
