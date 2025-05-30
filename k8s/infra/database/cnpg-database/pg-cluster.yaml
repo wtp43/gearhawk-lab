@@ -17,10 +17,9 @@ spec:
     # TODO: performance tuning https://www.enterprisedb.com/postgres-tutorials/introduction-postgresql-performance-tuning-and-optimization?lang=en
     parameters:
       timezone: "Canada/Eastern"
-      # shared_buffers: 1024MB
-      shared_buffers: 256MB
-      # work_mem: 25MB
-      # effective_cache_size: 2048MB
+      shared_buffers: 8192MB
+      work_mem: 64MB
+      effective_cache_size: 16384MB
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
       auto_explain.log_min_duration: "10s"
@@ -81,16 +80,25 @@ spec:
 
   resources:
     requests:
-      memory: "512Mi"
-      cpu: "1"
+      memory: "32Gi"
+      cpu: "4"
     limits:
-      memory: "4Gi"
-      cpu: "6"
+      memory: "64Gi"
+      cpu: "8"
   monitoring:
     enablePodMonitor: true
   # TODO:
   # affinity:
   #   enablePodAntiAffinity: true
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                  - work-00
 
   nodeMaintenanceWindow:
     inProgress: false
