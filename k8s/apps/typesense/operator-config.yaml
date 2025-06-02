@@ -10,20 +10,21 @@ spec:
   namespace: typesense
   image: typesense/typesense:28.0
   env:
-  - name: APIKEY
-    valueFrom:
-      secretKeyRef:
-        name: typesense-apikey
-        key: apikey
+    - name: APIKEY
+      valueFrom:
+        secretKeyRef:
+          name: typesense-apikey
+          key: apikey
   resources:
     requests:
-      memory: 100Mi
-      cpu: "100m"
+      memory: 4Gi
+      cpu: 4
     limits:
-      memory: 200Mi
-      cpu: "100m"
-  # nodeSelector:
-  #   kubernetes.io/os: linux
+      memory: 16Gi
+      cpu: 8
+
+  nodeSelector:
+    kubernetes.io/hostname: work-00
   # topologySpreadConstraints:
   #   - labelSelector:
   #       matchLabels:
@@ -37,7 +38,7 @@ spec:
   # startupProbe:
   #  failureThreshold: 10
   #  periodSeconds: 10
-  # livenessProbe:    
+  # livenessProbe:
   #  failureThreshold: 2
   #  periodSeconds: 10
 config:
