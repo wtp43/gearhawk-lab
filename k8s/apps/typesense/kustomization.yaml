@@ -9,4 +9,5 @@ resources:
   - rbac.yaml
   - operator.yaml
   - operator-config.yaml
-  - http-route.yaml
+  - external-route.yaml
+  - internal-route.yaml

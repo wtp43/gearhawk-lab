@@ -20,11 +20,3 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
-    # - name: tcp
-    #   protocol: TCP
-    #   port: 8080
-    #   allowedRoutes:
-    #     namespaces:
-    #       from: All
-    #     kinds:
-    #       - kind: TCPRoute

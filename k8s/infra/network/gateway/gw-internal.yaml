@@ -5,14 +5,18 @@ metadata:
   namespace: gateway
 spec:
   gatewayClassName: cilium
-  infrastructure:
-    annotations:
-      io.cilium/lb-ipam-ips: 192.168.50.71
   listeners:
-    - name: https
+    - name: gearhawk-hono
+      protocol: HTTP
+      port: 80
+      hostname: "api.gearhawk.io"
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: typesense
       protocol: HTTPS
       port: 443
-      hostname: "*.internal.gearhawk.io"
+      hostname: "typesense.gearhawk.io"
       tls:
         certificateRefs:
           - name: cert-gearhawk
@@ -20,4 +24,3 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
-

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hono
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hono
+  template:
+    metadata:
+      labels:
+        app: hono
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - work-01
+                      - work-02
+      containers:
+        - name: hono-container
+          image: wjt40398/gearhawk:server
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8787
+      imagePullSecrets:
+        - name: docker-secret

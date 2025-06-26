@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: applications
+  name: gearhawk-website
   namespace: argocd
 spec:
   sourceRepos:
@@ -9,11 +9,7 @@ spec:
   destinations:
     - namespace: "argocd"
       server: "*"
-    - namespace: "gearhawk-workers"
-      server: "*"
     - namespace: "gearhawk-website"
-      server: "*"
-    - namespace: "typesense"
       server: "*"
   clusterResourceWhitelist:
     - group: "*"
