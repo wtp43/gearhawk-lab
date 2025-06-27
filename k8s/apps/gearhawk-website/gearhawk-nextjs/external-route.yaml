@@ -17,5 +17,5 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: hono-svc
+        - name: nextjs-svc
           port: 80
