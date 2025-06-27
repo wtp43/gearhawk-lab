@@ -14,10 +14,10 @@ spec:
         app: httpbin
     spec:
       containers:
-      - name: httpbin
-        image: kennethreitz/httpbin:latest
-        ports:
-        - containerPort: 80
+        - name: httpbin
+          image: kennethreitz/httpbin:latest
+          ports:
+            - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
