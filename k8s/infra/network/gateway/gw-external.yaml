@@ -9,7 +9,7 @@ spec:
     annotations:
       io.cilium/lb-ipam-ips: 192.168.50.67
   listeners:
-    - name: https
+    - name: https-domain-gateway
       protocol: HTTPS
       port: 443
       hostname: gearhawk.io
@@ -20,7 +20,7 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
-    - name: https
+    - name: https-gateway
       protocol: HTTPS
       port: 443
       hostname: "*.gearhawk.io"
