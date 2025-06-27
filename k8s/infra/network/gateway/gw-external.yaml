@@ -12,6 +12,17 @@ spec:
     - name: https
       protocol: HTTPS
       port: 443
+      hostname: gearhawk.io
+      tls:
+        certificateRefs:
+          - name: cert-gearhawk
+            kind: Secret
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https
+      protocol: HTTPS
+      port: 443
       hostname: "*.gearhawk.io"
       tls:
         certificateRefs:

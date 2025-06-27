@@ -12,10 +12,10 @@ ingress:
     service: https://cilium-gateway-tls-passthrough.gateway.svc.cluster.local:443
     originRequest:
       originServerName: proxmox.gearhawk.io
-  - hostname: "gearhawk.io"
-    service: http://cilium-gateway-external.gateway.svc.cluster.local:80
+  - hostname: gearhawk.io
+    service: https://cilium-gateway-external.gateway.svc.cluster.local:443
     originRequest:
-      originServerName: "gearhawk.io"
+      originServerName: gearhawk.io
       noTLSVerify: true # No valid cert during testing
   - hostname: "*.gearhawk.io"
     service: https://cilium-gateway-external.gateway.svc.cluster.local:443
