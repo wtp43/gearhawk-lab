@@ -8,15 +8,12 @@ warp-routing:
   enabled: true
 
 ingress:
-  # https://ryan-schachte.com/blog/cf_tunnel_tcp/
-  # - hostname: cnpg.gearhawk.io
-  #   service: tcp://postgres-cluster-rw.cnpg-database.svc.cluster.local:5432
   - hostname: proxmox.gearhawk.io
     service: https://cilium-gateway-tls-passthrough.gateway.svc.cluster.local:443
     originRequest:
       originServerName: proxmox.gearhawk.io
   - hostname: "gearhawk.io"
-    service: https://cilium-gateway-external.gateway.svc.cluster.local:443
+    service: http://cilium-gateway-external.gateway.svc.cluster.local:80
     originRequest:
       originServerName: "gearhawk.io"
       noTLSVerify: true # No valid cert during testing
@@ -26,3 +23,6 @@ ingress:
       originServerName: "*.gearhawk.io"
       noTLSVerify: true # No valid cert during testing
   - service: http_status:404
+  # https://ryan-schachte.com/blog/cf_tunnel_tcp/
+  # - hostname: cnpg.gearhawk.io
+  #   service: tcp://postgres-cluster-rw.cnpg-database.svc.cluster.local:5432
