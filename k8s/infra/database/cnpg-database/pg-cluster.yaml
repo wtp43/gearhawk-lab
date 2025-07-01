@@ -15,14 +15,29 @@ spec:
 
   postgresql:
     # TODO: performance tuning https://www.enterprisedb.com/postgres-tutorials/introduction-postgresql-performance-tuning-and-optimization?lang=en
+    # using: https://pgtune.leopard.in.ua/
+    # WARNING: tuning parameters should be the same as the backups
     parameters:
       timezone: "Canada/Eastern"
-      shared_buffers: 8192MB
-      work_mem: 64MB
-      effective_cache_size: 16384MB
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
       auto_explain.log_min_duration: "10s"
+      shared_buffers: "16GB"
+      effective_cache_size: "48GB"
+      maintenance_work_mem: "2GB"
+      checkpoint_completion_target: "0.9"
+      wal_buffers: "16MB"
+      default_statistics_target: "500"
+      random_page_cost: "1.1"
+      effective_io_concurrency: "200"
+      work_mem: "72315kB"
+      huge_pages: "try"
+      min_wal_size: "4GB"
+      max_wal_size: "16GB"
+      max_worker_processes: "16"
+      max_parallel_workers_per_gather: "8"
+      max_parallel_workers: "16"
+      max_parallel_maintenance_workers: "4"
     pg_hba:
       # - host all all 10.244.0.0/16 md5
       - host all all all md5

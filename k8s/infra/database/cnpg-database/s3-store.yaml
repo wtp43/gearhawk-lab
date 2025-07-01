@@ -23,4 +23,4 @@ spec:
       compression: gzip
       immediateCheckpoint: true
       jobs: 2
-  retentionPolicy: "14d"
+  retentionPolicy: "7d"
