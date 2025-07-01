@@ -8,7 +8,7 @@ metadata:
 spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:17.5
   imagePullPolicy: IfNotPresent
-  instances: 3
+  instances: 1
   startDelay: 300
   stopDelay: 300
   primaryUpdateStrategy: unsupervised
@@ -28,11 +28,6 @@ spec:
       - host all all all md5
 
   bootstrap:
-    # initdb:
-    #   database: postgres
-    #   owner: app
-    #   secret:
-    #     name: gearhawk-postgres-app
     recovery:
       source: s3
       database: postgres
@@ -47,7 +42,7 @@ spec:
   storage:
     # TODO: benchmark and use local storage
     storageClass: longhorn
-    size: 10Gi
+    size: 100Gi
 
   managed:
     roles:
@@ -84,7 +79,7 @@ spec:
       cpu: "4"
     limits:
       memory: "64Gi"
-      cpu: "8"
+      cpu: "16"
   monitoring:
     enablePodMonitor: true
   # TODO:
