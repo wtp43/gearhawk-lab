@@ -16,7 +16,7 @@ spec:
   postgresql:
     # TODO: performance tuning https://www.enterprisedb.com/postgres-tutorials/introduction-postgresql-performance-tuning-and-optimization?lang=en
     # using: https://pgtune.leopard.in.ua/
-    # WARNING: tuning parameters should be the same as the backups
+    # WARNING: WAL tuning parameters should be the same as the backups
     parameters:
       timezone: "Canada/Eastern"
       pg_stat_statements.max: "10000"
