@@ -62,6 +62,13 @@ spec:
         bypassrls: false
         passwordSecret:
           name: gearhawk-pipeline-worker
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        # Backup Object Store (push, read-write)
+        barmanObjectName: s3-store
+        serverName: scheduled-backup-infra # this s3 path must be empty during recovery
   resources:
     requests:
       memory: "1Gi"

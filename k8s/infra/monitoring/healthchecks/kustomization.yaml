@@ -4,7 +4,8 @@ namespace: healthchecks
 
 resources:
   - ns.yaml
-  - healthchecks-secret.yaml
+  - healthchecks-secret-key.yaml
+  - healthchecks-db-secret.yaml
   - deployment.yaml
   - internal-route.yaml
   - external-route.yaml
