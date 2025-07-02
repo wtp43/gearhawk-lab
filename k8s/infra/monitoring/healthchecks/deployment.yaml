@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: healthchecks-svc
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  selector:
+    app: healthchecks
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthchecks
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: healthchecks
+  template:
+    metadata:
+      labels:
+        app: healthchecks
+    spec:
+      containers:
+        - name: healthchecks
+          image: healthchecks/healthchecks:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DB
+              value: sqlite
+            - name: DB_NAME
+              value: /data/hc.sqlite
+            - name: DEBUG
+              value: "False"
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: SITE_ROOT
+              value: "https://healthchecks.gearhawk.io"
+            - name: DEFAULT_FROM_EMAIL
+              value: "wjt40398@gmail.com"
+            - name: EMAIL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: aws-smtp-user
+                  key: smtp-endpoint
+            - name: EMAIL_HOST_USER
+              valueFrom:
+                secretKeyRef:
+                  name: aws-smtp-user
+                  key: username
+            - name: EMAIL_HOST_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: aws-smtp-user
+                  key: password
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: healthchecks-secret
+                  key: secret-key
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: healthchecks-data-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: healthchecks-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

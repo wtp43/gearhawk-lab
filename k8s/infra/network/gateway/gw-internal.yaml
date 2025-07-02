@@ -9,14 +9,21 @@ spec:
     - name: gearhawk-hono
       protocol: HTTP
       port: 80
-      hostname: "api.gearhawk.io"
+      hostname: api.gearhawk.io
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: healthchecks
+      protocol: HTTP
+      port: 80
+      hostname: healthchecks.gearhawk.io
       allowedRoutes:
         namespaces:
           from: All
     - name: typesense
       protocol: HTTPS
       port: 443
-      hostname: "typesense.gearhawk.io"
+      hostname: typesense.gearhawk.io
       tls:
         certificateRefs:
           - name: cert-gearhawk
