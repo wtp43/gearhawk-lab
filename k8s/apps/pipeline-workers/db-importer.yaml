@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-importer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-importer
+  template:
+    metadata:
+      labels:
+        app: db-importer
+      containers:
+        - name: db-importer-container
+          image: wjt40398/gearhawk:db-importer
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: docker-secret
