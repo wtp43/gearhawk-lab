@@ -34,8 +34,9 @@ spec:
       - host all all all md5
 
   bootstrap:
-    initdb:
-      database: app
+    recovery:
+      source: s3
+      database: postgres
       owner: app
       secret:
         name: gearhawk-postgres-app
