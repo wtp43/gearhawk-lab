@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: db-importer-cron
 spec:
-  schedule: "0 * * * *"
+  schedule: "/10 * * * *"
   timeZone: "America/Toronto"
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
@@ -12,6 +12,7 @@ spec:
     spec:
       template:
         spec:
+          restartPolicy: "OnFailure"
           containers:
             - name: db-importer
               image: wjt40398/gearhawk:db-importer # Your image
