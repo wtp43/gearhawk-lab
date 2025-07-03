@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db-importer
+  name: db-importer-deployment
 spec:
   replicas: 1
   selector:
@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: db-importer
+    spec:
       containers:
         - name: db-importer-container
           image: wjt40398/gearhawk:db-importer
