@@ -50,6 +50,14 @@ spec:
     storageClass: longhorn
     size: 4Gi
 
+  externalClusters:
+    - name: s3
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          # Recovery Object Store (pull, read-only)
+          barmanObjectName: s3-store
+          serverName: recovery-target-infra # the target path where base + wal objects are stored, take second last base + all wal
   managed:
     roles:
       - name: gearhawk-pipeline-worker
