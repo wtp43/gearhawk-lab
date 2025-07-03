@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: db-importer-cron
 spec:
-  schedule: "/10 * * * *"
+  schedule: "*/10 * * * *"
   timeZone: "America/Toronto"
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
