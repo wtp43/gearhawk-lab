@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: woocommerce-crawler-cron
+spec:
+  schedule: "*/30 * * * *"
+  timeZone: "America/Toronto"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: "Never"
+          containers:
+            - name: woocommerce-crawler
+              image: wjt40398/gearhawk:woocommerce-crawler
+              imagePullPolicy: Always
+              # resources:
+              #   requests:
+              #     cpu: "100m"
+              #     memory: "128Mi"
+              #   limits:
+              #     cpu: "4"
+              #     memory: "4Gi"
+          imagePullSecrets:
+            - name: docker-secret
