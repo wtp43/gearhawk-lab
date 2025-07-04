@@ -18,7 +18,6 @@ spec:
     # using: https://pgtune.leopard.in.ua/
     # WARNING: WAL tuning parameters should be the same as the backups
     parameters:
-      timezone: "Canada/Eastern"
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
       auto_explain.log_min_duration: "10s"
