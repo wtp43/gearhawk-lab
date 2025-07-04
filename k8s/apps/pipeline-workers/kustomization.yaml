@@ -7,3 +7,4 @@ resources:
   - docker-secret.yaml
   - db-importer-cron.yaml
   - woocommerce-crawler-cron.yaml
+  - typesense-importer-cron.yaml
