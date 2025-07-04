@@ -1,9 +1,9 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: db-importer-cron
+  name: woocommerce-crawler-cron
 spec:
-  schedule: "*/10 * * * *"
+  schedule: "*/30 * * * *"
   timeZone: "America/Toronto"
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
@@ -14,8 +14,8 @@ spec:
         spec:
           restartPolicy: "Never"
           containers:
-            - name: db-importer
-              image: wjt40398/gearhawk:db-importer
+            - name: woocommerce-crawler
+              image: wjt40398/gearhawk:woocommerce-crawler
               imagePullPolicy: Always
               # resources:
               #   requests:
