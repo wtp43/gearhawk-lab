@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: typesense-importer-cron
+spec:
+  schedule: "*/10 * * * *"
+  timeZone: "America/Toronto"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: "Never"
+          containers:
+            - name: typesense-importer
+              image: wjt40398/gearhawk:typesense-importer
+              imagePullPolicy: Always
+              # resources:
+              #   requests:
+              #     cpu: "100m"
+              #     memory: "128Mi"
+              #   limits:
+              #     cpu: "4"
+              #     memory: "4Gi"
+          imagePullSecrets:
+            - name: docker-secret
