@@ -13,6 +13,16 @@ spec:
       template:
         spec:
           restartPolicy: "Never"
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: kubernetes.io/hostname
+                        operator: In
+                        values:
+                          - work-00
+                          # - work-02
           containers:
             - name: woocommerce-crawler
               image: wjt40398/gearhawk:woocommerce-crawler
