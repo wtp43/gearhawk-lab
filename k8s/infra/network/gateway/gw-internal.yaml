@@ -21,13 +21,9 @@ spec:
         namespaces:
           from: All
     - name: typesense
-      protocol: HTTPS
-      port: 443
+      protocol: HTTP
+      port: 80
       hostname: typesense.gearhawk.io
-      tls:
-        certificateRefs:
-          - name: cert-gearhawk
-            kind: Secret
       allowedRoutes:
         namespaces:
           from: All
