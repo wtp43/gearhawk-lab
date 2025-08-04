@@ -10,3 +10,6 @@ persistence:
 defaultNodeSelector:
   enable: false # disable by default
   selector: []
+
+defaultSettings:
+  createDefaultDiskLabeledNodes: true

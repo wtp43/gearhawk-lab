@@ -1,0 +1,11 @@
+---
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: ironwolf-12tb
+provisioning:
+  diskSelector:
+    match: disk.dev_path == "/dev/sdb"
+  minSize: 8Ti
+  maxSize: 10Ti
+filesystem:
+  type: ext4

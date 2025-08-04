@@ -39,6 +39,7 @@ variable "nodes" {
     host_node     = string
     machine_type  = string
     datastore_id  = optional(string, "local")
+    datastore_id2 = optional(string, "local")
     ip            = string
     dns           = optional(list(string))
     mac_address   = string

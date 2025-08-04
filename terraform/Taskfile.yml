@@ -13,6 +13,7 @@ tasks:
     cmds:
       - terraform apply -auto-approve
       - ./get_talos_kubernetes_config.sh
+      - ./post-bootstrap/patch-user-volume.sh
 
   destroy:
     desc: Destroy the cluster

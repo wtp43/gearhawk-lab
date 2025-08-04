@@ -57,15 +57,19 @@ data "talos_machine_configuration" "this" {
       vip          = each.value.machine_type == "controlplane" ? var.cluster.vip : null
       machine_type = each.value.machine_type
 
-    }), each.value.machine_type == "controlplane" ?
+    }),
+
+    each.value.machine_type == "controlplane" ?
     templatefile("${path.module}/machine-config/control-plane.yaml.tftpl", {
       extra_manifests  = jsonencode(var.cluster.extra_manifests)
       api_server       = var.cluster.api_server
       inline_manifests = jsonencode(terraform_data.cilium_bootstrap_inline_manifests.output)
-    }) : ""
+    }) : "",
+
   ]
 }
 
+// NOTE: multiple resources can be created if configurations highly vary 
 resource "talos_machine_configuration_apply" "this" {
   depends_on                  = [proxmox_virtual_environment_vm.this]
   for_each                    = var.nodes

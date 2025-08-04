@@ -2,6 +2,22 @@ machine:
   nodeLabels:
     topology.kubernetes.io/region: ${cluster_name}
     topology.kubernetes.io/zone: ${node_name}
+    node.longhorn.io/create-default-disk: "config"
+%{ if hostname == "work-00"}
+  nodeAnnotations:
+    node.longhorn.io/default-disks-config: >
+      [
+        { "path":"/var/lib/longhorn", "allowScheduling":true },
+        { "name":"ironwolf-12tb", "path":"/var/mnt/ironwolf-12tb", "allowScheduling":true, "storageReserved":0 }
+      ]
+%{ endif }
+%{ if hostname != "work-00"}
+  nodeAnnotations:
+    node.longhorn.io/default-disks-config: >
+      [
+        { "path":"/var/lib/longhorn", "allowScheduling":true },
+      ]
+%{ endif }
   network:
     hostname: ${hostname}
     interfaces:
@@ -26,3 +42,4 @@ machine:
           - bind
           - rshared
           - rw
+

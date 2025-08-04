@@ -44,6 +44,18 @@ resource "proxmox_virtual_environment_vm" "this" {
     file_id      = proxmox_virtual_environment_download_file.this["${each.value.host_node}_${each.value.update == true ? local.update_image_id : local.image_id}"].id
   }
 
+  dynamic "disk" {
+    for_each = each.key == "work-00" ? [1] : []
+    content {
+      datastore_id = each.value.datastore_id2
+      interface    = "scsi1"
+      size         = 11000
+      iothread     = true
+      cache        = "writethrough"
+      discard      = "on"
+    }
+  }
+
   boot_order = ["scsi0"]
 
   operating_system {
