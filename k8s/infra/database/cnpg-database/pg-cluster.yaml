@@ -78,7 +78,7 @@ spec:
         parameters:
           # Recovery Object Store (pull, read-only)
           barmanObjectName: s3-store
-          serverName: recovery-target # the target path where base + wal objects are stored, take second last base + all wal
+          serverName: recovery-target # the target path where base + wal objects are stored
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
