@@ -15,8 +15,9 @@ prometheus:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 100Gi
+              storage: 2000Gi
     enableAdminAPI: true
+    retention: 30d
 alertmanager:
   alertmanagerSpec:
     storage:
@@ -27,15 +28,18 @@ alertmanager:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 10Gi
+              storage: 50Gi
 grafana:
+  admin:
+    existingSecret: grafana-login
+    userKey: username
+    passwordKey: password
   persistence:
     enabled: true
     type: sts
     storageClassName: longhorn
     accessModes:
       - ReadWriteOnce
-    size: 20Gi
+    size: 1000Gi
     finalizers:
       - kubernetes.io/pvc-protection
-
