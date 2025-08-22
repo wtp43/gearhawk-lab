@@ -24,6 +24,6 @@ spec:
               memory: 2Gi
             limits:
               cpu: 4
-              memory: 4Gi
+              memory: 10Gi
       imagePullSecrets:
         - name: docker-secret
