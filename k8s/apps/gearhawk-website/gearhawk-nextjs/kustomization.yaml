@@ -6,3 +6,4 @@ resources:
   - deployment.yaml
   - nextjs-svc.yaml
   - external-route.yaml
+  - hpa.yaml

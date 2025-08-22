@@ -12,21 +12,18 @@ spec:
       labels:
         app: nextjs
     spec:
-      # affinity:
-      #   nodeAffinity:
-      #     requiredDuringSchedulingIgnoredDuringExecution:
-      #       nodeSelectorTerms:
-      #         - matchExpressions:
-      #             - key: kubernetes.io/hostname
-      #               operator: In
-      #               values:
-      #                 - work-01
-      #                 - work-02
       containers:
         - name: nextjs-container
           image: wjt40398/gearhawk:app
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
+          resources:
+            requests:
+              cpu: 2
+              memory: 2Gi
+            limits:
+              cpu: 4
+              memory: 4Gi
       imagePullSecrets:
         - name: docker-secret

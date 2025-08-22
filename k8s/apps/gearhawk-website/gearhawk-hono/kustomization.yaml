@@ -7,3 +7,4 @@ resources:
   - hono-svc.yaml
   - internal-route.yaml
   - external-route.yaml
+  - hpa.yaml
