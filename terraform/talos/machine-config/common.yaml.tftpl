@@ -34,6 +34,8 @@ machine:
           ip: ${vip}
 %{ endif }
   kubelet:
+    extraArgs:
+      rotate-server-certificates: true
     extraMounts:
       - destination: /var/lib/longhorn
         type: bind
