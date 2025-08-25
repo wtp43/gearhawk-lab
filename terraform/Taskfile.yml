@@ -34,3 +34,7 @@ tasks:
       - talosctl apply-config -n 192.168.50.111 -f ./output/talos-machine-config-work-01.yaml
       - talosctl apply-config -n 192.168.50.112 -f ./output/talos-machine-config-work-02.yaml
       - talosctl apply-config -n 192.168.50.114 -f ./output/talos-machine-config-work-04.yaml
+  patch-vol:
+    desc: Patch user volumes
+    cmds:
+      - ./post-bootstrap/patch-user-volume.sh
