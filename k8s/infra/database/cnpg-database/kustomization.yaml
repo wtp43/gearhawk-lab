@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ns.yaml
   - pg-cluster.yaml
+  - pg-dev-cluster.yaml
   - infra-cluster.yaml
   - aws-s3-creds.yaml
   - scheduled-backup.yaml

@@ -1,0 +1,86 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-dev-cluster
+  namespace: cnpg-database
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.5
+  imagePullPolicy: IfNotPresent
+  instances: 1
+  startDelay: 300
+  stopDelay: 300
+  primaryUpdateStrategy: unsupervised
+
+  postgresql:
+    # TODO: performance tuning https://www.enterprisedb.com/postgres-tutorials/introduction-postgresql-performance-tuning-and-optimization?lang=en
+    # using: https://pgtune.leopard.in.ua/
+    # WARNING: WAL tuning parameters should be the same as the backups
+    # parameters: max_connections = 40
+    #   shared_buffers = 512MB
+    #   effective_cache_size = 1536MB
+    #   maintenance_work_mem = 256MB
+    #   checkpoint_completion_target = 0.9
+    #   wal_buffers = 16MB
+    #   default_statistics_target = 500
+    #   random_page_cost = 1.1
+    #   effective_io_concurrency = 200
+    #   work_mem = 5461kB
+    #   huge_pages = off
+    #   min_wal_size = 4GB
+    #   max_wal_size = 16GB
+    pg_hba:
+      # - host all all 10.244.0.0/16 md5
+      - host all all all md5
+
+  bootstrap:
+    recovery:
+      source: s3
+      database: postgres
+      owner: app
+      secret:
+        name: gearhawk-postgres-app
+
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: gearhawk-postgres-superuser
+
+  storage:
+    storageClass: longhorn
+    size: 10Gi
+
+  managed:
+    roles:
+      - name: gearhawk-pipeline-worker
+        ensure: present
+        login: true
+        superuser: false
+        createdb: true
+        createrole: false
+        inherit: false
+        replication: false
+        bypassrls: false
+        passwordSecret:
+          name: gearhawk-pipeline-worker
+  externalClusters:
+    - name: s3
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          # Recovery Object Store (pull, read-only)
+          barmanObjectName: s3-store
+          serverName: recovery-target # the target path where base + wal objects are stored
+
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "2"
+    limits:
+      memory: "4Gi"
+      cpu: "4"
+  monitoring:
+    enablePodMonitor: true
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: false

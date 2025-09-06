@@ -21,3 +21,27 @@ spec:
     parameters:
       max_client_conn: "10000"
       default_pool_size: "100"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: pooler-dev-rw
+  namespace: cnpg-database
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  cluster:
+    name: postgres-dev-cluster
+  instances: 1
+  type: rw
+  serviceTemplate:
+    metadata:
+      labels:
+        app: pooler
+    spec:
+      type: LoadBalancer
+  pgbouncer:
+    poolMode: session
+    parameters:
+      max_client_conn: "40"
+      default_pool_size: "20"
