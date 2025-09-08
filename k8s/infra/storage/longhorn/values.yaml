@@ -6,7 +6,7 @@ persistence:
   defaultClass: true
   defaultFsType: ext4
   defaultMkfsParams: ""
-  defaultClassReplicaCount: 1
+  defaultClassReplicaCount: 2
 defaultNodeSelector:
   enable: false # disable by default
   selector: []
