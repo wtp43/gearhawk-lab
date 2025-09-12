@@ -7,3 +7,4 @@ resources:
   - nextjs-svc.yaml
   - external-route.yaml
   - hpa.yaml
+  - typesense-search-only-prices-key.yaml

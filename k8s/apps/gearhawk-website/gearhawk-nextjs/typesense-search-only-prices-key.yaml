@@ -1,0 +1,9 @@
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: typesense-search-only-prices-key
+  namespace: gearhawk-website
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  itemPath: "vaults/gearhawk-k8s/items/typesense-search-only-prices-key"

@@ -25,5 +25,12 @@ spec:
             limits:
               cpu: 4
               memory: 6Gi
+          env:
+            - name: NEXT_PUBLIC_TYPESENSE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: typesense-search-only-prices-key
+                  key: key
+
       imagePullSecrets:
         - name: docker-secret
