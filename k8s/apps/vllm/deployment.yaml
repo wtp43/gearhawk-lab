@@ -17,22 +17,23 @@ spec:
       runtimeClassName: nvidia
       nodeSelector:
         kubernetes.io/hostname: work-00
+      volumes:
+        - name: huggingface-cache
+          persistentVolumeClaim:
+            claimName: huggingface-cache-pvc
+        # vLLM needs to access the host's shared memory for tensor parallel inference.
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: "2Gi"
       containers:
-        - name: vllm
+        - name: vllm-server
           image: vllm/vllm-openai:latest
+          command: ["/bin/sh", "-c"]
           args:
-            - "--model"
-            - "$(MODEL_NAME)"
-            - "--port"
-            - "8000"
-          ports:
-            - containerPort: 8000
-          resources:
-            limits:
-              nvidia.com/gpu: 1
-          volumeMounts:
-            - name: huggingface-cache
-              mountPath: /root/.cache/huggingface
+            [
+              "vllm serve OpenGVLab/InternVL3-14B --trust-remote-code --enable-chunked-prefill --max_num_batched_tokens 2048",
+            ]
           env:
             - name: HUGGING_FACE_HUB_TOKEN
               valueFrom:
@@ -44,7 +45,31 @@ spec:
                 secretKeyRef:
                   name: vllm-model
                   key: MODEL_NAME
-      volumes:
-        - name: huggingface-cache
-          persistentVolumeClaim:
-            claimName: huggingface-cache-pvc
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              cpu: "10"
+              memory: 20G
+              nvidia.com/gpu: "1"
+            requests:
+              cpu: "2"
+              memory: 6G
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - mountPath: /root/.cache/huggingface
+              name: huggingface-cache
+            - name: shm
+              mountPath: /dev/shm
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 8000
+          #   initialDelaySeconds: 60
+          #   periodSeconds: 10
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 8000
+          #   initialDelaySeconds: 60
+          #   periodSeconds: 5
