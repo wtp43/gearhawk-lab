@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nvidia-device-plugin
+  namespace: argocd
+spec:
+  project: infrastructure
+  sources:
+    - repoURL: https://nvidia.github.io/k8s-device-plugin
+      chart: nvidia-device-plugin
+      targetRevision: 0.13.0
+      helm:
+        values: |
+          runtimeClassName: nvidia
+
+    - repoURL: https://github.com/wtp43/gearhawk-lab
+      targetRevision: HEAD
+      ref: values
+
+  destination:
+    name: in-cluster
+    namespace: kube-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
