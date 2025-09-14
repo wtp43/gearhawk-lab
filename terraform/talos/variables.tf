@@ -3,6 +3,7 @@ variable "image" {
   type = object({
     factory_url           = optional(string, "https://factory.talos.dev")
     schematic_path        = string
+    gpu_schematic_path    = string
     version               = string
     update_schematic_path = optional(string)
     update_version        = optional(string)
@@ -47,6 +48,7 @@ variable "nodes" {
     cpu           = number
     ram_dedicated = number
     update        = optional(bool, false)
-    igpu          = optional(bool, false)
+    gpu           = optional(bool, false)
+    gpu_device_id = optional(string)
   }))
 }

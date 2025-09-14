@@ -24,6 +24,7 @@ variable "talos_image" {
     factory_url           = optional(string, "https://factory.talos.dev")
     version               = string
     schematic_path        = string
+    gpu_schematic_path    = string
     update_version        = optional(string)
     update_schematic_path = optional(string)
     arch                  = optional(string, "amd64")
@@ -64,7 +65,8 @@ variable "talos_nodes" {
       cpu           = number
       ram_dedicated = number
       update        = optional(bool, false)
-      igpu          = optional(bool, false)
+      gpu           = optional(bool, false)
+      gpu_device_id = optional(string)
     })
   )
   validation {

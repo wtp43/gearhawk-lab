@@ -38,3 +38,8 @@ tasks:
     desc: Patch user volumes
     cmds:
       - ./post-bootstrap/patch-user-volume.sh
+
+  patch-gpu-worker:
+    desc: Patch talos with nvidia drivers
+    cmds:
+      - talosctl patch mc --patch @talos/patches/gpu-worker-patch.yaml -n 192.168.50.110

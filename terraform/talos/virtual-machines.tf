@@ -32,6 +32,7 @@ resource "proxmox_virtual_environment_vm" "this" {
     mac_address = each.value.mac_address
   }
 
+  #TODO: define custom size for each datastore
   disk {
     datastore_id = each.value.datastore_id
     interface    = "scsi0"
@@ -41,7 +42,15 @@ resource "proxmox_virtual_environment_vm" "this" {
     ssd          = true
     file_format  = "raw"
     size         = each.value.machine_type == "controlplane" ? 32 : 200
-    file_id      = proxmox_virtual_environment_download_file.this["${each.value.host_node}_${each.value.update == true ? local.update_image_id : local.image_id}"].id
+
+    # file_id      = proxmox_virtual_environment_download_file.this["${each.value.host_node}_${each.value.update == true ? local.update_image_id : local.image_id}"].id
+    file_id = proxmox_virtual_environment_download_file.this[
+      "${each.value.host_node}_${
+        each.value.update == true
+        ? (each.value.gpu ? local.update_gpu_image_id : local.update_image_id)
+        : (each.value.gpu ? local.gpu_image_id : local.image_id)
+      }"
+    ].id
   }
 
   dynamic "disk" {
@@ -81,15 +90,15 @@ resource "proxmox_virtual_environment_vm" "this" {
     }
   }
 
-  # dynamic "hostpci" {
-  #   for_each = each.value.igpu ? [1] : []
-  #   content {
-  #     # Passthrough iGPU
-  #     device  = "hostpci0"
-  #     mapping = "iGPU"
-  #     pcie    = true
-  #     rombar  = true
-  #     xvga    = false
-  #   }
-  # }
+  dynamic "hostpci" {
+    for_each = each.value.gpu ? [1] : []
+    content {
+      # Passthrough iGPU
+      device = "hostpci0"
+      id     = each.value.gpu_device_id
+      pcie   = true
+      rombar = true
+      xvga   = false
+    }
+  }
 }

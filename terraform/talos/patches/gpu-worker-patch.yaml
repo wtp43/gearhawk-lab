@@ -1,0 +1,11 @@
+# Strategic Merge patches: https://www.talos.dev/v1.11/talos-guides/configuration/patching/#strategic-merge-patches
+# IMPORTANT: If you have no GPU installed, ext-nvidia-persistenced will fail to start and the node will fail at booting
+machine:
+  kernel:
+    modules:
+      - name: nvidia
+      - name: nvidia_uvm
+      - name: nvidia_drm
+      - name: nvidia_modeset
+  sysctls:
+    net.core.bpf_jit_harden: 1

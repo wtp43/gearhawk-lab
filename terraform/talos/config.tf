@@ -41,7 +41,9 @@ data "talos_machine_configuration" "this" {
   # ref - https://www.talos.dev/v1.9/introduction/prodnotes/#decide-the-kubernetes-endpoint
   cluster_endpoint = "https://${var.cluster.endpoint}:6443"
   # @formatter:off
+  #
   talos_version = var.cluster.talos_machine_config_version != null ? var.cluster.talos_machine_config_version : (each.value.update == true ? var.image.update_version : var.image.version)
+
   # @formatter:on
   machine_type    = each.value.machine_type
   machine_secrets = talos_machine_secrets.this.machine_secrets
