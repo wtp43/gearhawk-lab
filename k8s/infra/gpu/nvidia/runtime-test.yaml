@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nvidia-runtime-test
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  runtimeClassName: nvidia
+  nodeSelector:
+    kubernetes.io/hostname: work-00
+  containers:
+    - name: test
+      image: nvcr.io/nvidia/cuda:12.5.0-base-ubuntu22.04
+      command: ["nvidia-smi"]
+  restartPolicy: Never
