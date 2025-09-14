@@ -4,6 +4,7 @@ metadata:
   name: vllm-server
   annotations:
     argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: Force=true,Replace=true
 spec:
   replicas: 1
   selector:
@@ -32,7 +33,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             [
-              "vllm serve OpenGVLab/InternVL3-14B --trust-remote-code --enable-chunked-prefill --max_num_batched_tokens 2048",
+              "vllm serve OpenGVLab/InternVL3_5-4B --trust-remote-code --enable-chunked-prefill --max-model-len 26000 --max-num-batched-tokens 26000 --gpu-memory-utilization 0.95",
             ]
           env:
             - name: HUGGING_FACE_HUB_TOKEN

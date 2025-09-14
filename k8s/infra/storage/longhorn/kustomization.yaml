@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - ns.yaml
+  - no-replicas.yaml
 
 helmCharts:
   - name: longhorn
