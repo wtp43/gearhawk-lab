@@ -12,6 +12,14 @@ machine:
       ]
 %{ endif }
 %{ if hostname != "work-00"}
+  kernel:
+    modules:
+      - name: nvidia
+      - name: nvidia_uvm
+      - name: nvidia_drm
+      - name: nvidia_modeset
+  sysctls:
+    net.core.bpf_jit_harden: 1
   nodeAnnotations:
     node.longhorn.io/default-disks-config: >
       [
