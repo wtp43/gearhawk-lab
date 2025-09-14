@@ -16,7 +16,7 @@ spec:
     metadata:
       name: "{{ path.basename }}"
       labels:
-        gearhawk.lab: controllers
+        gearhawk.lab: monitoring
     spec:
       project: monitoring
       source:
