@@ -1,27 +1,28 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nvidia-device-plugin
+  name: dcgm-exporter
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: gpu
   sources:
-    - repoURL: https://nvidia.github.io/k8s-device-plugin
-      chart: nvidia-device-plugin
-      targetRevision: 0.13.0
+    - repoURL: https://nvidia.github.io/dcgm-exporter/helm-charts
+      chart: dcgm-exporter
+      targetRevision: 4.5.0
       helm:
         values: |
           runtimeClassName: nvidia
           nodeSelector:
             kubernetes.io/hostname: work-00
-
     - repoURL: https://github.com/wtp43/gearhawk-lab
       targetRevision: HEAD
       ref: values
 
   destination:
     name: in-cluster
-    namespace: kube-system
+    namespace: monitoring
 
   syncPolicy:
     automated:

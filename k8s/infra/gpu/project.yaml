@@ -6,10 +6,14 @@ metadata:
 spec:
   sourceRepos:
     - "https://github.com/wtp43/gearhawk-lab"
+    - https://nvidia.github.io/k8s-device-plugin
+    - https://nvidia.github.io/dcgm-exporter/helm-charts
   destinations:
     - namespace: "argocd"
       server: "*"
     - namespace: "kube-system"
+      server: "*"
+    - namespace: "monitoring"
       server: "*"
   clusterResourceWhitelist:
     - group: "*"
