@@ -12,6 +12,8 @@ spec:
       helm:
         values: |
           runtimeClassName: nvidia
+          nodeSelector:
+            kubernetes.io/hostname: work-00
 
     - repoURL: https://github.com/wtp43/gearhawk-lab
       targetRevision: HEAD
