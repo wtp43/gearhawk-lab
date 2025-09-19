@@ -17,7 +17,7 @@ prometheus:
             requests:
               storage: 2000Gi
     enableAdminAPI: true
-    retention: 30d
+    retention: 7d
 alertmanager:
   alertmanagerSpec:
     storage:
