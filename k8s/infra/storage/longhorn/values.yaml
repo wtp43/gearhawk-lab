@@ -13,3 +13,9 @@ defaultNodeSelector:
 
 defaultSettings:
   createDefaultDiskLabeledNodes: true
+
+defaultBackupStore:
+  # -- Endpoint used to access the default backupstore.
+  backupTarget: s3://gearhawk-longhorn@us-east-2/
+  # -- Name of the Kubernetes secret associated with the default backup target.
+  backupTargetCredentialSecret: s3-aws-secret
