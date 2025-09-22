@@ -21,9 +21,9 @@ spec:
     name: in-cluster
     namespace: monitoring
   syncPolicy:
-    automated:
-      selfHeal: true
-      prune: true
+    # automated:
+    #   selfHeal: true
+    #   prune: true
     syncOptions:
       - ApplyOutOfSyncOnly=true
       - ServerSideApply=true
