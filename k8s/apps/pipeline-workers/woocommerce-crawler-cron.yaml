@@ -13,26 +13,28 @@ spec:
       template:
         spec:
           restartPolicy: "Never"
-          affinity:
-            nodeAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                nodeSelectorTerms:
-                  - matchExpressions:
-                      - key: kubernetes.io/hostname
-                        operator: In
-                        values:
-                          - work-00
-                          # - work-02
+          # affinity:
+          #   nodeAffinity:
+          #     requiredDuringSchedulingIgnoredDuringExecution:
+          #       nodeSelectorTerms:
+          #         - matchExpressions:
+          #             - key: kubernetes.io/hostname
+          #               operator: In
+          #               values:
+          #                 - work-00
+          #                 # - work-02
           containers:
             - name: woocommerce-crawler
               image: wjt40398/gearhawk:woocommerce-crawler
               imagePullPolicy: Always
-              # resources:
-              #   requests:
-              #     cpu: "100m"
-              #     memory: "128Mi"
-              #   limits:
-              #     cpu: "4"
-              #     memory: "4Gi"
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "128Mi"
+                  ephemeral-storage: "1Gi"
+                limits:
+                  cpu: "4"
+                  memory: "4Gi"
+                  ephemeral-storage: "5Gi"
           imagePullSecrets:
             - name: docker-secret
