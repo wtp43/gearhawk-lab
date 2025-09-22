@@ -4,14 +4,6 @@ machine:
     topology.kubernetes.io/zone: ${node_name}
     node.longhorn.io/create-default-disk: "config"
 %{ if hostname == "work-00"}
-  nodeAnnotations:
-    node.longhorn.io/default-disks-config: >
-      [
-        { "path":"/var/lib/longhorn", "allowScheduling":true },
-        { "name":"ironwolf-12tb", "path":"/var/mnt/ironwolf-12tb", "allowScheduling":true, "storageReserved":0 }
-      ]
-%{ endif }
-%{ if hostname != "work-00"}
   kernel:
     modules:
       - name: nvidia
@@ -20,6 +12,14 @@ machine:
       - name: nvidia_modeset
   sysctls:
     net.core.bpf_jit_harden: 1
+  nodeAnnotations:
+    node.longhorn.io/default-disks-config: >
+      [
+        { "path":"/var/lib/longhorn", "allowScheduling":true },
+        { "name":"ironwolf-12tb", "path":"/var/mnt/ironwolf-12tb", "allowScheduling":true, "storageReserved":0 }
+      ]
+%{ endif }
+%{ if hostname != "work-00"}
   nodeAnnotations:
     node.longhorn.io/default-disks-config: >
       [
@@ -42,6 +42,9 @@ machine:
           ip: ${vip}
 %{ endif }
   kubelet:
+    extraConfig:
+      imageGCHighThresholdPercent: 60
+      imageGCLowThresholdPercent: 50
     extraArgs:
       rotate-server-certificates: true
     extraMounts:
