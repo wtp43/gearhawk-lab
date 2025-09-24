@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
-  replicas: 2
+  replicas: 3
   namespace: typesense
   image: typesense/typesense:28.0
   env:
