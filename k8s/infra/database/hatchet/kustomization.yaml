@@ -6,6 +6,7 @@ resources:
   - ns.yaml
   - hatchet-config.yaml
   - external-route.yaml
+  - caddy-svc.yaml
 
 helmCharts:
   - name: hatchet-stack
