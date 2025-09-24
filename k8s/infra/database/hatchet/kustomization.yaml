@@ -5,7 +5,6 @@ namespace: hatchet
 resources:
   - ns.yaml
   - hatchet-config.yaml
-  - external-route.yaml
 
 helmCharts:
   - name: hatchet-stack

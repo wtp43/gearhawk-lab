@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
-  replicas: 2
+  replicas: 3
   namespace: typesense
   image: typesense/typesense:28.0
   env:
@@ -27,15 +27,15 @@ spec:
       ephemeral-storage: "4Gi"
 
   affinity:
-    nodeAffinity:
+    podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: kubernetes.io/hostname
+        - labelSelector:
+            matchExpressions:
+              - key: app
                 operator: In
                 values:
-                  - work-00
-                  - work-01
+                  - typesense
+          topologyKey: topology.kubernetes.io/zone
   # topologySpreadConstraints:
   #   - labelSelector:
   #       matchLabels:
