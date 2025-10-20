@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: proxmox-health-pinger
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: proxmox-health-pinger
+  template:
+    metadata:
+      labels:
+        app: proxmox-health-pinger
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: pinger
+          image: curlimages/curl:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              while true; do
+                for i in 1 2 3; do
+                  if curl -fsS -m 10 "$HEALTHCHECK_URL"; then
+                    echo "Ping succeeded";
+                    break;
+                  else
+                    echo "Ping failed, retry $i...";
+                    sleep 5;
+                  fi;
+                done;
+                sleep 300;
+              done
+          env:
+            - name: HEALTHCHECK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: proxmox-health-secret
+                  key: health_url
+      tolerations:
+        - operator: Exists
+      terminationGracePeriodSeconds: 5
