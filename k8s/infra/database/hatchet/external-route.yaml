@@ -68,7 +68,7 @@ spec:
       namespace: gateway
 
   hostnames:
-    - engine.hatchet.gearhawk.io
+    - engine.gearhawk.io
 
   rules:
     - matches:

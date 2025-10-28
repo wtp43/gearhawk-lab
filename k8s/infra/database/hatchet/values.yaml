@@ -1,5 +1,3 @@
-caddy:
-  enabled: true
 sharedConfig:
   # you can disable shared config by setting this to false
   enabled: true
@@ -10,14 +8,16 @@ sharedConfig:
   serverAuthCookieInsecure: "t" # allows cookies to be set over http
   serverAuthSetEmailVerified: "t" # automatically sets email_verified to true for all users
   serverAuthBasicAuthEnabled: "t" # allows login via basic auth (email/password)
-  grpcBroadcastAddress: "engine.hatchet.gearhawk.io:443" # the endpoint for the gRPC server, exposed via the `grpc` service
-  grpcInsecure: "true" # allows gRPC to be served over http
+  grpcBroadcastAddress: "engine.gearhawk.io:443" # the endpoint for the gRPC server, exposed via the `grpc` service
+  grpcInsecure: "t" # allows gRPC to be served over http
   grpcBindAddress: "0.0.0.0"
   defaultAdminEmail: "admin@example.com" # in exposed/production environments, change this to a valid email
   defaultAdminPassword: "Admin123!!" # in exposed/production environments, change this to a secure password
 
   # you can set additional environment variables here, which will override any defaults
-  # env: {}
+  envFrom:
+    - secretRef:
+        name: hatchet-shared-config
   seed:
     defaultAdminEmail: "admin@example.com" # in exposed/production environments, change this to a valid email
     defaultAdminPassword: "Admin123!!" # in exposed/production environments, change this to a secure password
@@ -26,6 +26,10 @@ sharedConfig:
       DEFAULT_TENANT_NAME: "Default"
       DEFAULT_TENANT_SLUG: "default"
       DEFAULT_TENANT_ID: "707d0855-80ab-4e1f-a156-f1c4546cbf52"
+rabbitmq:
+  enabled: false
+postgres:
+  enabled: false
 api:
   envFrom:
     - secretRef:
