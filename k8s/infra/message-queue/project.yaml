@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: message-queue
+  namespace: argocd
+spec:
+  sourceRepos:
+    - "https://github.com/wtp43/gearhawk-lab"
+  destinations:
+    - namespace: "argocd"
+      server: "*"
+    - namespace: "rabbitmq"
+      server: "*"
+    - namespace: "monitoring"
+      server: "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"

@@ -18,6 +18,7 @@ spec:
     # using: https://pgtune.leopard.in.ua/
     # WARNING: WAL tuning parameters should be the same as the backups
     parameters:
+      timezone: "Etc/UTC"
       max_connections: "1000"
       shared_buffers: "1GB"
       effective_cache_size: "3GB"
