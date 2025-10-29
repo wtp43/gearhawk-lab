@@ -25,6 +25,8 @@ spec:
         repoURL: https://github.com/wtp43/gearhawk-lab
         targetRevision: HEAD
         path: "{{ path }}"
+        plugin:
+          name: kustomize-build-with-helm
       destination:
         name: in-cluster
         namespace: argocd

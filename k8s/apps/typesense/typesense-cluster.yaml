@@ -1,0 +1,26 @@
+apiVersion: ts.opentelekomcloud.com/v1alpha1
+kind: TypesenseCluster
+metadata:
+  labels:
+    app.kubernetes.io/name: typesense-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: typesense-cluster
+spec:
+  image: typesense/typesense:29.0
+  replicas: 3
+  storage:
+    size: 100Mi
+    storageClassName: no-replicas
+
+  adminApiKey:
+    name: typesense-api-key
+  # resources:
+  #   requests:
+  #     memory: 1Gi
+  #     cpu: 2
+  #     ephemeral-storage: "1Gi"
+  #
+  #   limits:
+  #     memory: 8Gi
+  #     cpu: 6
+  #     ephemeral-storage: "4Gi"
