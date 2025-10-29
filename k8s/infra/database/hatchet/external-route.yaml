@@ -54,7 +54,7 @@ spec:
 
 ---
 apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
+kind: GRPCRoute
 
 metadata:
   name: hatchet-engine-external
@@ -66,16 +66,9 @@ spec:
   parentRefs:
     - name: external
       namespace: gateway
-
   hostnames:
     - engine.gearhawk.io
-
   rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-
-      backendRefs:
-        - name: hatchet-engine
+    - backendRefs:
+        - name: hatchet-grpc
           port: 7070
