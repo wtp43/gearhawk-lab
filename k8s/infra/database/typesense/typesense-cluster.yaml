@@ -13,7 +13,8 @@ spec:
   storage:
     size: 100Mi
     storageClassName: no-replicas
-
+  enableCors: true
+  corsDomains: "https://gearhawk.io"
   adminApiKey:
     name: typesense-api-key
   # resources:
