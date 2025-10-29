@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: applications
+  name: task-orchestration
   namespace: argocd
 spec:
   sourceRepos:
@@ -9,11 +9,7 @@ spec:
   destinations:
     - namespace: "argocd"
       server: "*"
-    - namespace: "pipeline-workers"
-      server: "*"
-    - namespace: "gearhawk-website"
-      server: "*"
-    - namespace: "vllm"
+    - namespace: "hatchet"
       server: "*"
   clusterResourceWhitelist:
     - group: "*"

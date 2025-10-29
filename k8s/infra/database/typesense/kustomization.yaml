@@ -8,6 +8,7 @@ helmCharts:
     version: 0.3.4
     releaseName: typesense-operator
     namespace: typesense
+    includeCRDs: true
 
 resources:
   - typesense-api-key.yaml

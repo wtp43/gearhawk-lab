@@ -1,31 +1,36 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: applications
+  name: task-orchestration
   namespace: argocd
   labels:
-    gearhawk.lab: application
+    gearhawk.lab: task-orchestration
 spec:
   generators:
     - git:
         repoURL: https://github.com/wtp43/gearhawk-lab
         revision: HEAD
         directories:
-          - path: k8s/apps/*
+          - path: k8s/infra/task-orchestration/*
   template:
     metadata:
       name: "{{ path.basename }}"
       labels:
-        gearhawk.lab: application
+        gearhawk.lab: task-orchestration
       finalizers:
         - resources-finalizer.argocd.argoproj.io
     spec:
-      project: applications
+      project: task-orchestration
       source:
+        plugin:
+          name: kustomize-build-with-helm
         repoURL: https://github.com/wtp43/gearhawk-lab
         targetRevision: HEAD
         path: "{{ path }}"
       destination:
         name: in-cluster
         namespace: argocd
-      # syncPolicy:
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true

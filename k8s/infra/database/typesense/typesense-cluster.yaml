@@ -5,6 +5,8 @@ metadata:
     app.kubernetes.io/name: typesense-operator
     app.kubernetes.io/managed-by: kustomize
   name: typesense-cluster
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   image: typesense/typesense:29.0
   replicas: 3
