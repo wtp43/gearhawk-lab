@@ -19,16 +19,16 @@ spec:
     # WARNING: WAL tuning parameters should be the same as the backups
     parameters:
       timezone: "Etc/UTC"
-      max_connections: "1000"
-      shared_buffers: "1GB"
-      effective_cache_size: "3GB"
-      maintenance_work_mem: "256MB"
+      max_connections: "100"
+      shared_buffers: "1536MB"
+      effective_cache_size: "4608MB"
+      maintenance_work_mem: "384MB"
       checkpoint_completion_target: "0.9"
       wal_buffers: "16MB"
       default_statistics_target: "100"
       random_page_cost: "1.1"
       effective_io_concurrency: "200"
-      work_mem: "1040kB"
+      work_mem: "14563kB"
       huge_pages: "off"
       min_wal_size: "1GB"
       max_wal_size: "4GB"
@@ -38,10 +38,10 @@ spec:
 
   bootstrap:
     initdb:
-      database: app
-      owner: app
+      database: hatchet
+      owner: hatchet
       secret:
-        name: app-secret
+        name: hatchet-user
     # recovery:
     #   source: s3
     #   database: postgres
@@ -56,7 +56,7 @@ spec:
   storage:
     # TODO: benchmark and use local storage
     storageClass: no-replicas
-    size: 20Gi
+    size: 15Gi
 
   # externalClusters:
   #   - name: s3
