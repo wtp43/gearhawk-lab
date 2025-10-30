@@ -2,23 +2,19 @@ apiVersion: rabbitmq.com/v1beta1
 kind: RabbitmqCluster
 metadata:
   name: rabbitmq
+  namespace: rabbitmq-system
 spec:
-  replicas: 1
-  override:
-    service:
-      spec:
-        ports:
-          - name: additional-port # adds an additional port on the service
-            protocol: TCP
-            port: 15629
-            targetPort: 15629
-    statefulSet:
-      spec:
-        template:
-          spec:
-            containers:
-              - name: rabbitmq
-                ports:
-                  - containerPort: 15629
-                    name: additional-port
-                    protocol: TCP
+  secretBackend:
+    externalSecret:
+      name: "rabbitmq-secret"
+  replicas: 3
+  resources:
+    requests:
+      cpu: 2000m
+      memory: 2Gi
+    limits:
+      cpu: 4000m
+      memory: 4Gi
+  persistence:
+    storageClassName: no-replicas
+    storage: "50Gi"

@@ -9,7 +9,7 @@ spec:
   destinations:
     - namespace: "argocd"
       server: "*"
-    - namespace: "rabbitmq"
+    - namespace: "rabbitmq-system"
       server: "*"
     - namespace: "monitoring"
       server: "*"

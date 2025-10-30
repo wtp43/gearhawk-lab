@@ -4,7 +4,7 @@ metadata:
   name: message-queue
   namespace: argocd
   labels:
-    intrend.lab: message-queue
+    gearhawk.lab: message-queue
 spec:
   generators:
     - git:
@@ -16,7 +16,7 @@ spec:
     metadata:
       name: "{{ path.basename }}"
       labels:
-        intrend.lab: message-queue
+        gearhawk.lab: message-queue
     spec:
       project: message-queue
       source:
