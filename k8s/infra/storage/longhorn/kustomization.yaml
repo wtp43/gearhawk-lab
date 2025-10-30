@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - ns.yaml
   - s3-aws-secret.yaml
-  - no-replicas.yaml
+  # - no-replicas.yaml
 
 helmCharts:
   - name: longhorn
