@@ -1,0 +1,23 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: hatchet-pooler-rw
+  namespace: cnpg-hatchet
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  cluster:
+    name: hatchet-pg-cluster
+  instances: 1
+  type: rw
+  serviceTemplate:
+    metadata:
+      labels:
+        app: pooler
+    spec:
+      type: LoadBalancer
+  pgbouncer:
+    poolMode: session
+    parameters:
+      max_client_conn: "500"
+      default_pool_size: "50"

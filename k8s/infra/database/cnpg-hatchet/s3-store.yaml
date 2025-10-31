@@ -1,0 +1,26 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: s3-store
+  namespace: cnpg-database
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  configuration:
+    destinationPath: s3://gearhawk-postgres-backup/
+    endpointURL: https://s3.us-east-2.amazonaws.com
+    s3Credentials:
+      accessKeyId:
+        name: aws-s3-creds
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: aws-s3-creds
+        key: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip
+      maxParallel: 8
+    data:
+      compression: gzip
+      immediateCheckpoint: true
+      jobs: 2
+  retentionPolicy: "7d"
