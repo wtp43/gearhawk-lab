@@ -13,7 +13,7 @@ spec:
       targetRevision: 0.101.0
       helm:
         valueFiles:
-          - signoz-values.yaml
+          - $values/k8s/infra/monitoring/signoz/signoz-values.yaml
     - repoURL: https://github.com/wtp43/gearhawk-lab
       targetRevision: HEAD
       ref: values
