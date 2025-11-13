@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   project: monitoring
-  sources:
+  source:
     - repoURL: https://charts.signoz.io
       chart: signoz
       targetRevision: 0.101.0
