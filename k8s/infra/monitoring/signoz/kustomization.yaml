@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - ns.yaml
   - signoz.yaml
-  - external-route.yaml
+  # - external-route.yaml
