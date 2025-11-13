@@ -19,12 +19,12 @@ spec:
         gearhawk.lab: monitoring
     spec:
       project: monitoring
-      source:
-        plugin:
-          name: kustomize-build-with-helm
-        repoURL: https://github.com/wtp43/gearhawk-lab
-        targetRevision: HEAD
-        path: "{{ path }}"
+      # source:
+      #   plugin:
+      #     name: kustomize-build-with-helm
+      #   repoURL: https://github.com/wtp43/gearhawk-lab
+      #   targetRevision: HEAD
+      #   path: "{{ path }}"
       destination:
         name: in-cluster
         namespace: "{{ path.basename }}"

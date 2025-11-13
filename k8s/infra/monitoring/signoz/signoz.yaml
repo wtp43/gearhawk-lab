@@ -5,7 +5,13 @@ metadata:
   namespace: argocd
 spec:
   project: monitoring
-  source:
+  sources:
+    - plugin:
+        name: kustomize-build-with-helm
+      repoURL: https://github.com/wtp43/gearhawk-lab
+      targetRevision: HEAD
+      path: "{{ path }}"
+
     - repoURL: https://charts.signoz.io
       chart: signoz
       targetRevision: 0.101.0
