@@ -1,0 +1,24 @@
+presets:
+  hostMetrics:
+    enabled: true
+    collectionInterval: 30s
+  clusterMetrics:
+    enabled: true
+    collectionInterval: 30s
+  k8sEvents:
+    enabled: true
+    namespaces: [] #
+  otlpExporter:
+    enabled: true
+  logsCollection:
+    enabled: true
+    blacklist:
+      enabled: true
+      namespaces:
+        - kube-system
+  kubernetesAttributes:
+    enabled: true
+  kubeletMetrics:
+    enabled: true
+    insecureSkipVerify: false
+    collectionInterval: 30s

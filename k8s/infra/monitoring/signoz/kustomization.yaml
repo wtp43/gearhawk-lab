@@ -3,8 +3,7 @@ kind: Kustomization
 
 resources:
   - ns.yaml
-  # - signoz.yaml
-  # - external-route.yaml
+  - external-route.yaml
 
 helmCharts:
   - name: signoz
@@ -13,4 +12,12 @@ helmCharts:
     namespace: signoz
     version: 0.101.0
     releaseName: signoz
-    valuesFile: ./values.yaml
+    valuesFile: ./signoz-values.yaml
+
+  - name: k8s-infra
+    repo: https://charts.signoz.io
+    includeCRDs: true
+    namespace: signoz
+    version: 0.15.0
+    releaseName: k8s-infra
+    valuesFile: ./k8s-infra-values.yaml
