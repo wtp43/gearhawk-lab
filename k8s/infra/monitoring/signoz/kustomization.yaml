@@ -3,5 +3,14 @@ kind: Kustomization
 
 resources:
   - ns.yaml
-  - signoz.yaml
+  # - signoz.yaml
   # - external-route.yaml
+
+helmCharts:
+  - name: signoz
+    repo: https://charts.signoz.io
+    includeCRDs: true
+    namespace: signoz
+    version: 0.101.0
+    releaseName: signoz
+    valuesFile: ./values.yaml
