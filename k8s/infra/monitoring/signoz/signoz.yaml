@@ -15,7 +15,3 @@ spec:
     - repoURL: https://github.com/wtp43/gearhawk-lab
       targetRevision: HEAD
       ref: values
-  syncPolicy:
-    automated:
-      selfHeal: false
-      prune: true
