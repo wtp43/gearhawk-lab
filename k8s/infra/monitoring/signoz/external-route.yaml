@@ -2,7 +2,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: signoz-external
-  namespace: monitoring
+  namespace: signoz
   annotations:
     argocd.argoproj.io/sync-wave: "4"
 spec:
