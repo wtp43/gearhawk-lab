@@ -12,6 +12,13 @@ presets:
   hostMetrics:
     enabled: true
     collectionInterval: 30s
+  scrapers:
+    cpu:
+      metrics:
+        system.cpu.logical.count:
+          enabled: true # Collect logical CPU count.
+        system.cpu.physical.count:
+          enabled: true # Collect physical CPU count.
   clusterMetrics:
     enabled: true
     collectionInterval: 30s
