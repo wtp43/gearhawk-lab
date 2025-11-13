@@ -15,14 +15,7 @@ spec:
     - repoURL: https://github.com/wtp43/gearhawk-lab
       targetRevision: HEAD
       ref: values
-  destination:
-    name: in-cluster
-    namespace: signoz
   syncPolicy:
     automated:
       selfHeal: false
       prune: true
-    syncOptions:
-      - CreateNamespace=true
-    #   - ApplyOutOfSyncOnly=true
-    # - ServerSideApply=true
