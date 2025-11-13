@@ -5,6 +5,10 @@ global:
 otelCollectorEndpoint: "signoz-otel-collector.signoz.svc.cluster.local:4317"
 otelInsecure: true
 presets:
+  kubernetesAttributes:
+    enabled: true
+    # presets.kubernetesAttributes.passthrough -- If true, agents will not make k8s API calls, do discovery, or extract metadata.
+    passthrough: false
   hostMetrics:
     enabled: true
     collectionInterval: 30s
@@ -22,8 +26,6 @@ presets:
       enabled: true
       namespaces:
         - kube-system
-  kubernetesAttributes:
-    enabled: true
   kubeletMetrics:
     enabled: true
     insecureSkipVerify: false
