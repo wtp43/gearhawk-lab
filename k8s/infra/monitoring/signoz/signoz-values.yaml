@@ -17,3 +17,17 @@ signoz:
   additionalArgs:
     - --use-logs-new-schema=true
     - --use-trace-new-schema=true
+clickhouse:
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 4Gi # ⬆️ Increased from default 2Gi
+    requests:
+      cpu: 1000m
+      memory: 2Gi # ⬆️ Increased from default 1Gi
+
+  # Also increase ClickHouse internal memory limits
+  clickhouseConfig:
+    user_config:
+      max_memory_usage: 3221225472 # 3GB in bytes (75% of 4GB limit)
+      max_memory_usage_for_user: 0
