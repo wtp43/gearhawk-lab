@@ -1,3 +1,6 @@
+global:
+  cloud: other
+  clusterName: talos
 signoz:
   name: "signoz"
   replicaCount: 1

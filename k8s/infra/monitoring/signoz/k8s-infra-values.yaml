@@ -1,5 +1,5 @@
 global:
-  cloud: others
+  cloud: other
   clusterName: talos
   deploymentEnvironment: production
 otelCollectorEndpoint: "signoz-otel-collector.signoz.svc.cluster.local:4317"
