@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ns.yaml
+  - external-route.yaml
+
+helmCharts:
+  - name: signoz
+    repo: https://charts.signoz.io
+    includeCRDs: true
+    namespace: signoz
+    version: 0.101.0
+    releaseName: signoz
+    valuesFile: ./signoz-values.yaml
+
+  - name: k8s-infra
+    repo: https://charts.signoz.io
+    includeCRDs: true
+    namespace: signoz
+    version: 0.15.0
+    releaseName: k8s-infra
+    valuesFile: ./k8s-infra-values.yaml

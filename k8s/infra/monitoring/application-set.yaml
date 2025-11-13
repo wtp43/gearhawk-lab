@@ -27,11 +27,11 @@ spec:
         path: "{{ path }}"
       destination:
         name: in-cluster
-        namespace: argocd
+        namespace: "{{ path.basename }}"
       syncPolicy:
         automated:
           selfHeal: true
           prune: true
-        syncOptions:
-          - ApplyOutOfSyncOnly=true
-          - ServerSideApply=true
+        # syncOptions:
+        #   - ApplyOutOfSyncOnly=true
+        #   - ServerSideApply=true

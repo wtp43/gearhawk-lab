@@ -1,0 +1,51 @@
+global:
+  cloud: other
+  clusterName: talos
+  deploymentEnvironment: production
+otelCollectorEndpoint: "signoz-otel-collector.signoz.svc.cluster.local:4317"
+otelInsecure: true
+presets:
+  kubernetesAttributes:
+    enabled: true
+    # presets.kubernetesAttributes.passthrough -- If true, agents will not make k8s API calls, do discovery, or extract metadata.
+    passthrough: false
+    extractMetadatas:
+      - k8s.namespace.name
+      - k8s.deployment.name
+      - k8s.statefulset.name
+      - k8s.daemonset.name
+      - k8s.cronjob.name
+      - k8s.job.name
+      - k8s.node.name
+      - k8s.node.uid
+      - k8s.pod.name
+      - k8s.pod.uid
+      - k8s.pod.start_time
+  hostMetrics:
+    enabled: true
+    collectionInterval: 30s
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.logical.count:
+            enabled: true # Collect logical CPU count.
+          system.cpu.physical.count:
+            enabled: true # Collect physical CPU count.
+  clusterMetrics:
+    enabled: true
+    collectionInterval: 30s
+  k8sEvents:
+    enabled: true
+    namespaces: [] #
+  otlpExporter:
+    enabled: true
+  logsCollection:
+    enabled: true
+    blacklist:
+      enabled: true
+      namespaces:
+        - kube-system
+  kubeletMetrics:
+    enabled: true
+    insecureSkipVerify: false
+    collectionInterval: 30s

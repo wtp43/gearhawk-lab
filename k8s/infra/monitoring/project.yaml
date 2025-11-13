@@ -7,6 +7,7 @@ spec:
   sourceRepos:
     - "https://github.com/wtp43/gearhawk-lab"
     - "https://prometheus-community.github.io/helm-charts"
+    - "https://charts.signoz.io"
   destinations:
     - namespace: "argocd"
       server: "*"
@@ -17,6 +18,8 @@ spec:
     - namespace: "kubewall-system"
       server: "*"
     - namespace: "healthchecks"
+      server: "*"
+    - namespace: "signoz"
       server: "*"
   clusterResourceWhitelist:
     - group: "*"
