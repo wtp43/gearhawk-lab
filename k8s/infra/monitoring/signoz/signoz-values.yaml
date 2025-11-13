@@ -25,6 +25,15 @@ clickhouse:
     requests:
       cpu: 1000m
       memory: 2Gi # ⬆️ Increased from default 1Gi
+  files:
+    users.d/default.xml: |
+      <clickhouse>
+        <profiles>
+          <default>
+            <allow_simdjson>0</allow_simdjson>
+          </default>
+        </profiles>
+      </clickhouse>
 
   # Also increase ClickHouse internal memory limits
   clickhouseConfig:
