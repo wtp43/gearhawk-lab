@@ -1,0 +1,29 @@
+# Need an extra Argo CD Application here to do server side apply
+# https://github.com/prometheus-community/helm-charts/issues/3345
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: signoz
+  namespace: argocd
+spec:
+  project: monitoring
+  sources:
+    - repoURL: https://charts.signoz.io
+      chart: signoz
+      targetRevision: 0.101.0
+      helm:
+        valueFiles:
+          - signoz-values.yaml
+    - repoURL: https://github.com/wtp43/gearhawk-lab
+      targetRevision: HEAD
+      ref: values
+  destination:
+    name: in-cluster
+    namespace: signoz
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true
