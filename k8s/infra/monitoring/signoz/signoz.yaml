@@ -16,7 +16,7 @@ spec:
       targetRevision: HEAD
       ref: values
   destination:
-    name: https://kubernetes.default.svc
+    name: in-cluster
     namespace: signoz
   syncPolicy:
     automated:
