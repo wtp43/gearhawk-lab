@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ns.yaml
   - external-route.yaml
+  - signoz-secret.yaml
 
 helmCharts:
   - name: signoz

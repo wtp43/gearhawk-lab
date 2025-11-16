@@ -17,6 +17,14 @@ signoz:
   additionalArgs:
     - --use-logs-new-schema=true
     - --use-trace-new-schema=true
+  env:
+    SIGNOZ_SQLSTORE_PROVIDER:
+      value: postgres
+    SIGNOZ_SQLSTORE_POSTGRES_DSN:
+      valueFrom:
+        secretKeyRef:
+          name: signoz-secret
+          key: db_url
 clickhouse:
   resources:
     limits:
