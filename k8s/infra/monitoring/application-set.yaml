@@ -6,15 +6,28 @@ metadata:
   labels:
     gearhawk.lab: monitoring
 spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
+    # Apps with overlays
+    - git:
+        repoURL: https://github.com/wtp43/gearhawk-lab
+        revision: HEAD
+        directories:
+          - path: k8s/infra/monitoring/*/overlay
+
+    # Apps without overlays
     - git:
         repoURL: https://github.com/wtp43/gearhawk-lab
         revision: HEAD
         directories:
           - path: k8s/infra/monitoring/*
+          - path: k8s/infra/monitoring/signoz
+            exclude: true
+
   template:
     metadata:
-      name: "{{ path.basename }}"
+      name: "{{ index .path.segments 3 }}"
       labels:
         gearhawk.lab: monitoring
     spec:
@@ -24,10 +37,11 @@ spec:
           name: kustomize-build-with-helm
         repoURL: https://github.com/wtp43/gearhawk-lab
         targetRevision: HEAD
-        path: "{{ path }}"
+        path: "{{ .path.path }}"
       destination:
         name: in-cluster
-        namespace: "{{ path.basename }}"
+        # Use path segment index 3 (0-indexed) to get the app name
+        namespace: "{{ index .path.segments 3 }}"
       syncPolicy:
         automated:
           selfHeal: true

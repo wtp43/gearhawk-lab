@@ -1,0 +1,105 @@
+global:
+  cloud: other
+  clusterName: talos
+signoz:
+  name: "signoz"
+  replicaCount: 1
+  image:
+    registry: docker.io
+    repository: signoz/signoz
+    tag: v0.101.0
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8080
+    internalPort: 8085
+    opampPort: 4320
+  additionalArgs:
+    - --use-logs-new-schema=true
+    - --use-trace-new-schema=true
+  env:
+    SIGNOZ_SQLSTORE_PROVIDER:
+      value: postgres
+    SIGNOZ_SQLSTORE_POSTGRES_DSN:
+      valueFrom:
+        secretKeyRef:
+          name: signoz-secret
+          key: db_url
+clickhouse:
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+  files:
+    # https://github.com/ClickHouse/ClickHouse/issues/66045
+    users.d/default.xml: |
+      <clickhouse>
+        <profiles>
+          <default>
+            <allow_simdjson>0</allow_simdjson>
+          </default>
+        </profiles>
+      </clickhouse>
+
+otelCollector:
+  name: "otel-collector"
+  # additionalEnvs:
+  #   MONITORING_USERNAME: "placeholder"
+  #   MONITORING_PASSWORD: "placeholder"
+  #   POSTGRESQL_GEARHAWK_ENDPOINT: "placeholder:1"
+  #   POSTGRESQL_HATCHET_ENDPOINT: "placeholder:1"
+  #   OTLP_DESTINATION_ENDPOINT: "placeholder:1"
+  config:
+    receivers:
+      postgresql/gearhawk:
+        endpoint: ${env:POSTGRESQL_GEARHAWK_ENDPOINT}
+        username: ${env:MONITORING_USERNAME}
+        password: ${env:MONITORING_PASSWORD}
+        collection_interval: 60s
+        tls:
+          insecure: true
+        metrics:
+          postgresql.database.locks:
+            enabled: true
+          postgresql.deadlocks:
+            enabled: true
+          postgresql.sequential_scans:
+            enabled: true
+      postgresql/hatchet:
+        endpoint: ${env:POSTGRESQL_HATCHET_ENDPOINT}
+        username: ${env:MONITORING_USERNAME}
+        password: ${env:MONITORING_PASSWORD}
+        collection_interval: 60s
+        tls:
+          insecure: true
+        metrics:
+          postgresql.database.locks:
+            enabled: true
+          postgresql.deadlocks:
+            enabled: true
+          postgresql.sequential_scans:
+            enabled: true
+
+    processors:
+      resourcedetection/system:
+        detectors: ["system"]
+        system:
+          hostname_sources: ["os"]
+
+    exporters:
+      otlp/postgres:
+        endpoint: ${env:OTLP_DESTINATION_ENDPOINT}
+        tls:
+          insecure: true
+
+    service:
+      pipelines:
+        metrics/postgresql:
+          receivers:
+            - postgresql/gearhawk
+            - postgresql/hatchet
+          processors: [resourcedetection/system]
+          exporters: [otlp/postgres]

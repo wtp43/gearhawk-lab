@@ -1,0 +1,44 @@
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: MONITORING_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: signoz-secret
+        key: MONITORING_USERNAME
+
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: MONITORING_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: signoz-secret
+        key: MONITORING_PASSWORD
+
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: POSTGRESQL_GEARHAWK_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: signoz-secret
+        key: POSTGRESQL_GEARHAWK_ENDPOINT
+
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: POSTGRESQL_HATCHET_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: signoz-secret
+        key: POSTGRESQL_HATCHET_ENDPOINT
+
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: OTLP_DESTINATION_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: signoz-secret
+        key: OTLP_DESTINATION_ENDPOINT
