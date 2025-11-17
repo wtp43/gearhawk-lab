@@ -49,6 +49,19 @@ otelCollector:
   name: "otel-collector"
   config:
     receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+      httpcheck/rapid:
+        targets:
+          - endpoint: https://typesense.gearhawk.io/health
+            method: GET
+          - endpoint: https://api.gearhawk.io
+            method: GET
+        collection_interval: 10s
       postgresql/gearhawk:
         endpoint: ${env:POSTGRESQL_GEARHAWK_ENDPOINT}
         username: ${env:MONITORING_USERNAME}
@@ -85,7 +98,7 @@ otelCollector:
           hostname_sources: ["os"]
 
     exporters:
-      otlp/postgres:
+      otlp:
         endpoint: ${env:OTLP_DESTINATION_ENDPOINT}
         tls:
           insecure: true
@@ -97,4 +110,8 @@ otelCollector:
             - postgresql/gearhawk
             - postgresql/hatchet
           processors: [resourcedetection/system]
-          exporters: [otlp/postgres]
+          exporters: [otlp]
+        metrics/httpcheck:
+          receivers: [otlp, httpcheck/rapid]
+          processors: [batch]
+          exporters: [otlp]
