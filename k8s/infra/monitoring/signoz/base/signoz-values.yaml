@@ -18,6 +18,7 @@ signoz:
     - --use-logs-new-schema=true
     - --use-trace-new-schema=true
   env:
+    signoz_alertmanager_signoz_external__url: https://signoz.gearhawk.io
     SIGNOZ_SQLSTORE_PROVIDER:
       value: postgres
     SIGNOZ_SQLSTORE_POSTGRES_DSN:
@@ -46,12 +47,6 @@ clickhouse:
 
 otelCollector:
   name: "otel-collector"
-  # additionalEnvs:
-  #   MONITORING_USERNAME: "placeholder"
-  #   MONITORING_PASSWORD: "placeholder"
-  #   POSTGRESQL_GEARHAWK_ENDPOINT: "placeholder:1"
-  #   POSTGRESQL_HATCHET_ENDPOINT: "placeholder:1"
-  #   OTLP_DESTINATION_ENDPOINT: "placeholder:1"
   config:
     receivers:
       postgresql/gearhawk:
