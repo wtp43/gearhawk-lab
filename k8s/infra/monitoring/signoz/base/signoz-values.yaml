@@ -28,12 +28,12 @@ signoz:
           key: db_url
 clickhouse:
   resources:
-    limits:
-      cpu: 2000m
-      memory: 4Gi
     requests:
       cpu: 1000m
       memory: 2Gi
+  # limits:
+  #   cpu: 2000m
+  #   memory: 4Gi
   files:
     # https://github.com/ClickHouse/ClickHouse/issues/66045
     users.d/default.xml: |
