@@ -53,7 +53,7 @@ spec:
   storage:
     # TODO: benchmark and use local storage
     storageClass: longhorn
-    size: 4Gi
+    size: 10Gi
 
   externalClusters:
     - name: s3
