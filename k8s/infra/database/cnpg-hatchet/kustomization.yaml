@@ -6,7 +6,6 @@ resources:
   - hatchet-cluster.yaml
   - pooler-rw.yaml
   - role-secrets.yaml
-  # - aws-s3-creds.yaml
-  # - scheduled-backup.yaml
-  # - scheduled-backup-infra.yaml
-  # - s3-store.yaml
+  - aws-s3-creds.yaml
+  - scheduled-backup.yaml
+  - s3-store.yaml
