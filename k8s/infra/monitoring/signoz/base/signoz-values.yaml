@@ -7,7 +7,7 @@ signoz:
   image:
     registry: docker.io
     repository: signoz/signoz
-    tag: v0.101.0
+    tag: v0.103.0
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
