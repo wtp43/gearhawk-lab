@@ -80,7 +80,7 @@ spec:
       memory: "8Gi"
       cpu: "2"
     limits:
-      memory: "8Gi"
+      memory: "12Gi"
       cpu: "8"
   monitoring:
     enablePodMonitor: true
