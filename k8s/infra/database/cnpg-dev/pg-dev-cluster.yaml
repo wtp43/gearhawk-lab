@@ -1,0 +1,44 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-dev-cluster
+  namespace: cnpg-dev
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.5
+  imagePullPolicy: IfNotPresent
+  instances: 1
+  startDelay: 300
+  stopDelay: 300
+  primaryUpdateStrategy: unsupervised
+
+  postgresql:
+    pg_hba:
+      - host all all all md5
+
+  bootstrap:
+    recovery:
+      source: s3
+      database: postgres
+      owner: app
+      secret:
+        name: gearhawk-postgres-app
+
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: gearhawk-postgres-superuser
+
+  storage:
+    storageClass: no-replicas
+    size: 10Gi
+
+  externalClusters:
+    - name: s3
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          # Recovery Object Store (pull, read-only)
+          barmanObjectName: s3-store
+          serverName: recovery-target # the target path where base + wal objects are stored
+
