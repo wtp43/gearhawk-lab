@@ -16,8 +16,8 @@ spec:
       cpu: 2000m
       memory: 2Gi
     limits:
-      cpu: 4000m
-      memory: 4Gi
+      cpu: 2000m
+      memory: 2Gi
   persistence:
     storageClassName: no-replicas
-    storage: "30Gi"
+    storage: "15Gi"
