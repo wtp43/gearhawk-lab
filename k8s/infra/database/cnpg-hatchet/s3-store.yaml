@@ -2,7 +2,7 @@ apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
 metadata:
   name: s3-store
-  namespace: cnpg-database
+  namespace: cnpg-hatchet
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
