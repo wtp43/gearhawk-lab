@@ -56,17 +56,20 @@ variable "talos_cluster_config" {
 variable "talos_nodes" {
   type = map(
     object({
-      host_node     = string
-      machine_type  = string
-      ip            = string
-      dns           = optional(list(string))
-      mac_address   = string
-      vm_id         = number
-      cpu           = number
-      ram_dedicated = number
-      update        = optional(bool, false)
-      gpu           = optional(bool, false)
-      gpu_device_id = optional(string)
+      host_node              = string
+      machine_type           = string
+      ip                     = string
+      dns                    = optional(list(string))
+      mac_address            = string
+      vm_id                  = number
+      cpu                    = number
+      ram_dedicated          = number
+      update                 = optional(bool, false)
+      gpu                    = optional(bool, false)
+      gpu_device_id          = optional(string)
+      default_datastore_size = number
+      datastore_id           = optional(string)
+      datastore_id2          = optional(string)
     })
   )
   validation {

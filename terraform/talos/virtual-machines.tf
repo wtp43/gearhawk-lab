@@ -41,7 +41,7 @@ resource "proxmox_virtual_environment_vm" "this" {
     discard      = "on"
     ssd          = true
     file_format  = "raw"
-    size         = each.value.machine_type == "controlplane" ? 32 : 200
+    size         = each.value.default_datastore_size
 
     # file_id      = proxmox_virtual_environment_download_file.this["${each.value.host_node}_${each.value.update == true ? local.update_image_id : local.image_id}"].id
     file_id = proxmox_virtual_environment_download_file.this[
@@ -53,17 +53,17 @@ resource "proxmox_virtual_environment_vm" "this" {
     ].id
   }
 
-  dynamic "disk" {
-    for_each = each.key == "work-00" ? [1] : []
-    content {
-      datastore_id = each.value.datastore_id2
-      interface    = "scsi1"
-      size         = 11000
-      iothread     = true
-      cache        = "writethrough"
-      discard      = "on"
-    }
-  }
+  # dynamic "disk" {
+  #   for_each = each.key == "work-00" ? [1] : []
+  #   content {
+  #     datastore_id = each.value.datastore_id2
+  #     interface    = "scsi1"
+  #     size         = 11000
+  #     iothread     = true
+  #     cache        = "writethrough"
+  #     discard      = "on"
+  #   }
+  # }
 
   boot_order = ["scsi0"]
 

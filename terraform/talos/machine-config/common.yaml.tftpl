@@ -16,7 +16,6 @@ machine:
     node.longhorn.io/default-disks-config: >
       [
         { "path":"/var/lib/longhorn", "allowScheduling":true },
-        { "name":"ironwolf-12tb", "path":"/var/mnt/ironwolf-12tb", "allowScheduling":true, "storageReserved":0 }
       ]
 %{ endif }
 %{ if hostname != "work-00"}

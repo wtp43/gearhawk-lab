@@ -38,18 +38,19 @@ variable "cluster" {
 variable "nodes" {
   description = "Configuration for cluster nodes"
   type = map(object({
-    host_node     = string
-    machine_type  = string
-    datastore_id  = optional(string, "local")
-    datastore_id2 = optional(string, "local")
-    ip            = string
-    dns           = optional(list(string))
-    mac_address   = string
-    vm_id         = number
-    cpu           = number
-    ram_dedicated = number
-    update        = optional(bool, false)
-    gpu           = optional(bool, false)
-    gpu_device_id = optional(string)
+    host_node              = string
+    machine_type           = string
+    datastore_id           = optional(string, "local")
+    datastore_id2          = optional(string, "local")
+    default_datastore_size = number
+    ip                     = string
+    dns                    = optional(list(string))
+    mac_address            = string
+    vm_id                  = number
+    cpu                    = number
+    ram_dedicated          = number
+    update                 = optional(bool, false)
+    gpu                    = optional(bool, false)
+    gpu_device_id          = optional(string)
   }))
 }

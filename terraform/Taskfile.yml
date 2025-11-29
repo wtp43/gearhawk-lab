@@ -28,7 +28,7 @@ tasks:
       - task create
       # - task argocd
   patch-work:
-    desc: Create the cluster
+    desc: Patch worker nodes
     cmds:
       - talosctl apply-config -n 192.168.50.110 -f ./output/talos-machine-config-work-00.yaml
       - talosctl apply-config -n 192.168.50.111 -f ./output/talos-machine-config-work-01.yaml
