@@ -61,14 +61,14 @@ spec:
         parameters:
           # Recovery Object Store (pull, read-only)
           barmanObjectName: s3-store
-          serverName: recovery-target-infra # the target path where base + wal objects are stored
+          serverName: recovery-target-cnpg-infra # the target path where base + wal objects are stored
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
         # Backup Object Store (push, read-write)
         barmanObjectName: s3-store
-        serverName: scheduled-backup-infra # this s3 path must be empty during recovery
+        serverName: scheduled-backup-cnpg-infra # this s3 path must be empty during recovery
   monitoring:
     enablePodMonitor: true
 
