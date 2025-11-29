@@ -76,14 +76,14 @@ spec:
         parameters:
           # Recovery Object Store (pull, read-only)
           barmanObjectName: s3-store
-          serverName: recovery-target # the target path where base + wal objects are stored
+          serverName: recovery-target-cnpg-data-warehouse # the target path where base + wal objects are stored
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
         # Backup Object Store (push, read-write)
         barmanObjectName: s3-store
-        serverName: scheduled-backup # this s3 path must be empty during recovery
+        serverName: scheduled-backup-cnpg-data-warehouse # this s3 path must be empty during recovery
 
   resources:
     requests:
@@ -94,18 +94,8 @@ spec:
       cpu: "16"
   monitoring:
     enablePodMonitor: true
-  # TODO:
-  # affinity:
-  #   enablePodAntiAffinity: true
   affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                  - work-00
+    enablePodAntiAffinity: true
 
   nodeMaintenanceWindow:
     inProgress: false
