@@ -34,17 +34,12 @@ spec:
       - host all all all md5
 
   bootstrap:
-    # initdb:
-    #   database: app
-    #   owner: app
-    #   secret:
-    #     name: gearhawk-postgres-app
     recovery:
       source: s3
-      database: postgres
-      owner: app
+      database: signoz
+      owner: signoz
       secret:
-        name: gearhawk-postgres-app
+        name: signoz-owner
 
   enableSuperuserAccess: true
   superuserSecret:
@@ -63,19 +58,6 @@ spec:
           # Recovery Object Store (pull, read-only)
           barmanObjectName: s3-store
           serverName: recovery-target-infra # the target path where base + wal objects are stored
-  managed:
-    roles:
-      - name: gearhawk-pipeline-worker
-        ensure: present
-        login: true
-        superuser: false
-        createdb: true
-        createrole: false
-        inherit: false
-        replication: false
-        bypassrls: false
-        passwordSecret:
-          name: gearhawk-pipeline-worker
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
