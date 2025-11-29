@@ -21,6 +21,8 @@ spec:
       server: "*"
     - namespace: "signoz"
       server: "*"
+    - namespace: "prometheus-stack"
+      server: "*"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
