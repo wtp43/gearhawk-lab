@@ -15,7 +15,7 @@ machine:
   nodeAnnotations:
     node.longhorn.io/default-disks-config: >
       [
-        { "path":"/var/lib/longhorn", "allowScheduling":true },
+        { "path":"/var/lib/longhorn", "allowScheduling":true }
       ]
 %{ endif }
 %{ if hostname != "work-00"}

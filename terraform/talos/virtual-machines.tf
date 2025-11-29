@@ -32,7 +32,6 @@ resource "proxmox_virtual_environment_vm" "this" {
     mac_address = each.value.mac_address
   }
 
-  #TODO: define custom size for each datastore
   disk {
     datastore_id = each.value.datastore_id
     interface    = "scsi0"
