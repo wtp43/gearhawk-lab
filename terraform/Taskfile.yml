@@ -13,7 +13,7 @@ tasks:
     cmds:
       - terraform apply -auto-approve
       - ./get_talos_kubernetes_config.sh
-      - ./post-bootstrap/patch-user-volume.sh
+      # - ./post-bootstrap/patch-user-volume.sh
 
   destroy:
     desc: Destroy the cluster
@@ -27,13 +27,21 @@ tasks:
       - task destroy
       - task create
       # - task argocd
-  patch-work:
-    desc: Patch worker nodes
+  patch:
+    desc: Patch all nodes
     cmds:
       - talosctl apply-config -n 192.168.50.110 -f ./output/talos-machine-config-work-00.yaml
-      - talosctl apply-config -n 192.168.50.111 -f ./output/talos-machine-config-work-01.yaml
+      # - talosctl apply-config -n 192.168.50.111 -f ./output/talos-machine-config-work-01.yaml
       - talosctl apply-config -n 192.168.50.112 -f ./output/talos-machine-config-work-02.yaml
       - talosctl apply-config -n 192.168.50.114 -f ./output/talos-machine-config-work-04.yaml
+      - talosctl apply-config -n 192.168.50.115 -f ./output/talos-machine-config-work-05.yaml
+      - talosctl apply-config -n 192.168.50.116 -f ./output/talos-machine-config-work-06.yaml
+      - talosctl apply-config -n 192.168.50.100 -f ./output/talos-machine-config-ctrl-00.yaml
+      # - talosctl apply-config -n 192.168.50.101 -f ./output/talos-machine-config-ctrl-01.yaml
+      - talosctl apply-config -n 192.168.50.102 -f ./output/talos-machine-config-ctrl-02.yaml
+      - talosctl apply-config -n 192.168.50.104 -f ./output/talos-machine-config-ctrl-04.yaml
+      - talosctl apply-config -n 192.168.50.105 -f ./output/talos-machine-config-ctrl-05.yaml
+      - talosctl apply-config -n 192.168.50.106 -f ./output/talos-machine-config-ctrl-06.yaml
   patch-vol:
     desc: Patch user volumes
     cmds:
