@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: cloudflared
-          image: cloudflare/cloudflared:2025.2.1 # renovate: docker=cloudflare/cloudflared
+          image: cloudflare/cloudflared:2025.11.1
           imagePullPolicy: IfNotPresent
           args:
             - tunnel
@@ -35,8 +35,6 @@ spec:
             requests:
               cpu: 100m
               memory: 64Mi
-            limits:
-              memory: 512Mi
           volumeMounts:
             - name: config
               mountPath: /etc/cloudflared/config/config.yaml
