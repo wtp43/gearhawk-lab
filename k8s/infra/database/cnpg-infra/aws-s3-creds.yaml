@@ -2,7 +2,7 @@ apiVersion: onepassword.com/v1
 kind: OnePasswordItem
 metadata:
   name: aws-s3-creds
-  namespace: cnpg-database
+  namespace: cnpg-infra
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:

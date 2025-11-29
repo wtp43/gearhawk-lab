@@ -2,7 +2,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: postgres-cluster
-  namespace: cnpg-database
+  namespace: cnpg-data-warehouse
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
@@ -38,7 +38,6 @@ spec:
       max_parallel_workers: "16"
       max_parallel_maintenance_workers: "4"
     pg_hba:
-      # - host all all 10.244.0.0/16 md5
       - host all all all md5
 
   bootstrap:
@@ -54,7 +53,6 @@ spec:
     name: gearhawk-postgres-superuser
 
   storage:
-    # TODO: benchmark and use local storage. Shrinking not possible?
     storageClass: no-replicas
     size: 100Gi
 

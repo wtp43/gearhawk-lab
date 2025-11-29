@@ -2,7 +2,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
   name: scheduled-backup-infra
-  namespace: cnpg-database
+  namespace: cnpg-infra
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:

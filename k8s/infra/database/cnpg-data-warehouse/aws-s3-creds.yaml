@@ -1,0 +1,9 @@
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: aws-s3-creds
+  namespace: cnpg-data-warehouse
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  itemPath: "vaults/gearhawk-k8s/items/aws-s3-creds"

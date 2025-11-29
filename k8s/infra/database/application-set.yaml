@@ -31,8 +31,8 @@ spec:
         name: in-cluster
         namespace: argocd
       syncPolicy:
-        # automated:
-        #   selfHeal: true
-        #   prune: true
+        automated:
+          selfHeal: true
+          prune: true
         syncOptions: #https://github.com/cloudnative-pg/charts/issues/325
           - ServerSideApply=true

@@ -19,7 +19,7 @@ spec:
       server: "*"
     - namespace: "cnpg-dev"
       server: "*"
-    - namespace: "cnpg-products"
+    - namespace: "cnpg-data-warehouse"
       server: "*"
     - namespace: "typesense"
       server: "*"

@@ -3,11 +3,8 @@ kind: Kustomization
 
 resources:
   - ns.yaml
-  - pg-cluster.yaml
   - infra-cluster.yaml
   - aws-s3-creds.yaml
-  - scheduled-backup.yaml
   - scheduled-backup-infra.yaml
   - role-secrets.yaml
   - s3-store.yaml
-  - pooler-rw.yaml

@@ -2,7 +2,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Pooler
 metadata:
   name: pooler-rw
-  namespace: cnpg-database
+  namespace: cnpg-data-warehouse
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
