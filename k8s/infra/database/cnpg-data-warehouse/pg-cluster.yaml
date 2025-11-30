@@ -93,7 +93,7 @@ spec:
       memory: "64Gi"
       cpu: "16"
   monitoring:
-    enablePodMonitor: true
+    enablePodMonitor: false
   affinity:
     enablePodAntiAffinity: true
 

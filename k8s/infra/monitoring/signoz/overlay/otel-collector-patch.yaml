@@ -19,11 +19,11 @@
 - op: add
   path: /spec/template/spec/containers/0/env/-
   value:
-    name: POSTGRESQL_GEARHAWK_ENDPOINT
+    name: POSTGRESQL_DATA_WAREHOUSE_ENDPOINT
     valueFrom:
       secretKeyRef:
         name: signoz-secret
-        key: POSTGRESQL_GEARHAWK_ENDPOINT
+        key: POSTGRESQL_DATA_WAREHOUSE_ENDPOINT
 
 - op: add
   path: /spec/template/spec/containers/0/env/-

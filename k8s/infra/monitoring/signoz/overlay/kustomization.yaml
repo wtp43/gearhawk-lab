@@ -7,5 +7,5 @@ resources:
 patches:
   - target:
       kind: Deployment
-      name: signoz-otel-collector
+      name: k8s-infra-otel-deployment
     path: otel-collector-patch.yaml

@@ -70,7 +70,7 @@ spec:
         barmanObjectName: s3-store
         serverName: scheduled-backup-cnpg-infra # this s3 path must be empty during recovery
   monitoring:
-    enablePodMonitor: true
+    enablePodMonitor: false
 
   nodeMaintenanceWindow:
     inProgress: false

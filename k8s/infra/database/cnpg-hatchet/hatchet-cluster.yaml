@@ -83,7 +83,7 @@ spec:
       memory: "12Gi"
       cpu: "8"
   monitoring:
-    enablePodMonitor: true
+    enablePodMonitor: false
 
   nodeMaintenanceWindow:
     inProgress: false

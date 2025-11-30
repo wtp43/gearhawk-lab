@@ -29,7 +29,7 @@ api:
     - secretRef:
         name: hatchet-config
 
-engine:
-  envFrom:
-    - secretRef:
-        name: hatchet-config
+frontend:
+  resources:
+    limits:
+      memory: 4096Mi
