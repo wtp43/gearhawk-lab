@@ -12,16 +12,6 @@ spec:
       labels:
         app: hono
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - work-01
-                      - work-02
       containers:
         - name: hono-container
           image: wjt40398/gearhawk:server
