@@ -47,7 +47,7 @@ spec:
                   name: vllm-model
                   key: MODEL_NAME
           ports:
-            - containerPort: 8000
+            - containerPort: 8081
           resources:
             limits:
               cpu: "10"
