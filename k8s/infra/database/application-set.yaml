@@ -36,3 +36,4 @@ spec:
           prune: true
         syncOptions: #https://github.com/cloudnative-pg/charts/issues/325
           - ServerSideApply=true
+          - ApplyOutOfSyncOnly=true
