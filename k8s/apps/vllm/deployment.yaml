@@ -34,23 +34,24 @@ spec:
           volumeMounts:
             - name: vllm-storage
               mountPath: /data
+
           env:
             - name: NODE_ENV
-              value: production
+              value: "production"
             - name: LABELING_BATCH_SIZE
-              value: 75
+              value: "75"
             - name: COMPARISON_BATCH_SIZE
-              value: 50
+              value: "50"
             - name: MODEL
-              value: cpatonn/InternVL3_5-14B-AWQ-4bit
+              value: "cpatonn/InternVL3_5-14B-AWQ-4bit"
             - name: MAX_MODEL_LEN
-              value: 14000
+              value: "14000"
             - name: GPU_MEMORY_UTILIZATION
-              value: 0.9
+              value: "0.9"
             - name: DEFAULT_MAX_TOKENS
-              value: 10000
+              value: "10000"
             - name: DEFAULT_TEMPERATURE
-              value: 0.7
+              value: "0.7"
 
       volumes:
         - name: vllm-storage
