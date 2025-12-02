@@ -28,4 +28,7 @@ spec:
       destination:
         name: in-cluster
         namespace: argocd
-      # syncPolicy:
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true

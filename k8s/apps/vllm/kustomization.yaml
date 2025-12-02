@@ -6,5 +6,5 @@ resources:
   - ns.yaml
   - deployment.yaml
   - vllm-server-svc.yaml
-  - env-secrets.yaml
+  - secrets.yaml
   - huggingface-cache-pvc.yaml

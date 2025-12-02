@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: huggingface-cache-pvc
+  name: vllm-pvc
   namespace: vllm
   annotations:
     argocd.argoproj.io/sync-wave: "1"

@@ -16,61 +16,43 @@ spec:
         app: vllm-server
     spec:
       runtimeClassName: nvidia
-      nodeSelector:
-        kubernetes.io/hostname: work-00
-      volumes:
-        - name: huggingface-cache
-          persistentVolumeClaim:
-            claimName: huggingface-cache-pvc
-        # vLLM needs to access the host's shared memory for tensor parallel inference.
-        - name: shm
-          emptyDir:
-            medium: Memory
-            sizeLimit: "2Gi"
+      nodeName: work-00
+      imagePullSecrets:
+        - name: docker-secret
       containers:
         - name: vllm-server
-          image: vllm/vllm-openai:latest
-          command: ["/bin/sh", "-c"]
-          args:
-            [
-              "vllm serve OpenGVLab/InternVL3_5-4B --trust-remote-code --enable-chunked-prefill --max-model-len 26000 --max-num-batched-tokens 26000 --gpu-memory-utilization 0.95",
-            ]
-          env:
-            - name: HUGGING_FACE_HUB_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: huggingface-token
-                  key: HUGGING_FACE_HUB_TOKEN
-            - name: MODEL_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: vllm-model
-                  key: MODEL_NAME
+          image: wjt40398/gearhawk:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
-          resources:
-            limits:
-              cpu: "10"
-              memory: 20G
-              nvidia.com/gpu: "1"
-            requests:
-              cpu: "2"
-              memory: 6G
-              nvidia.com/gpu: "1"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 600
+            periodSeconds: 10
           volumeMounts:
-            - mountPath: /root/.cache/huggingface
-              name: huggingface-cache
-            - name: shm
-              mountPath: /dev/shm
-          # livenessProbe:
-          #   httpGet:
-          #     path: /health
-          #     port: 8000
-          #   initialDelaySeconds: 60
-          #   periodSeconds: 10
-          # readinessProbe:
-          #   httpGet:
-          #     path: /health
-          #     port: 8000
-          #   initialDelaySeconds: 60
-          #   periodSeconds: 5
+            - name: vllm-storage
+              mountPath: /data
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: LABELING_BATCH_SIZE
+              value: 75
+            - name: COMPARISON_BATCH_SIZE
+              value: 50
+            - name: MODEL
+              value: cpatonn/InternVL3_5-14B-AWQ-4bit
+            - name: MAX_MODEL_LEN
+              value: 14000
+            - name: GPU_MEMORY_UTILIZATION
+              value: 0.9
+            - name: DEFAULT_MAX_TOKENS
+              value: 10000
+            - name: DEFAULT_TEMPERATURE
+              value: 0.7
+
+      volumes:
+        - name: vllm-storage
+          persistentVolumeClaim:
+            claimName: vllm-pvc
