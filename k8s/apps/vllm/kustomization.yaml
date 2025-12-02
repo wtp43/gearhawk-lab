@@ -7,4 +7,5 @@ resources:
   - deployment.yaml
   - vllm-server-svc.yaml
   - secrets.yaml
-  - vllm-pvc.yaml
+  - vllm-server-pvc.yaml
+  - vllm-build-job.yaml

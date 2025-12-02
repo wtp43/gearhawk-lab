@@ -1,0 +1,108 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: build-vllm-image
+  namespace: vllm
+  annotations:
+    argocd.argoproj.io/sync-options: Force=true,Replace=true
+spec:
+  template:
+    spec:
+      nodeName: work-00
+      containers:
+        - name: builder
+          image: quay.io/buildah/stable:v1.42.0
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+
+              echo "=== Checking if image exists ==="
+
+              DOCKER_CONFIG_JSON=/root/.docker/config.json
+
+              # Read username and password directly
+              USERNAME=$(grep -Po '"username"\s*:\s*"\K[^"]+' "$DOCKER_CONFIG_JSON")
+              PASSWORD=$(grep -Po '"password"\s*:\s*"\K[^"]+' "$DOCKER_CONFIG_JSON")
+
+              # Get short-lived Bearer token from Docker Hub
+              TOKEN=$(curl -s -u "$USERNAME:$PASSWORD" \
+                "https://auth.docker.io/token?service=registry.docker.io&scope=repository:wjt40398/gearhawk:pull" \
+                | grep -Po '"token"\s*:\s*"\K[^"]+')
+
+              # Check if the image exists
+              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+                -H "Authorization: Bearer $TOKEN" \
+                "https://registry-1.docker.io/v2/wjt40398/gearhawk/manifests/vllm-server-${COMMIT_SHA}")
+
+              echo "Docker Hub manifest HTTP status: $HTTP_STATUS"
+
+              if [ "$HTTP_STATUS" = "200" ]; then
+                  echo "=== Image already exists — skipping build ==="
+                  exit 0
+              fi
+
+              echo "=== Image not found, building ==="
+              cd /workspace
+              rm -rf src || true
+              mkdir -p src output
+
+              echo "=== Downloading repo ==="
+              curl -L \
+                -H "Authorization: token ${GITHUB_PAT}" \
+                -o /workspace/src.tar \
+                "https://api.github.com/repos/wtp43/gearhawk/tarball/${COMMIT_SHA}"
+
+              tar -xf /workspace/src.tar -C /workspace/src --strip-components=1
+              cd /workspace/src/packages/vllm
+
+              echo "=== Building with VFS ==="
+              buildah bud \
+                --storage-driver=vfs \
+                --layers \
+                -f Dockerfile \
+                -t vllm-server:${COMMIT_SHA} \
+                .
+
+
+              echo "=== Pushing to Docker Hub ==="
+              buildah push --storage-driver=vfs vllm-server:${COMMIT_SHA} docker://docker.io/wjt40398/gearhawk:vllm-server-${COMMIT_SHA}
+
+              echo "=== Build and push complete ==="
+
+          env:
+            - name: COMMIT_SHA
+              value: "a4e3d6fc334f471f22c786f1357e02ab0bd53afd"
+            - name: GITHUB_PAT
+              valueFrom:
+                secretKeyRef:
+                  name: github-pat
+                  key: token
+            - name: DOCKER_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: docker-access-token
+                  key: token
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+            - name: docker-config
+              mountPath: /root/.docker
+              readOnly: true
+
+          securityContext:
+            privileged: true
+
+      restartPolicy: Never
+      volumes:
+        - name: workspace
+          persistentVolumeClaim:
+            claimName: vllm-server-pvc
+
+        - name: docker-config
+          secret:
+            secretName: docker-secret
+            items:
+              - key: .dockerconfigjson
+                path: config.json

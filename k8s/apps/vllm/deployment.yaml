@@ -21,7 +21,8 @@ spec:
         - name: docker-secret
       containers:
         - name: vllm-server
-          image: docker.io/wjt40398/gearhawk:vllm-server-3b1b186
+          image: wjt40398/gearhawk:vllm-server-a4e3d6fc334f471f22c786f1357e02ab0bd53afd
+
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
@@ -56,4 +57,4 @@ spec:
       volumes:
         - name: vllm-storage
           persistentVolumeClaim:
-            claimName: vllm-pvc
+            claimName: vllm-server-pvc
