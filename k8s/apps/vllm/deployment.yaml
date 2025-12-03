@@ -4,7 +4,6 @@ metadata:
   name: vllm-server
   annotations:
     argocd.argoproj.io/sync-wave: "2"
-    argocd.argoproj.io/sync-options: Force=true,Replace=true
 spec:
   replicas: 1
   selector:
@@ -17,6 +16,8 @@ spec:
     spec:
       runtimeClassName: nvidia
       nodeName: work-00
+      strategy:
+          type: Replace
       imagePullSecrets:
         - name: docker-secret
       containers:
