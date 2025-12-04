@@ -52,3 +52,41 @@ spec:
               value: "True"
             - name: HATCHET_CLIENT_TLS_STRATEGY
               value: "none"
+            - name: HATCHET_CLIENT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: HATCHET_CLIENT_TOKEN
+
+            # Credentials
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: DB_URL
+
+            - name: B2_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: B2_ENDPOINT
+            - name: B2_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: B2_REGION
+            - name: B2_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: B2_BUCKET_NAME
+            - name: B2_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key:
+            - name: B2_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: B2_KEY_ID
