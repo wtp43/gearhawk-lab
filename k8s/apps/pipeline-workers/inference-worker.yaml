@@ -18,7 +18,7 @@ spec:
         - name: docker-secret
       containers:
         - name: inference-worker
-          image: wjt40398/gearhawk:inference-worker-60c4087
+          image: wjt40398/gearhawk:inference-worker-e83421f
 
           imagePullPolicy: IfNotPresent
           ports:
