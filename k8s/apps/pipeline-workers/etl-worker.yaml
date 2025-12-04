@@ -84,7 +84,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: pipeline-worker-secrets
-                  key:
+                  key: B2_KEY
             - name: B2_KEY_ID
               valueFrom:
                 secretKeyRef:
