@@ -4,7 +4,8 @@ namespace: pipeline-workers
 
 resources:
   - ns.yaml
-  - docker-secret.yaml
-  # - db-importer-cron.yaml
-  # - woocommerce-crawler-cron.yaml
+  - secrets.yaml
+  - etl-worker.yaml
+  - image-worker.yaml
+  - inference-worker.yaml
   # - typesense-importer-cron.yaml

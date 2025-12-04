@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inference-worker
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inference-worker
+  template:
+    metadata:
+      labels:
+        app: inference-worker
+    spec:
+      imagePullSecrets:
+        - name: docker-secret
+      containers:
+        - name: inference-worker
+          image: wjt40398/gearhawk:inference-worker-x
+
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8001
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 90
+            periodSeconds: 10
+
+          env:
+            - name: NODE_ENV
+              value: "production"
+
+            - name: WORKER_CONCURRENCY
+              value: "1"
+
+            - name: VLLM_ENDPOINT
+              value: "http://vllm-server-svc.vllm.svc.cluster.local:8081"
+
+            # OTEL
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://signoz-otel-collector.signoz.svc.cluster.local:4317"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: grpc
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "service.name=data-pipeline,deployment.environment=production"
+
+            # Hatchet
+            - name: HATCHET_CLIENT_HOST_PORT
+              value: "hatchet-grpc.hatchet.svc.cluster.local:7070"
+            - name: HATCHET_CLIENT_WORKER_HEALTHCHECK_ENABLED
+              value: "True"
+            - name: HATCHET_CLIENT_TLS_STRATEGY
+              value: "none"
