@@ -5,7 +5,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: etl-worker
@@ -90,3 +90,13 @@ spec:
                 secretKeyRef:
                   name: pipeline-worker-secrets
                   key: B2_KEY_ID
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: AWS_SECRET_ACCESS_KEY
