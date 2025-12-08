@@ -17,6 +17,8 @@ spec:
     # TODO: performance tuning https://www.enterprisedb.com/postgres-tutorials/introduction-postgresql-performance-tuning-and-optimization?lang=en
     # using: https://pgtune.leopard.in.ua/
     # WARNING: WAL tuning parameters should be the same as the backups
+
+    # additional tunning for hatchet db's https://docs.hatchet.run/self-hosting/improving-performance
     parameters:
       timezone: "Etc/UTC"
       max_connections: "1500"

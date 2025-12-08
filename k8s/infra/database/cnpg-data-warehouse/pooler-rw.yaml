@@ -21,3 +21,27 @@ spec:
     parameters:
       max_client_conn: "10000"
       default_pool_size: "100"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: data-warehouse-pooler-rw
+  namespace: cnpg-data-warehouse
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  cluster:
+    name: data-warehouse-cluster
+  instances: 3
+  type: rw
+  serviceTemplate:
+    metadata:
+      labels:
+        app: pooler
+    spec:
+      type: LoadBalancer
+  pgbouncer:
+    poolMode: session
+    parameters:
+      max_client_conn: "200"
+      default_pool_size: "50"
