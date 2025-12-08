@@ -9,3 +9,4 @@ resources:
   - role-secrets.yaml
   - s3-store.yaml
   - pooler-rw.yaml
+  - data-warehouse-cluster.yaml
