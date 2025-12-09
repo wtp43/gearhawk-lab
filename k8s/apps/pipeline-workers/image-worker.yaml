@@ -18,7 +18,7 @@ spec:
         - name: docker-secret
       containers:
         - name: image-worker
-          image: wjt40398/gearhawk:image-worker-8074dd9
+          image: wjt40398/gearhawk:image-worker-59c361e
 
           imagePullPolicy: IfNotPresent
           ports:
