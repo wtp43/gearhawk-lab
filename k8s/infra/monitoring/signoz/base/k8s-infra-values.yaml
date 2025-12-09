@@ -50,8 +50,7 @@ presets:
       # Drop health check logs
       - type: filter
         id: drop_health_checks
-        expr: 'body matches ".*(/health|/healthz|/readyz|/livez).*"'
-        drop_ratio: 1.0
+        expr: 'body matches ".*/health.*"' # / doesn't need to be escaped
   kubeletMetrics:
     enabled: true
     insecureSkipVerify: false
