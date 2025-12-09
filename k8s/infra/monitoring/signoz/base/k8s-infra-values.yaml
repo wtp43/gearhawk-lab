@@ -46,6 +46,12 @@ presets:
       enabled: true
       namespaces:
         - kube-system
+      operators:
+        # Drop health check logs
+        - type: filter
+          id: drop_health_checks
+          expr: 'body matches ".*(/health|/healthz|/readyz|/livez).*"'
+          drop_ratio: 1.0
   kubeletMetrics:
     enabled: true
     insecureSkipVerify: false
