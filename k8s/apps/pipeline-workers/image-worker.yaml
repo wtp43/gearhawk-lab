@@ -70,7 +70,12 @@ spec:
                 secretKeyRef:
                   name: pipeline-worker-secrets
                   key: R2_ENDPOINT
-            - name: B2_BUCKET_NAME
+            - name: R2_PUBLIC_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: R2_PUBLIC_ENDPOINT
+            - name: R2_BUCKET_NAME
               valueFrom:
                 secretKeyRef:
                   name: pipeline-worker-secrets
