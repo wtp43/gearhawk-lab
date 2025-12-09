@@ -38,7 +38,7 @@ spec:
               value: "1"
 
             - name: VLLM_ENDPOINT
-              value: "http://vllm-server-svc.vllm.svc.cluster.local:8081"
+              value: "http://vllm-server-svc.vllm.svc.cluster.local:80"
 
             # OTEL
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
