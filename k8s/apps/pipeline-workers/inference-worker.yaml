@@ -39,7 +39,11 @@ spec:
 
             - name: VLLM_ENDPOINT
               value: "http://vllm-server-svc.vllm.svc.cluster.local:80"
-
+            - name: R2_PUBLIC_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: R2_PUBLIC_ENDPOINT
             # OTEL
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://signoz-otel-collector.signoz.svc.cluster.local:4317"
