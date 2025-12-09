@@ -100,3 +100,9 @@ spec:
                 secretKeyRef:
                   name: pipeline-worker-secrets
                   key: AWS_SECRET_ACCESS_KEY
+
+            - name: R2_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: R2_BUCKET_NAME
