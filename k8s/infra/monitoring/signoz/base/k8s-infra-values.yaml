@@ -46,11 +46,6 @@ presets:
       enabled: true
       namespaces:
         - kube-system
-    operators:
-      # Drop health check logs
-      - type: filter
-        id: drop_health_checks
-        expr: 'body matches ".*/health.*"' # / doesn't need to be escaped
   kubeletMetrics:
     enabled: true
     insecureSkipVerify: false
@@ -117,4 +112,18 @@ otelDeployment:
           processors:
             - resourcedetection/system
             - batch
+          exporters: [otlp]
+
+otelAgent:
+  config:
+    processors:
+      filter/drop_health_logs:
+        logs:
+          log_record:
+            - 'IsMatch(body, ".*/health.*")'
+    service:
+      pipelines:
+        logs:
+          receivers: [otlp, filelog/k8s]
+          processors: [k8sattributes, filter/drop_health_logs, batch]
           exporters: [otlp]
