@@ -40,6 +40,8 @@ spec:
             # OTEL
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://k8s-infra-otel-agent.signoz.svc.cluster.local:4317"
+            - name: OTEL_EXPORTER_OTLP_LOGS_ENDPOINT
+              value: "http://k8s-infra-otel-agent.signoz.svc.cluster.local:4317/v1/logs"
             - name: OTEL_EXPORTER_OTLP_PROTOCOL
               value: grpc
             - name: OTEL_RESOURCE_ATTRIBUTES
