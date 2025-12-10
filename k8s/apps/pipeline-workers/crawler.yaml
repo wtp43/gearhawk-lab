@@ -19,16 +19,7 @@ spec:
       containers:
         - name: crawler
           image: wjt40398/gearhawk:crawler-fb79b0d
-
           imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 8001
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8001
-            initialDelaySeconds: 90
-            periodSeconds: 10
 
           env:
             - name: NODE_ENV
