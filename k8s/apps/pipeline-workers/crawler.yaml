@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crawler
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: crawler
+  template:
+    metadata:
+      labels:
+        app: crawler
+    spec:
+      imagePullSecrets:
+        - name: docker-secret
+      containers:
+        - name: crawler
+          image: wjt40398/gearhawk:crawler
+
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8001
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 90
+            periodSeconds: 10
+
+          env:
+            - name: NODE_ENV
+              value: "production"
+
+            - name: WORKER_CONCURRENCY
+              value: "20"
+
+            # OTEL
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://k8s-infra-otel-agent.signoz.svc.cluster.local:4317"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: grpc
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "service.name=crawler,deployment.environment=production"
+
+            # Hatchet
+            - name: HATCHET_CLIENT_HOST_PORT
+              value: "hatchet-grpc.hatchet.svc.cluster.local:7070"
+            - name: HATCHET_CLIENT_WORKER_HEALTHCHECK_ENABLED
+              value: "True"
+            - name: HATCHET_CLIENT_TLS_STRATEGY
+              value: "none"
+            - name: HATCHET_CLIENT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: HATCHET_CLIENT_TOKEN
+            - name: CRAWLEE_PERSIST_STORAGE
+              value: "false"
+            - name: CRAWL
+              value: "true"
+
+            # Credentials
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: DB_URL
+
+            - name: B2_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: B2_ENDPOINT
+            - name: B2_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: B2_REGION
+            - name: B2_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: B2_BUCKET_NAME
+            - name: B2_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: B2_KEY
+            - name: B2_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: B2_KEY_ID
+            - name: R2_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: R2_BUCKET_NAME

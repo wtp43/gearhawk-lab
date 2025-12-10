@@ -8,4 +8,4 @@ resources:
   - etl-worker.yaml
   - image-worker.yaml
   - inference-worker.yaml
-  # - typesense-importer-cron.yaml
+  - crawler.yaml
