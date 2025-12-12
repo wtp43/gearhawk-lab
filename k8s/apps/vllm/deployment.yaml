@@ -6,6 +6,8 @@ metadata:
     argocd.argoproj.io/sync-wave: "2"
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: vllm-server
@@ -16,8 +18,6 @@ spec:
     spec:
       runtimeClassName: nvidia
       nodeName: work-00
-      strategy:
-        type: Replace
       imagePullSecrets:
         - name: docker-secret
       containers:
