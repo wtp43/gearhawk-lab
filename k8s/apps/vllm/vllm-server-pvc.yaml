@@ -11,11 +11,3 @@ spec:
       storage: 50Gi
   storageClassName: no-replicas
   volumeMode: Filesystem
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-                - work-00
