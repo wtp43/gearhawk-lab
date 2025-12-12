@@ -22,13 +22,19 @@ spec:
 
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8001
+            - name: liveness-port
+              containerPort: 8001
           livenessProbe:
             httpGet:
               path: /health
-              port: 8001
-            initialDelaySeconds: 90
-            periodSeconds: 10
+              port: liveness-port
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          startupProbe:
+            httpGet:
+              path: /health
+              port: liveness-port
+            initialDelaySeconds: 30
 
           env:
             - name: NODE_ENV

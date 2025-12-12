@@ -17,7 +17,7 @@ spec:
       runtimeClassName: nvidia
       nodeName: work-00
       strategy:
-          type: Replace
+        type: Replace
       imagePullSecrets:
         - name: docker-secret
       containers:
@@ -32,7 +32,8 @@ spec:
               path: /health
               port: 8081
             initialDelaySeconds: 600
-            periodSeconds: 10
+            periodSeconds: 30
+
           volumeMounts:
             - name: vllm-storage
               mountPath: /data
