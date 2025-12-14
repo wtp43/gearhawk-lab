@@ -41,7 +41,7 @@ spec:
               value: "production"
 
             - name: WORKER_CONCURRENCY
-              value: "1"
+              value: "5"
 
             - name: VLLM_ENDPOINT
               value: "http://vllm-server-svc.vllm.svc.cluster.local:80"
