@@ -5,6 +5,7 @@ crds:
 extraArgs:
   - "--enable-gateway-api"
 
+replicaCount: 2
 podDisruptionBudget:
   enabled: true
   minAvailable: 1
@@ -16,6 +17,7 @@ resources:
     cpu: 10m
     memory: 64Mi
 webhook:
+  replicaCount: 3
   resources:
     limits:
       cpu: 100m
@@ -27,6 +29,7 @@ webhook:
     enabled: true
     minAvailable: 1
 cainjector:
+  replicaCount: 2
   resources:
     limits:
       cpu: 100m
