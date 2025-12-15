@@ -1,9 +1,13 @@
+#https://cert-manager.io/docs/installation/best-practice/#high-availability
 crds:
   enabled: true
   keep: true
 extraArgs:
   - "--enable-gateway-api"
 
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
 resources:
   limits:
     cpu: 100m
@@ -19,6 +23,9 @@ webhook:
     requests:
       cpu: 10m
       memory: 32Mi
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
 cainjector:
   resources:
     limits:
@@ -27,3 +34,6 @@ cainjector:
     requests:
       cpu: 10m
       memory: 64Mi
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
