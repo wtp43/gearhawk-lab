@@ -19,7 +19,11 @@ spec:
       containers:
         - name: inference-worker
           image: wjt40398/gearhawk:inference-worker-dff1117
-
+          resources:
+            requests:
+              memory: 16Gi
+            limits:
+              memory: 16Gi
           imagePullPolicy: IfNotPresent
           ports:
             - name: liveness-port
