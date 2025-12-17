@@ -18,7 +18,7 @@ spec:
         - name: docker-secret
       containers:
         - name: etl-worker
-          image: wjt40398/gearhawk:etl-worker-d130e95
+          image: wjt40398/gearhawk:etl-worker-0909411
 
           imagePullPolicy: IfNotPresent
           ports:
