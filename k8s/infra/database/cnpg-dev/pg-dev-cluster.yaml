@@ -14,20 +14,50 @@ spec:
   primaryUpdateStrategy: unsupervised
 
   postgresql:
+    # TODO: performance tuning https://www.enterprisedb.com/postgres-tutorials/introduction-postgresql-performance-tuning-and-optimization?lang=en
+    # using: https://pgtune.leopard.in.ua/
+    # WARNING: WAL tuning parameters should be the same as the backups when restoring from backup
+    parameters:
+      pg_stat_statements.max: "10000"
+      pg_stat_statements.track: all
+      auto_explain.log_min_duration: "10s"
+
+      # DB Version: 18
+      # OS Type: linux
+      # DB Type: mixed
+      # Total Memory (RAM): 8 GB
+      # CPUs num: 4
+      # Connections num: 250
+      # Data Storage: ssd
+      max_connections: "250"
+      shared_buffers: "2GB"
+      effective_cache_size: "6GB"
+      maintenance_work_mem: "512MB"
+      checkpoint_completion_target: "0.9"
+      wal_buffers: "16MB"
+      default_statistics_target: "100"
+      random_page_cost: "1.1"
+      effective_io_concurrency: "200"
+      work_mem: "4128kB"
+      huge_pages: "off"
+      min_wal_size: "1GB"
+      max_wal_size: "4GB"
+      max_worker_processes: "4"
+      max_parallel_workers_per_gather: "2"
+      max_parallel_workers: "4"
+      max_parallel_maintenance_workers: "2"
     pg_hba:
       - host all all all md5
 
   bootstrap:
     recovery:
       source: s3
-      database: postgres
+      database: data_warehouse
       owner: app
       secret:
-        name: gearhawk-postgres-app
+        name: data-warehouse-owner
 
-  enableSuperuserAccess: true
-  superuserSecret:
-    name: gearhawk-postgres-superuser
+  enableSuperuserAccess: false
 
   storage:
     storageClass: no-replicas
@@ -40,5 +70,4 @@ spec:
         parameters:
           # Recovery Object Store (pull, read-only)
           barmanObjectName: s3-store
-          serverName: recovery-target # the target path where base + wal objects are stored
-
+          serverName: recovery-target-cnpg-data-warehouse-v2 # the target path where base + wal objects are stored
