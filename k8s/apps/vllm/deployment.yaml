@@ -46,7 +46,7 @@ spec:
             - name: COMPARISON_BATCH_SIZE
               value: "50"
             - name: MODEL
-              value: "cyankiwi/InternVL3_5-38B-AWQ-4bit"
+              value: "cyankiwi/InternVL3_5-14B-AWQ-8bit"
             - name: MAX_MODEL_LEN
               value: "14000"
             - name: GPU_MEMORY_UTILIZATION
