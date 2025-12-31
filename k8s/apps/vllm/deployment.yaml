@@ -46,7 +46,7 @@ spec:
             - name: COMPARISON_BATCH_SIZE
               value: "50"
             - name: MODEL
-              value: "OpenGVLab/InternVL3_5-4B-Instruct"
+              value: "OpenGVLab/InternVL3_5-14B-Instruct"
             - name: MAX_MODEL_LEN
               value: "14000"
             - name: GPU_MEMORY_UTILIZATION
