@@ -46,13 +46,13 @@ spec:
             - name: COMPARISON_BATCH_SIZE
               value: "50"
             - name: MODEL
-              value: "OpenGVLab/InternVL3_5-14B-Instruct"
+              value: "OpenGVLab/InternVL3_5-8B-Instruct"
             - name: MAX_MODEL_LEN
               value: "14000"
             - name: GPU_MEMORY_UTILIZATION
               value: "0.9"
             - name: DEFAULT_MAX_TOKENS
-              value: "10000"
+              value: "1000"
             - name: DEFAULT_TEMPERATURE
               value: "0.7"
 
