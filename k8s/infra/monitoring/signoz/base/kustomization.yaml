@@ -11,7 +11,7 @@ helmCharts:
     repo: https://charts.signoz.io
     includeCRDs: true
     namespace: signoz
-    version: 0.105.2
+    version: 0.106.0
     releaseName: signoz
     valuesFile: ./signoz-values.yaml
 
