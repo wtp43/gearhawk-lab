@@ -18,7 +18,7 @@ spec:
         - name: docker-secret
       containers:
         - name: crawler
-          image: wjt40398/gearhawk:crawler-6422e41
+          image: wjt40398/gearhawk:crawler-97ed49e
           imagePullPolicy: IfNotPresent
 
           env:
