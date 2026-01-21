@@ -2,7 +2,7 @@ resource "helm_release" "onepassword-connect" {
   name       = "onepassword-connect"
   repository = "https://1password.github.io/connect-helm-charts/"
   chart      = "connect"
-  version    = "2.2.0"
+  version    = "2.2.1"
   set_sensitive = [
     {
       name  = "connect.credentials_base64"
