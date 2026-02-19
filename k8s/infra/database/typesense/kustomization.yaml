@@ -5,7 +5,7 @@ namespace: typesense
 helmCharts:
   - name: typesense-operator
     repo: https://akyriako.github.io/typesense-operator/
-    version: 0.3.7
+    version: 0.3.8
     releaseName: typesense-operator
     namespace: typesense
     includeCRDs: true
