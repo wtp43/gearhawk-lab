@@ -16,8 +16,6 @@ scheduler:
 sharedConfig:
   # you can disable shared config by setting this to false
   enabled: true
-  image:
-    tag: "v0.74.9"
   # you can set additional environment variables here, which will override any defaults
   envFrom:
     - secretRef:
