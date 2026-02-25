@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: applications
+  namespace: argocd
+  labels:
+    gearhawk.lab: application
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/wtp43/gearhawk-lab
+        revision: HEAD
+        directories:
+          - path: k8s/apps/*
+  template:
+    metadata:
+      name: "{{ path.basename }}"
+      labels:
+        gearhawk.lab: application
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: applications
+      source:
+        repoURL: https://github.com/wtp43/gearhawk-lab
+        targetRevision: HEAD
+        path: "{{ path }}"
+      destination:
+        name: in-cluster
+        namespace: argocd
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+
+
+TODO:
+  - fix this:
+      For each group of applications, choose the namespace to be the same as the folder name and apply.
+      destination:
+        name: in-cluster
+        namespace: "{{ path.basename }}"
