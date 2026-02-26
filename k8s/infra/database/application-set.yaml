@@ -29,7 +29,7 @@ spec:
         path: "{{ path }}"
       destination:
         name: in-cluster
-        namespace: argocd # FIX
+        namespace: "{{ path.basename }}"
       syncPolicy:
         automated:
           selfHeal: true
