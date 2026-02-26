@@ -11,19 +11,16 @@ spec:
   image: typesense/typesense:29.0
   replicas: 3
   storage:
-    size: 100Mi
+    size: 10Gi
     storageClassName: no-replicas
   enableCors: true
   corsDomains: "https://gearhawk.io"
   adminApiKey:
     name: typesense-api-key
-  # resources:
-  #   requests:
-  #     memory: 1Gi
-  #     cpu: 2
-  #     ephemeral-storage: "1Gi"
-  #
-  #   limits:
-  #     memory: 8Gi
-  #     cpu: 6
-  #     ephemeral-storage: "4Gi"
+  resources:
+    requests:
+      cpu: 2
+
+    limits:
+      memory: 8Gi
+      cpu: 6
