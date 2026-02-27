@@ -14,9 +14,7 @@ spec:
     size: 1Gi
     storageClassName: no-replicas
   enableCors: true
-  corsDomains:
-    - "http://localhost:3000"
-    - "http://127.0.0.1:3000"
+  corsDomains: "http://localhost:3000"
 
   adminApiKey:
     name: typesense-api-key
