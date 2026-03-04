@@ -20,8 +20,6 @@ spec:
         - name: inference-worker
           image: wjt40398/gearhawk:inference-worker-615813a
           resources:
-            requests:
-              memory: 16Gi
             limits:
               memory: 16Gi
           imagePullPolicy: IfNotPresent
@@ -54,6 +52,12 @@ spec:
                 secretKeyRef:
                   name: pipeline-worker-secrets
                   key: R2_PUBLIC_ENDPOINT
+
+            - name: SKIP_LLM_COMPARISON
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: SKIP_LLM_COMPARISON
             # OTEL
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://k8s-infra-otel-agent.signoz.svc.cluster.local:4317"

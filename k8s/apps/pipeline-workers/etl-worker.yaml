@@ -19,7 +19,9 @@ spec:
       containers:
         - name: etl-worker
           image: wjt40398/gearhawk:etl-worker-615813a
-
+          resources:
+            limits:
+              memory: 16Gi
           imagePullPolicy: IfNotPresent
           ports:
             - name: liveness-port
@@ -42,6 +44,24 @@ spec:
 
             - name: WORKER_CONCURRENCY
               value: "20"
+
+            - name: SKIP_LLM_COMPARISON
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: SKIP_LLM_COMPARISON
+
+            - name: TYPESENSE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: TYPESENSE_HOST
+
+            - name: TYPESENSE_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: TYPESENSE_PORT
 
             # OTEL
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
