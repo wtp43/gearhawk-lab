@@ -22,7 +22,7 @@ spec:
         - name: docker-secret
       containers:
         - name: vllm-server
-          image: wjt40398/gearhawk:vllm-server-4e445dc4ca171ba981678c750acaf195b1b487f4
+          image: wjt40398/gearhawk:vllm-server-615813a60f3b81f3ec764fb6a8ff5a6ace61f4d6
 
           imagePullPolicy: IfNotPresent
           ports:
