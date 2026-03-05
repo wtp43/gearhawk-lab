@@ -62,6 +62,11 @@ spec:
                 secretKeyRef:
                   name: pipeline-worker-secrets
                   key: TYPESENSE_PORT
+            - name: TYPESENSE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: TYPESENSE_API_KEY
 
             # OTEL
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
