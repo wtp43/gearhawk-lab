@@ -18,7 +18,7 @@ spec:
         - name: docker-secret
       containers:
         - name: inference-worker
-          image: wjt40398/gearhawk:inference-worker-6bc140f
+          image: wjt40398/gearhawk:inference-worker-6c2c871
           resources:
             limits:
               memory: 16Gi
