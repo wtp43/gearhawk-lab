@@ -40,11 +40,6 @@ spec:
       max_parallel_maintenance_workers: "4"
 
   bootstrap:
-    # initdb:
-    #   database: hatchet
-    #   owner: hatchet
-    #   secret:
-    #     name: hatchet-user
     recovery:
       source: s3
       database: hatchet
@@ -57,7 +52,6 @@ spec:
     name: gearhawk-postgres-superuser
 
   storage:
-    # TODO: benchmark and use local storage
     storageClass: no-replicas
     size: 15Gi
 
@@ -82,8 +76,7 @@ spec:
       memory: "8Gi"
       cpu: "2"
     limits:
-      memory: "12Gi"
-      cpu: "8"
+      memory: "16Gi"
   monitoring:
     enablePodMonitor: false
 
