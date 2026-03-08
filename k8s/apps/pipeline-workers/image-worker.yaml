@@ -41,7 +41,13 @@ spec:
               value: "production"
 
             - name: WORKER_CONCURRENCY
-              value: "40"
+              value: "100"
+
+            - name: MAX_IMAGE_REQUESTS_PER_DOMAIN
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: MAX_IMAGE_REQUESTS_PER_DOMAIN
 
             # OTEL
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
