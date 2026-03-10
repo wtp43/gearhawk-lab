@@ -50,17 +50,12 @@ spec:
       - host all all all md5
 
   bootstrap:
-    initdb:
+    recovery:
+      source: s3
       database: data_warehouse
-      owner: data_warehouse_owner
+      owner: app
       secret:
         name: data-warehouse-owner
-    # recovery:
-    #   source: s3
-    #   database: data_warehouse
-    #   owner: app
-    #   secret:
-    #     name: data-warehouse-owner
 
   enableSuperuserAccess: false
 
