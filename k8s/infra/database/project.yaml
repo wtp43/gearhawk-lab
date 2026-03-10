@@ -11,6 +11,8 @@ spec:
       server: "*"
     - namespace: "cnpg-database"
       server: "*"
+    - namespace: "cnpg"
+      server: "*"
     - namespace: "cnpg-system"
       server: "*"
     - namespace: "cnpg-hatchet"
