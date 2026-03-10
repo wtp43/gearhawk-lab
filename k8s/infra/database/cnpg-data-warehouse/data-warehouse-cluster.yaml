@@ -53,7 +53,7 @@ spec:
     recovery:
       source: s3
       database: data_warehouse
-      owner: app
+      owner: data_warehouse_owner
       secret:
         name: data-warehouse-owner
 
