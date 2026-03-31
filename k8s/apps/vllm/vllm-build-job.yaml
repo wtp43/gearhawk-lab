@@ -73,7 +73,7 @@ spec:
 
           env:
             - name: COMMIT_SHA
-              value: "48c01119f25e9ffee0f0fcf7f4b2ec5aef554f05"
+              value: "9ea073cabecb9bd8876c060d1350baebf51ef747"
             - name: GITHUB_PAT
               valueFrom:
                 secretKeyRef:
