@@ -18,7 +18,7 @@ spec:
         - name: docker-secret
       containers:
         - name: etl-worker
-          image: wjt40398/gearhawk:etl-worker-9ea073c
+          image: wjt40398/gearhawk:etl-worker-2d55b52
           resources:
             limits:
               memory: 16Gi
