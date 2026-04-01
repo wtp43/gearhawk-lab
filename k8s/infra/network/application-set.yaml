@@ -7,14 +7,20 @@ metadata:
     gearhawk.lab: network
 spec:
   generators:
-    - git:
-        repoURL: https://github.com/wtp43/gearhawk-lab
-        revision: HEAD
-        directories:
-          - path: k8s/infra/network/*
+    - list:
+        elements:
+          - name: cilium
+            path: k8s/infra/network/cilium
+            namespace: kube-system
+          - name: cloudflared
+            path: k8s/infra/network/cloudflared
+            namespace: cloudflare
+          - name: gateway
+            path: k8s/infra/network/gateway
+            namespace: gateway
   template:
     metadata:
-      name: "{{ path.basename }}"
+      name: "{{ name }}"
       labels:
         gearhawk.lab: network
     spec:
@@ -25,6 +31,9 @@ spec:
         repoURL: https://github.com/wtp43/gearhawk-lab
         targetRevision: HEAD
         path: "{{ path }}"
+      destination:
+        name: in-cluster
+        namespace: "{{ namespace }}"
       syncPolicy:
         automated:
           selfHeal: true
