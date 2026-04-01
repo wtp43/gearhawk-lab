@@ -19,7 +19,9 @@ spec:
       containers:
         - name: image-worker
           image: wjt40398/gearhawk:image-worker-afdc405
-
+          resources:
+            limits:
+              memory: 6Gi
           imagePullPolicy: IfNotPresent
           ports:
             - name: liveness-port

@@ -20,7 +20,9 @@ spec:
         - name: crawler
           image: wjt40398/gearhawk:crawler-afdc405
           imagePullPolicy: IfNotPresent
-
+          resources:
+            limits:
+              memory: 8Gi
           env:
             - name: NODE_ENV
               value: "production"
