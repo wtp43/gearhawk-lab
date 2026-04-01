@@ -14,7 +14,7 @@ spec:
             namespace: kube-system
           - name: cloudflared
             path: k8s/infra/network/cloudflared
-            namespace: cloudflare
+            namespace: cloudflared
           - name: gateway
             path: k8s/infra/network/gateway
             namespace: gateway
