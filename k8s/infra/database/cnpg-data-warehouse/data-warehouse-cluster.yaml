@@ -77,6 +77,17 @@ spec:
         passwordSecret:
           name: gearhawk-pipeline-worker
 
+      - name: readonly_user
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        connectionLimit: 50
+        passwordSecret:
+          name: readonly-credentials
+        inRoles:
+          - pg_read_all_data
+
   externalClusters:
     - name: s3
       plugin:
