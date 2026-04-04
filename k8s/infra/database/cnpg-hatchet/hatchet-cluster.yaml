@@ -40,12 +40,17 @@ spec:
       max_parallel_maintenance_workers: "4"
 
   bootstrap:
-    recovery:
-      source: s3
+    initdb:
       database: hatchet
       owner: hatchet
       secret:
-        name: gearhawk-postgres-app
+        name: hatchet-owner
+    # recovery:
+    #   source: s3
+    #   database: hatchet
+    #   owner: hatchet
+    #   secret:
+    #     name: hatchet-owner
 
   enableSuperuserAccess: true
   superuserSecret:
