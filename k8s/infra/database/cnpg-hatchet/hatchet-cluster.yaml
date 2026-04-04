@@ -40,17 +40,12 @@ spec:
       max_parallel_maintenance_workers: "4"
 
   bootstrap:
-    initdb:
+    recovery:
+      source: s3
       database: hatchet
       owner: hatchet
       secret:
         name: hatchet-owner
-    # recovery:
-    #   source: s3
-    #   database: hatchet
-    #   owner: hatchet
-    #   secret:
-    #     name: hatchet-owner
 
   enableSuperuserAccess: true
   superuserSecret:
