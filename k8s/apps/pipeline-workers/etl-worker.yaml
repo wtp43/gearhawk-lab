@@ -39,7 +39,7 @@ spec:
             initialDelaySeconds: 30
 
           env:
-            - name: NODE_ENV
+            - name: ENV
               value: "production"
 
             - name: WORKER_CONCURRENCY
