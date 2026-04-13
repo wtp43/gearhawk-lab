@@ -26,10 +26,10 @@ spec:
           env:
             - name: NODE_ENV
               value: "production"
-
             - name: CRAWLEE_MEMORY_MBYTES
-              value: 8192
-
+              value: "8000"
+            - name: CRAWLEE_HEADLESS
+              value: "true"
             - name: WORKER_CONCURRENCY
               value: "20"
 
