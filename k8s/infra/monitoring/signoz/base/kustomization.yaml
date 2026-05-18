@@ -19,6 +19,6 @@ helmCharts:
     repo: https://charts.signoz.io
     includeCRDs: true
     namespace: signoz
-    version: 0.15.0
+    version: 0.16.0
     releaseName: k8s-infra
     valuesFile: ./k8s-infra-values.yaml
