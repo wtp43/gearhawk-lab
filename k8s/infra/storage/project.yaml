@@ -11,6 +11,8 @@ spec:
       server: "*"
     - namespace: "longhorn-system"
       server: "*"
+    - namespace: "longhorn"
+      server: "*"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
