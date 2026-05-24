@@ -68,7 +68,7 @@ spec:
       parameters:
         # Backup Object Store (push, read-write)
         barmanObjectName: s3-store
-        serverName: scheduled-backup-cnpg-infra # this s3 path must be empty during recovery
+        serverName: scheduled-backup-cnpg-infra-2026-05-24 # this s3 path must be empty during recovery
   monitoring:
     enablePodMonitor: false
 
