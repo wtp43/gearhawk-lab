@@ -1,0 +1,9 @@
+apiVersion: marimo.io/v1alpha1
+kind: MarimoNotebook
+metadata:
+  name: data-integrity-notebook
+spec:
+  source: https://github.com/marimo-team/examples.git
+  storage:
+    size: 1Gi
+  port: 2718
