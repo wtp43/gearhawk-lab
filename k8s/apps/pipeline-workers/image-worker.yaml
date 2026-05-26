@@ -18,7 +18,7 @@ spec:
         - name: docker-secret
       containers:
         - name: image-worker
-          image: wjt40398/gearhawk:image-worker-626ce13
+          image: wjt40398/gearhawk:image-worker-09f07ef
           resources:
             limits:
               memory: 6Gi
