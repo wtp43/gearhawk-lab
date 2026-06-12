@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: nextjs-container
-          image: wjt40398/gearhawk:app
+          image: wjt40398/gearhawk:web-gearhawk
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
