@@ -1,4 +1,7 @@
 cluster:
+%{~ if allow_scheduling_on_control_planes }
+  allowSchedulingOnControlPlanes: true
+%{~ endif }
   network:
     cni:
       name: none
@@ -11,3 +14,7 @@ cluster:
         disabled: false
   extraManifests: ${extra_manifests}
   inlineManifests: ${inline_manifests}
+%{~ if length(cert_sans) > 0 }
+  apiServer:
+    certSANs: ${jsonencode(cert_sans)}
+%{~ endif }

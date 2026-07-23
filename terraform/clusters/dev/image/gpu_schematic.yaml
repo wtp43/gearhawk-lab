@@ -1,0 +1,13 @@
+# Dev cluster GPU Talos image schematic. Owned by dev. (No dev nodes set
+# gpu = true today, but the module always resolves this schematic, so it must
+# exist.)
+customization:
+  systemExtensions:
+    officialExtensions:
+      - siderolabs/iscsi-tools
+      - siderolabs/qemu-guest-agent
+      - siderolabs/nonfree-kmod-nvidia-production
+      - siderolabs/nvidia-container-toolkit-production
+      - siderolabs/util-linux-tools
+      - siderolabs/intel-ucode
+      # - siderolabs/tailscale

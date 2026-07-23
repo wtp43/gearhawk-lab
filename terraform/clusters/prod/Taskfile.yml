@@ -15,18 +15,12 @@ tasks:
       - ./get_talos_kubernetes_config.sh
       # - ./post-bootstrap/patch-user-volume.sh
 
-  destroy:
-    desc: Destroy the cluster
-    cmds:
-      # - terraform destroy -target=null_resource.terraform-up -auto-approve
-      - terraform destroy -auto-approve
+  # destroy:
+  #   desc: Destroy the cluster
+  #   cmds:
+  #     # - terraform destroy -target=null_resource.terraform-up -auto-approve
+  #     - terraform destroy -auto-approve
 
-  recreate:
-    desc: Recreate the cluster
-    cmds:
-      - task destroy
-      - task create
-      # - task argocd
   patch:
     desc: Patch all nodes
     cmds:

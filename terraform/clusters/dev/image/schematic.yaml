@@ -1,0 +1,10 @@
+# Dev cluster Talos image schematic. Owned by dev — edit freely to test image /
+# extension / version changes without affecting prod.
+customization:
+  systemExtensions:
+    officialExtensions:
+      - siderolabs/iscsi-tools
+      - siderolabs/qemu-guest-agent
+      - siderolabs/util-linux-tools
+      - siderolabs/intel-ucode
+      # - siderolabs/tailscale

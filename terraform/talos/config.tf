@@ -47,7 +47,7 @@ data "talos_machine_configuration" "this" {
   # @formatter:on
   machine_type    = each.value.machine_type
   machine_secrets = talos_machine_secrets.this.machine_secrets
-  config_patches = [
+  config_patches = concat([
     templatefile("${path.module}/machine-config/common.yaml.tftpl", {
       node_name    = each.value.host_node
       cluster_name = var.cluster.proxmox_cluster
@@ -58,17 +58,31 @@ data "talos_machine_configuration" "this" {
       subnet_mask  = var.cluster.subnet_mask
       vip          = each.value.machine_type == "controlplane" ? var.cluster.vip : null
       machine_type = each.value.machine_type
+      # Talos 1.12+ moved hostname to a separate HostnameConfig document and
+      # rejects the legacy machine.network.hostname when both are present.
+      use_hostname_config = var.cluster.use_hostname_config
 
     }),
 
     each.value.machine_type == "controlplane" ?
     templatefile("${path.module}/machine-config/control-plane.yaml.tftpl", {
-      extra_manifests  = jsonencode(var.cluster.extra_manifests)
-      api_server       = var.cluster.api_server
-      inline_manifests = jsonencode(terraform_data.cilium_bootstrap_inline_manifests.output)
+      extra_manifests                    = jsonencode(var.cluster.extra_manifests)
+      api_server                         = var.cluster.api_server
+      inline_manifests                   = jsonencode(terraform_data.cilium_bootstrap_inline_manifests.output)
+      allow_scheduling_on_control_planes = var.cluster.allow_scheduling_on_control_planes
+      cert_sans                          = var.cluster.cert_sans
     }) : "",
 
-  ]
+    # Talos 1.12+: set the hostname via the new HostnameConfig document instead
+    # of machine.network.hostname (which is dropped from common.yaml.tftpl when
+    # use_hostname_config is true). Appended only when enabled, so the prod
+    # (legacy) patch list is unchanged.
+    ], var.cluster.use_hostname_config ? [yamlencode({
+      apiVersion = "v1alpha1"
+      kind       = "HostnameConfig"
+      hostname   = each.key
+      auto       = "off"
+  })] : [])
 }
 
 // NOTE: multiple resources can be created if configurations highly vary 
@@ -93,6 +107,7 @@ resource "talos_machine_bootstrap" "this" {
 }
 
 data "talos_cluster_health" "this" {
+  count = var.cluster.skip_health_check ? 0 : 1
   depends_on = [
     talos_machine_configuration_apply.this,
     talos_machine_bootstrap.this

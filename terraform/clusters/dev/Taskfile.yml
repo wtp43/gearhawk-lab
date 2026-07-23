@@ -1,0 +1,38 @@
+# https://taskfile.dev/installation/
+# Dev cluster. Proxmox credentials are NOT duplicated here — they are read from
+# the prod root's proxmox.auto.tfvars via -var-file so there is a single source.
+version: "3"
+
+vars:
+  PROXMOX_VARS: "-var-file=../../proxmox.auto.tfvars"
+
+tasks:
+  init:
+    desc: Initialize the dev project
+    cmds:
+      - terraform init -upgrade
+
+  plan:
+    desc: Plan the dev cluster
+    cmds:
+      - terraform plan {{.PROXMOX_VARS}}
+
+  create:
+    desc: Create the dev cluster
+    cmds:
+      - terraform apply -auto-approve {{.PROXMOX_VARS}}
+      - 'echo "Dev kubeconfig:  export KUBECONFIG=$(pwd)/output/kube-config.yaml"'
+      - 'echo "Dev talosconfig: talosctl --talosconfig $(pwd)/output/talos-config.yaml -e 192.168.50.60 -n 192.168.50.60,192.168.50.61,192.168.50.62 ..."'
+
+  destroy:
+    desc: Destroy the dev cluster
+    cmds:
+      # Skip the health gate on teardown so an unhealthy cluster can't block it.
+      # Installs (apply) still enforce health (skip_health_check defaults false).
+      - terraform destroy -auto-approve {{.PROXMOX_VARS}} -var 'skip_health_check=true'
+
+  recreate:
+    desc: Recreate the dev cluster
+    cmds:
+      - task destroy
+      - task create

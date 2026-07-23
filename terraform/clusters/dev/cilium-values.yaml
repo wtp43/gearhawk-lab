@@ -1,0 +1,114 @@
+# Dev cluster Cilium values.
+# Copied from k8s/infra/network/cilium/values.yaml with a distinct cluster
+# name/id so dev and prod stay isolated while sharing the same L2 segment.
+cluster:
+  name: talos-dev
+  id: 2
+
+kubeProxyReplacement:
+  true
+
+  # Talos specific
+k8sServiceHost: localhost
+k8sServicePort: 7445
+securityContext:
+  capabilities:
+    ciliumAgent:
+      [
+        CHOWN,
+        KILL,
+        NET_ADMIN,
+        NET_RAW,
+        IPC_LOCK,
+        SYS_ADMIN,
+        SYS_RESOURCE,
+        DAC_OVERRIDE,
+        FOWNER,
+        SETGID,
+        SETUID,
+      ]
+    cleanCiliumState: [NET_ADMIN, SYS_ADMIN, SYS_RESOURCE]
+
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
+bpf:
+  hostLegacyRouting: true
+
+ipam:
+  mode: kubernetes
+  multiPoolPreAllocation: ""
+
+operator:
+  rollOutPods: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+rollOutCiliumPods: true
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 200m
+    memory: 512Mi
+
+# Increase rate limit when doing L2 announcements
+k8sClientRateLimit:
+  qps: 20
+  burst: 100
+
+l2announcements:
+  enabled: true
+
+externalIPs:
+  enabled: true
+
+ciliumEndpointSlice:
+  enabled: true
+
+loadBalancer:
+  algorithm: maglev
+
+gatewayAPI:
+  enabled: true
+envoy:
+  securityContext:
+    capabilities:
+      keepCapNetBindService: true
+      envoy: [NET_ADMIN, PERFMON, BPF]
+
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+    rollOutPods: true
+  ui:
+    enabled: true
+    rollOutPods: true
+
+ingressController:
+  enabled: false
+  default: true
+  loadbalancerMode: shared
+  service:
+    annotations:
+      # Inert (ingressController disabled); kept in the dev IP range for clarity.
+      io.cilium/lb-ipam-ips: 192.168.50.90
+
+authentication:
+  enabled: false
+  mutual:
+    spire:
+      enabled: false
+      install:
+        server:
+          dataStorage:
+            storageClass: cilium-spire-sc

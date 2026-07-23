@@ -96,7 +96,11 @@ resource "proxmox_virtual_environment_download_file" "this" {
   content_type = "iso"
   datastore_id = var.image.proxmox_datastore
 
-  file_name = "talos-${split("_", each.key)[1]}-${split("_", each.key)[2]}-${var.image.platform}-${var.image.arch}.img"
+  # file_name_suffix lets a second cluster sharing the same hosts + image store
+  # its own copy under a distinct name (e.g. "-dev") so the two never collide on
+  # the datastore. Empty by default ⇒ prod filename unchanged. The download URL
+  # is unaffected: identical image content, different local filename.
+  file_name = "talos-${split("_", each.key)[1]}-${split("_", each.key)[2]}-${var.image.platform}-${var.image.arch}${var.image.file_name_suffix}.img"
 
   url                     = "${var.image.factory_url}/image/${split("_", each.key)[1]}/${split("_", each.key)[2]}/${var.image.platform}-${var.image.arch}.raw.gz"
   decompression_algorithm = "gz"
