@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: web-gearhawk-dev
+
+resources:
+  - ns.yaml
+  - env-secret.yaml
+  - docker-secret.yaml
+  - deployment.yaml
+  - service.yaml
+  - internal-route.yaml
+  - external-route.yaml
+
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/name: web-gearhawk
+      app.kubernetes.io/part-of: gearhawk
+      app.kubernetes.io/component: web
+      app.kubernetes.io/instance: web-gearhawk-dev

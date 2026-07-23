@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gearhawk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gearhawk
+  template:
+    metadata:
+      labels:
+        app: api-gearhawk
+    spec:
+      containers:
+        - name: api-gearhawk
+          image: wjt40398/gearhawk:api-dev
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8787
+          envFrom:
+            - secretRef:
+                name: api-gearhawk-dev-env
+          readinessProbe:
+            tcpSocket:
+              port: 8787
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8787
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+              ephemeral-storage: "512Mi"
+            limits:
+              cpu: 500m
+              memory: 1Gi
+              ephemeral-storage: "2Gi"
+      imagePullSecrets:
+        - name: docker-secret

@@ -1,8 +1,7 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: nextjs-external
-  namespace: gearhawk-website
+  name: web-gearhawk-external
   annotations:
     argocd.argoproj.io/sync-wave: "4"
 spec:
@@ -17,5 +16,5 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: nextjs-svc
+        - name: web-gearhawk-svc
           port: 80

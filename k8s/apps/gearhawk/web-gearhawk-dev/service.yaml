@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: nextjs-svc
+  name: web-gearhawk-svc
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
   selector:
-    app: nextjs
+    app: web-gearhawk
   ports:
     - name: http
       protocol: TCP

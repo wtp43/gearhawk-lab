@@ -4,8 +4,6 @@ kind: Kustomization
 resources:
   - project.yaml
   - application-set.yaml
-  - ns.yaml
-  - docker-secret.yaml
 
 labels:
   - includeSelectors: true

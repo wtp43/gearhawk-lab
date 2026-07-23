@@ -6,10 +6,24 @@ metadata:
 spec:
   gatewayClassName: cilium
   listeners:
-    - name: gearhawk-hono
+    - name: api-gearhawk
       protocol: HTTP
       port: 80
       hostname: api.gearhawk.io
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: api-gearhawk-dev
+      protocol: HTTP
+      port: 80
+      hostname: api-dev.gearhawk.io
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: web-gearhawk-dev
+      protocol: HTTP
+      port: 80
+      hostname: dev.gearhawk.io
       allowedRoutes:
         namespaces:
           from: All

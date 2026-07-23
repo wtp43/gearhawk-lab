@@ -1,16 +1,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: nextjs-hpa
-  annotations:
-    argocd.argoproj.io/sync-wave: "3"
+  name: api-gearhawk-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: nextjs
+    name: api-gearhawk
   minReplicas: 2
-  maxReplicas: 6
+  maxReplicas: 5
   metrics:
     - type: Resource
       resource:

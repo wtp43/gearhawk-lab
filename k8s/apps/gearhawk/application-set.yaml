@@ -1,22 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: gearhawk-website
+  name: gearhawk
   namespace: argocd
   labels:
-    gearhawk.lab: gearhawk-website
+    gearhawk.lab: gearhawk
 spec:
   generators:
     - git:
         repoURL: https://github.com/wtp43/gearhawk-lab
         revision: HEAD
         directories:
-          - path: k8s/apps/gearhawk-website/*
+          - path: k8s/apps/gearhawk/*
   template:
     metadata:
       name: "{{ path.basename }}"
       labels:
-        gearhawk.lab: gearhawk-website
+        gearhawk.lab: gearhawk
       finalizers:
         - resources-finalizer.argocd.argoproj.io
     spec:
@@ -27,7 +27,7 @@ spec:
         path: "{{ path }}"
       destination:
         name: in-cluster
-        namespace: gearhawk-website
+        namespace: "{{ path.basename }}"
       syncPolicy:
         automated:
           selfHeal: true

@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: hono-svc
+  name: web-gearhawk-svc
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   selector:
-    app: hono
+    app: web-gearhawk
   ports:
     - name: http
       protocol: TCP
       port: 80
-      targetPort: 8787
+      targetPort: 3000

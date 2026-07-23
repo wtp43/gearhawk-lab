@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: gearhawk-website
+  name: gearhawk
   namespace: argocd
 spec:
   sourceRepos:
@@ -9,7 +9,16 @@ spec:
   destinations:
     - namespace: "argocd"
       server: "*"
+    # Kept so ArgoCD can prune the old single-namespace deployment.
     - namespace: "gearhawk-website"
+      server: "*"
+    - namespace: "api-gearhawk"
+      server: "*"
+    - namespace: "web-gearhawk"
+      server: "*"
+    - namespace: "api-gearhawk-dev"
+      server: "*"
+    - namespace: "web-gearhawk-dev"
       server: "*"
   clusterResourceWhitelist:
     - group: "*"
