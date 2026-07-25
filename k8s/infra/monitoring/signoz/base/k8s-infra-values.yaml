@@ -40,6 +40,8 @@ presets:
     namespaces: [] #
   otlpExporter:
     enabled: true
+  otlphttpExporter:
+    enabled: false
   logsCollection:
     enabled: true
     blacklist:
