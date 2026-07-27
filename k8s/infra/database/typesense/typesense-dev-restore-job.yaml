@@ -1,0 +1,149 @@
+# Rebuilds the dev Typesense cluster from prod.
+#
+# Wipes every collection and alias on dev first, then copies each prod
+# collection over, so dev ends up an exact mirror of prod at run time. Dev has
+# no data for the duration of the copy (a few seconds).
+#
+# This runs whenever the Job is created. To rebuild dev again, delete the
+# completed Job in Argo CD and let it sync back, or:
+#
+#   kubectl delete job typesense-dev-restore -n typesense
+#   kubectl apply -f infra/database/typesense/typesense-dev-restore-job.yaml
+#
+# Job specs are immutable, hence Replace=true below - it lets Argo recreate the
+# Job when this file changes instead of failing the sync.
+#
+# Note that deleting the dev TypesenseCluster does NOT clear its data: the PVC
+# is retained (no ownerReference, not tracked by Argo) and the new pod
+# re-attaches it. This job is the way to reset dev's contents.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: typesense-dev-restore
+  namespace: typesense
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: Replace=true
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 604800 # keep a week of history, then clean up
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: work
+          emptyDir:
+            sizeLimit: 4Gi
+      containers:
+        - name: restore
+          image: python:3.12-alpine
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 512Mi
+          env:
+            - name: SRC
+              value: http://typesense-cluster-svc:8108
+            - name: DST
+              value: http://typesense-dev-svc:8108
+            - name: TS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: typesense-api-key
+                  key: typesense-api-key
+          volumeMounts:
+            - name: work
+              mountPath: /work
+          command: ["python3", "-u", "-c"]
+          args:
+            - |
+              import json, os, shutil, urllib.request, urllib.error
+
+              SRC, DST, KEY = os.environ["SRC"], os.environ["DST"], os.environ["TS_KEY"]
+              HDR = {"X-TYPESENSE-API-KEY": KEY}
+              DOCS = "/work/docs.jsonl"
+
+              def call(url, method="GET", body=None, ctype=None, out=None, timeout=900):
+                  h = dict(HDR)
+                  if ctype:
+                      h["Content-Type"] = ctype
+                  req = urllib.request.Request(url, data=body, headers=h, method=method)
+                  with urllib.request.urlopen(req, timeout=timeout) as r:
+                      if out:                      # stream straight to disk
+                          with open(out, "wb") as f:
+                              shutil.copyfileobj(r, f, 1 << 20)
+                          return None
+                      return r.read()
+
+              def js(url):
+                  return json.loads(call(url))
+
+              # 1. wipe dev: aliases first so nothing points at a doomed collection
+              for a in js(f"{DST}/aliases").get("aliases", []):
+                  call(f"{DST}/aliases/{a['name']}", method="DELETE")
+                  print(f"dropped alias {a['name']}")
+
+              for c in js(f"{DST}/collections?exclude_fields=fields"):
+                  call(f"{DST}/collections/{c['name']}", method="DELETE")
+                  print(f"dropped collection {c['name']} ({c['num_documents']} docs)")
+
+              # 2. copy every prod collection over
+              names = [c["name"] for c in js(f"{SRC}/collections?exclude_fields=fields")]
+              print(f"copying {names}")
+
+              for name in names:
+                  print(f"=== {name}")
+
+                  # clone the schema, minus server-managed and auto-generated fields
+                  schema = js(f"{SRC}/collections/{name}")
+                  for k in ("created_at", "num_documents", "num_memory_shards"):
+                      schema.pop(k, None)
+                  schema["fields"] = [f for f in schema.get("fields", [])
+                                      if not f["name"].startswith(".")]
+                  call(f"{DST}/collections", method="POST",
+                       body=json.dumps(schema).encode(), ctype="application/json")
+
+                  # export prod docs to disk, then bulk-import into dev
+                  call(f"{SRC}/collections/{name}/documents/export", out=DOCS)
+                  size = os.path.getsize(DOCS)
+                  with open(DOCS, "rb") as f:
+                      n = sum(1 for _ in f)
+                  print(f"exported {n} docs ({size / 1e6:.1f} MB)")
+
+                  with open(DOCS, "rb") as f:
+                      req = urllib.request.Request(
+                          f"{DST}/collections/{name}/documents/import"
+                          "?action=create&batch_size=2000",
+                          data=f, method="POST",
+                          headers={**HDR, "Content-Type": "text/plain",
+                                   "Content-Length": str(size)})
+                      fails = []
+                      with urllib.request.urlopen(req, timeout=900) as r:
+                          for line in r:
+                              res = json.loads(line)
+                              if not res.get("success") and len(fails) < 3:
+                                  fails.append(res)
+                  print(f"imported, failures: {len(fails)}")
+                  for f_ in fails:
+                      print(f"  {f_}")
+                  os.remove(DOCS)
+
+              # 3. mirror prod aliases
+              for a in js(f"{SRC}/aliases").get("aliases", []):
+                  call(f"{DST}/aliases/{a['name']}", method="PUT",
+                       body=json.dumps({"collection_name": a["collection_name"]}).encode(),
+                       ctype="application/json")
+                  print(f"alias {a['name']} -> {a['collection_name']}")
+
+              print("done")
