@@ -51,6 +51,12 @@ spec:
                   name: pipeline-worker-secrets
                   key: SKIP_LLM_COMPARISON
 
+            - name: SKIP_SKU_MAP
+              valueFrom:
+                secretKeyRef:
+                  name: pipeline-worker-secrets
+                  key: SKIP_SKU_MAP
+
             - name: TYPESENSE_HOST
               valueFrom:
                 secretKeyRef:
