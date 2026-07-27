@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api-gearhawk
-          image: wjt40398/gearhawk:api-gearhawk-e01a1d3
+          image: wjt40398/gearhawk:api-gearhawk-ea8023d
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8787
