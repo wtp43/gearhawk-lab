@@ -4,14 +4,15 @@
 # collection over, so dev ends up an exact mirror of prod at run time. Dev has
 # no data for the duration of the copy (a few seconds).
 #
-# This runs whenever the Job is created. To rebuild dev again, delete the
-# completed Job in Argo CD and let it sync back, or:
+# This runs whenever the Job is created, and only then. To rebuild dev, delete
+# the completed Job - Argo's selfHeal recreates it from git and it runs again:
 #
 #   kubectl delete job typesense-dev-restore -n typesense
-#   kubectl apply -f infra/database/typesense/typesense-dev-restore-job.yaml
 #
-# Job specs are immutable, hence Replace=true below - it lets Argo recreate the
-# Job when this file changes instead of failing the sync.
+# or delete the Job resource from the Argo CD UI, which does the same thing.
+#
+# Job specs are immutable, so if you edit anything below, delete the existing
+# Job before syncing or Argo will fail on the immutable fields.
 #
 # Note that deleting the dev TypesenseCluster does NOT clear its data: the PVC
 # is retained (no ownerReference, not tracked by Argo) and the new pod
@@ -23,7 +24,6 @@ metadata:
   namespace: typesense
   annotations:
     argocd.argoproj.io/sync-wave: "5"
-    argocd.argoproj.io/sync-options: Replace=true
 spec:
   backoffLimit: 2
   ttlSecondsAfterFinished: 604800 # keep a week of history, then clean up
