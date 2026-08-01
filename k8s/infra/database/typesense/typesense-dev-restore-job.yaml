@@ -61,10 +61,17 @@ spec:
               value: http://typesense-cluster-svc:8108
             - name: DST
               value: http://typesense-dev-svc:8108
-            - name: TS_KEY
+            # Two keys now: dev has its own admin key so that the one the dev
+            # web app exposes to the browser cannot reach prod.
+            - name: SRC_KEY
               valueFrom:
                 secretKeyRef:
                   name: typesense-api-key
+                  key: typesense-api-key
+            - name: DST_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: typesense-dev-api-key
                   key: typesense-api-key
           volumeMounts:
             - name: work
@@ -74,12 +81,18 @@ spec:
             - |
               import json, os, shutil, urllib.request, urllib.error
 
-              SRC, DST, KEY = os.environ["SRC"], os.environ["DST"], os.environ["TS_KEY"]
-              HDR = {"X-TYPESENSE-API-KEY": KEY}
+              SRC, DST = os.environ["SRC"], os.environ["DST"]
+              SRC_KEY, DST_KEY = os.environ["SRC_KEY"], os.environ["DST_KEY"]
               DOCS = "/work/docs.jsonl"
 
+              def hdr(url):
+                  # The two clusters have different admin keys, so the key is
+                  # chosen by which one the URL is aimed at.
+                  key = DST_KEY if url.startswith(DST) else SRC_KEY
+                  return {"X-TYPESENSE-API-KEY": key}
+
               def call(url, method="GET", body=None, ctype=None, out=None, timeout=900):
-                  h = dict(HDR)
+                  h = dict(hdr(url))
                   if ctype:
                       h["Content-Type"] = ctype
                   req = urllib.request.Request(url, data=body, headers=h, method=method)
@@ -130,7 +143,7 @@ spec:
                           f"{DST}/collections/{name}/documents/import"
                           "?action=create&batch_size=2000",
                           data=f, method="POST",
-                          headers={**HDR, "Content-Type": "text/plain",
+                          headers={**hdr(DST), "Content-Type": "text/plain",
                                    "Content-Length": str(size)})
                       fails = []
                       with urllib.request.urlopen(req, timeout=900) as r:

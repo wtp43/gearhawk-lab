@@ -12,6 +12,7 @@ helmCharts:
 
 resources:
   - typesense-api-key.yaml
+  - typesense-dev-api-key.yaml
   - ns.yaml
   - external-route.yaml
   - internal-route.yaml

@@ -1,0 +1,18 @@
+# Admin key for the DEV Typesense cluster. Deliberately NOT the prod key.
+#
+# The dev web app ships this key to the browser as NEXT_PUBLIC_TYPESENSE_API_KEY,
+# so treat it as public: anyone on dev.gearhawk.io can write to or drop the dev
+# index. That is acceptable only because dev is a disposable mirror of prod and
+# this key has no access to the prod cluster.
+#
+# The field must be labelled `typesense-api-key` -- the operator reads that key
+# name out of whatever Secret `spec.adminApiKey` points at.
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: typesense-dev-api-key
+  namespace: typesense
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  itemPath: "vaults/gearhawk-k8s/items/typesense-dev-api-key"
