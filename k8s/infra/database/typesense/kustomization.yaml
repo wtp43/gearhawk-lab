@@ -17,4 +17,6 @@ resources:
   - internal-route.yaml
   - typesense-cluster.yaml
   - typesense-dev.yaml
+  - dev-typesense-external-route.yaml
+  - dev-typesense-internal-route.yaml
   - typesense-dev-restore-job.yaml
