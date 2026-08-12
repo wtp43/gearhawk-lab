@@ -37,6 +37,12 @@ spec:
             # CPU-only; drop this var to fall back to CPU.
             - name: EXTS
               value: "llm-llama-cuda"
+            # Required. The nvidia container runtime injects /dev/nvidia* and the
+            # driver libs based on this var, and unlike the nvcr.io/nvidia/cuda
+            # images used elsewhere in this repo, the llmster image does not set it
+            # -- without it the pod starts fine but sees no GPU at all.
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
           startupProbe:
             httpGet:
               path: /lmstudio-greeting
