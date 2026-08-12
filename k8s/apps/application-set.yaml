@@ -6,6 +6,8 @@ metadata:
   labels:
     gearhawk.lab: application
 spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
     - git:
         repoURL: https://github.com/wtp43/gearhawk-lab
@@ -14,7 +16,7 @@ spec:
           - path: k8s/apps/*
   template:
     metadata:
-      name: "{{ path.basename }}"
+      name: "{{ .path.basename }}"
       labels:
         gearhawk.lab: application
       finalizers:
@@ -24,11 +26,25 @@ spec:
       source:
         repoURL: https://github.com/wtp43/gearhawk-lab
         targetRevision: HEAD
-        path: "{{ path }}"
+        path: "{{ .path.path }}"
       destination:
         name: in-cluster
-        namespace: "{{ path.basename }}"
+        namespace: "{{ .path.basename }}"
       syncPolicy:
         automated:
           selfHeal: true
           prune: true
+  # Apps listed below are operator-managed: ArgoCD still reports drift but will never
+  # auto-sync, self-heal, or prune them. Sync them by hand from the UI or `argocd app sync`.
+  # vllm and lmstudio share the single GPU on work-00, so the operator scales one down
+  # before scaling the other up; self-heal would undo that.
+  #
+  # `spec.project` is re-asserted unconditionally so this patch never renders empty --
+  # an empty `spec:` in a merge patch clears fields (argoproj/argo-cd#17040).
+  templatePatch: |
+    spec:
+      project: applications
+    {{- if has .path.basename (list "vllm" "lmstudio") }}
+      syncPolicy:
+        automated: null
+    {{- end }}

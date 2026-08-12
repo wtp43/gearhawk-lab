@@ -26,6 +26,8 @@ spec:
       server: "*"
     - namespace: "vllm"
       server: "*"
+    - namespace: "lmstudio"
+      server: "*"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
