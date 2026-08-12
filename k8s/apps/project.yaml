@@ -26,7 +26,7 @@ spec:
       server: "*"
     - namespace: "vllm"
       server: "*"
-    - namespace: "lmstudio"
+    - namespace: "vllm-openai"
       server: "*"
   clusterResourceWhitelist:
     - group: "*"

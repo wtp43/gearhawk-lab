@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-openai
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm-openai
+  template:
+    metadata:
+      labels:
+        app: vllm-openai
+    spec:
+      runtimeClassName: nvidia
+      # nodeSelector rather than nodeName: nodeName bypasses the scheduler, which would
+      # skip nvidia.com/gpu accounting and let this pod land on the GPU alongside
+      # vllm-server. With the resource request below, the scheduler guarantees only one
+      # of the two holds the single RTX 3090 at a time.
+      nodeSelector:
+        kubernetes.io/hostname: work-00
+      imagePullSecrets:
+        - name: docker-secret
+      containers:
+        - name: vllm-openai
+          image: vllm/vllm-openai:v0.27.1@sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967
+          imagePullPolicy: IfNotPresent
+          args:
+            - --model=RedHatAI/Qwen3.5-9B-quantized.w4a16
+            - --served-model-name=qwen3.5-9b
+            - --host=0.0.0.0
+            - --port=8000
+            - --reasoning-parser=qwen3
+            # 24 GB card, ~11.5 GB of w4a16 weights (vision tower stays BF16).
+            # 32k leaves room for KV cache; the model itself supports 262k.
+            - --max-model-len=32768
+            - --gpu-memory-utilization=0.90
+            # Conservative on purpose: vllm-project/vllm#37602 reports EngineCore
+            # crashing on 10+ concurrent image requests on Qwen3.5. Raise once the
+            # image path is proven stable under load.
+            - --max-num-seqs=16
+            # Image-only workload: skips video profiling and the memory reserved for
+            # long video embeddings.
+            - --limit-mm-per-prompt.video=0
+            # Product images are mostly unique, so the processor cache is overhead.
+            - --mm-processor-cache-gb=0
+            - --async-scheduling
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: HF_HOME
+              value: "/data/hf"
+            # Avoids CPU contention during multimodal preprocessing.
+            - name: OMP_NUM_THREADS
+              value: "1"
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+            # First boot downloads ~11.5 GB of weights before the server binds.
+            failureThreshold: 80
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            failureThreshold: 5
+          volumeMounts:
+            - name: vllm-openai-data
+              mountPath: /data
+            # vLLM uses shared memory for its worker IPC; the 64 MB default is not enough.
+            - name: dshm
+              mountPath: /dev/shm
+      volumes:
+        - name: vllm-openai-data
+          persistentVolumeClaim:
+            claimName: vllm-openai-pvc
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 8Gi

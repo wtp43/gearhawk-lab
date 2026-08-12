@@ -36,7 +36,7 @@ spec:
           prune: true
   # Apps listed below are operator-managed: ArgoCD still reports drift but will never
   # auto-sync, self-heal, or prune them. Sync them by hand from the UI or `argocd app sync`.
-  # vllm and lmstudio share the single GPU on work-00, so the operator scales one down
+  # vllm and vllm-openai share the single GPU on work-00, so the operator scales one down
   # before scaling the other up; self-heal would undo that.
   #
   # `spec.project` is re-asserted unconditionally so this patch never renders empty --
@@ -44,7 +44,7 @@ spec:
   templatePatch: |
     spec:
       project: applications
-    {{- if has .path.basename (list "vllm" "lmstudio") }}
+    {{- if has .path.basename (list "vllm" "vllm-openai") }}
       syncPolicy:
         automated: null
     {{- end }}
