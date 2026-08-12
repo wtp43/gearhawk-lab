@@ -9,8 +9,6 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      # The w4a16 weights are ~11.5 GB; the rest is headroom for swapping models
-      # without having to resize the volume.
-      storage: 50Gi
+      storage: 80Gi
   storageClassName: no-replicas
   volumeMode: Filesystem

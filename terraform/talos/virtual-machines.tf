@@ -20,7 +20,7 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   cpu {
     cores = each.value.cpu
-    type  = "x86-64-v2-AES" # recommended for modern CPUs
+    type  = "x86-64-v3"
   }
 
   memory {
