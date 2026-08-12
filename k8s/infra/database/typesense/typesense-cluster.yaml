@@ -20,7 +20,9 @@ spec:
   topologySpreadConstraints:
     - maxSkew: 1
       topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: DoNotSchedule
+      # ScheduleAnyway until the existing volumes are migrated off work-00; their
+      # PVs are strict-local there, so DoNotSchedule makes the members unschedulable.
+      whenUnsatisfiable: ScheduleAnyway
       labelSelector:
         matchLabels:
           app: typesense-cluster-sts

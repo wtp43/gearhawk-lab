@@ -53,8 +53,9 @@ spec:
 
   affinity:
     enablePodAntiAffinity: true
-    # required, not CNPG's default preferred: all three instances landed on work-00.
-    podAntiAffinityType: required
+    # preferred until the volumes are migrated off work-00: all three instances are
+    # there now, so required would leave any recreated pod unschedulable.
+    podAntiAffinityType: preferred
     topologyKey: kubernetes.io/hostname
 
   storage:
