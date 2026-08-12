@@ -9,12 +9,6 @@ metadata:
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
 reclaimPolicy: Delete
-# Must be WaitForFirstConsumer, not Immediate. With Immediate the volume (and its
-# single strict-local replica) is placed before any pod is scheduled, which pins the
-# pod to whatever node Longhorn happened to pick and makes pod anti-affinity and
-# topology spread constraints inert -- that is how all three typesense members and all
-# three hatchet Postgres instances ended up on work-00. WaitForFirstConsumer lets the
-# scheduler choose the node first; Longhorn then creates the local replica there.
 volumeBindingMode: WaitForFirstConsumer
 parameters:
   numberOfReplicas: "1"

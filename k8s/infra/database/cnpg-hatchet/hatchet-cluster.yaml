@@ -51,11 +51,9 @@ spec:
   superuserSecret:
     name: gearhawk-postgres-superuser
 
-  # All three instances were on work-00, so the cluster had no node-level redundancy
-  # despite running 3 replicas. "required" rather than CNPG's default "preferred",
-  # which the scheduler is free to ignore.
   affinity:
     enablePodAntiAffinity: true
+    # required, not CNPG's default preferred: all three instances landed on work-00.
     podAntiAffinityType: required
     topologyKey: kubernetes.io/hostname
 

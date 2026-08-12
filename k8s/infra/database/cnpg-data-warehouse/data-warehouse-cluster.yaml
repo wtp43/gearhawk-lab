@@ -113,8 +113,7 @@ spec:
     enablePodMonitor: false
   affinity:
     enablePodAntiAffinity: true
-    # CNPG defaults to "preferred", which is a soft hint the scheduler may ignore.
-    # These instances only ended up on separate nodes by luck of volume size.
+    # required, not CNPG's default preferred: these spread only by luck of volume size.
     podAntiAffinityType: required
     topologyKey: kubernetes.io/hostname
 
