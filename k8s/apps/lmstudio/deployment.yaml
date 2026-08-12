@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lmstudio
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: lmstudio
+  template:
+    metadata:
+      labels:
+        app: lmstudio
+    spec:
+      runtimeClassName: nvidia
+      nodeName: work-00
+      imagePullSecrets:
+        - name: docker-secret
+      containers:
+        - name: lmstudio
+          image: lmstudio/llmster-preview:latest@sha256:dab287c899dc0be4d3c6dc346ea3a0e4b1238746699c5281e79cbecec1da96cb
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 1234
+          env:
+            # The entrypoint resolves the data root from $HOME, so models and config
+            # land on the PVC at /data/.lmstudio instead of the container filesystem.
+            - name: HOME
+              value: "/data"
+            # The entrypoint greps EXTS for "cuda" and starts llmster with
+            # `--docker-compatible-platforms cuda`. The published image is built
+            # CPU-only; drop this var to fall back to CPU.
+            - name: EXTS
+              value: "llm-llama-cuda"
+          startupProbe:
+            httpGet:
+              path: /lmstudio-greeting
+              port: 1234
+            periodSeconds: 10
+            # llmster's own boot timeout is 300s, and the CUDA runtime pack is
+            # downloaded on first start.
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /lmstudio-greeting
+              port: 1234
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /lmstudio-greeting
+              port: 1234
+            periodSeconds: 30
+            failureThreshold: 5
+          volumeMounts:
+            - name: lmstudio-data
+              mountPath: /data
+      volumes:
+        - name: lmstudio-data
+          persistentVolumeClaim:
+            claimName: lmstudio-pvc
