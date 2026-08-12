@@ -17,6 +17,17 @@ spec:
   corsDomains: "https://gearhawk.io"
   adminApiKey:
     name: typesense-api-key
+  # Keep the three members on separate nodes. Only takes effect for volumes
+  # provisioned after no-replicas switched to WaitForFirstConsumer -- with Immediate
+  # binding the pod cannot move, so this constraint would make it unschedulable
+  # rather than spread it.
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app: typesense-cluster-sts
   resources:
     requests:
       cpu: 2
