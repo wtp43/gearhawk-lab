@@ -47,6 +47,11 @@ spec:
 
             - name: VLLM_ENDPOINT
               value: "http://vllm-server-svc.vllm.svc.cluster.local:80"
+            # vllm-server is scaled down while the GPU is used by lmstudio. This is the
+            # master switch honored in p2_feature_processing_wf; set it back to "false"
+            # when vllm-server comes back up.
+            - name: SKIP_LLM_INFERENCE
+              value: "true"
             - name: R2_PUBLIC_ENDPOINT
               valueFrom:
                 secretKeyRef:
