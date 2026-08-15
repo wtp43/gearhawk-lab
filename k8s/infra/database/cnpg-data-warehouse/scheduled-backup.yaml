@@ -6,6 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
+  suspend: true # S3 egress freeze; restore in 2026-09
   schedule: "0 0 0 * * *" # once per day at midnight, 1st field is seconds
   cluster:
     name: data-warehouse-cluster
