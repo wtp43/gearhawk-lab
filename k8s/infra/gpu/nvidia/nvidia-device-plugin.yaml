@@ -12,6 +12,7 @@ spec:
       helm:
         values: |
           runtimeClassName: nvidia
+          affinity: {}
           nodeSelector:
             kubernetes.io/hostname: work-00
 
