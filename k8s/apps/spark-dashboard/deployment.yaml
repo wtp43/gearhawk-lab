@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-dashboard
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: spark-dashboard
+  template:
+    metadata:
+      labels:
+        app: spark-dashboard
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        kubernetes.io/hostname: work-00
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: spark-dashboard
+          image: ghcr.io/niklasfrick/spark-dashboard:v0.13.0@sha256:6b285c725aad561b978b8fccbe908c9b7672669d9ab2fb9a52af7a8f74551c33
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: SPARK_DASHBOARD_PORT
+              value: "3000"
+            - name: SPARK_DASHBOARD_BIND
+              value: "0.0.0.0"
+            - name: SPARK_DASHBOARD_POLL_INTERVAL
+              value: "1000"
+            - name: SPARK_DASHBOARD_STATE_DIR
+              value: /var/lib/spark-dashboard
+            - name: SPARK_DASHBOARD_ENGINE
+              value: vllm
+            - name: SPARK_DASHBOARD_ENGINE_URL
+              value: http://vllm-openai-svc.vllm-openai.svc.cluster.local:8000
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: all
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: utility
+            - name: RUST_LOG
+              value: "spark_dashboard=debug,info"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            periodSeconds: 30
+            failureThreshold: 5
+          volumeMounts:
+            - name: state
+              mountPath: /var/lib/spark-dashboard
+      volumes:
+        - name: state
+          persistentVolumeClaim:
+            claimName: spark-dashboard-pvc
