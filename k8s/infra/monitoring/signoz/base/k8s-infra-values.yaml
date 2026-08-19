@@ -108,7 +108,7 @@ otelDeployment:
                 - source_labels: [__name__]
                   regex: 'vllm:(.*)'
                   target_label: __name__
-                  replacement: 'vllm_${1}'
+                  replacement: 'vllm_$${1}'
 
     processors:
       batch:
