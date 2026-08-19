@@ -32,3 +32,6 @@ override.tf.json
 *.b64
 
 *patch.sh
+
+# SigNoz dashboards are source, not build output
+!k8s/infra/monitoring/signoz/dashboards/*.json

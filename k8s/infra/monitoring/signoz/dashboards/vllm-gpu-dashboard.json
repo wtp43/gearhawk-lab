@@ -1,0 +1,903 @@
+{
+  "title": "vLLM & GPU",
+  "description": "vLLM inference + NVIDIA GPU telemetry (DCGM). Mirrors the spark-dashboard panels.",
+  "tags": [
+    "vllm",
+    "gpu",
+    "nvidia"
+  ],
+  "layout": [
+    {
+      "i": "1",
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "2",
+      "x": 6,
+      "y": 0,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "3",
+      "x": 0,
+      "y": 6,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "4",
+      "x": 6,
+      "y": 6,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "5",
+      "x": 0,
+      "y": 12,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "6",
+      "x": 6,
+      "y": 12,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "7",
+      "x": 0,
+      "y": 18,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "8",
+      "x": 6,
+      "y": 18,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "9",
+      "x": 0,
+      "y": 24,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "10",
+      "x": 6,
+      "y": 24,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "11",
+      "x": 0,
+      "y": 30,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "12",
+      "x": 6,
+      "y": 30,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "13",
+      "x": 0,
+      "y": 36,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "14",
+      "x": 6,
+      "y": 36,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "15",
+      "x": 0,
+      "y": 42,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "16",
+      "x": 6,
+      "y": 42,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "17",
+      "x": 0,
+      "y": 48,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "i": "18",
+      "x": 6,
+      "y": 48,
+      "w": 6,
+      "h": 6
+    }
+  ],
+  "widgets": [
+    {
+      "id": "1",
+      "title": "Prompt Processing / Prefill Throughput (tok/s)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "sum(rate(vllm_prompt_tokens_total[5m]))",
+            "legend": "prefill tok/s",
+            "disabled": false
+          },
+          {
+            "name": "B",
+            "query": "sum(rate(vllm_prompt_tokens_cached_total[5m]))",
+            "legend": "cached prompt tok/s",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "1"
+      },
+      "yAxisUnit": "none",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "2",
+      "title": "Token Generation / Decode Throughput (tok/s)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "sum(rate(vllm_generation_tokens_total[5m]))",
+            "legend": "decode tok/s",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "2"
+      },
+      "yAxisUnit": "none",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "3",
+      "title": "TTFT (s)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "histogram_quantile(0.50,sum by (le)(rate(vllm_time_to_first_token_seconds_bucket[5m])))",
+            "legend": "p50",
+            "disabled": false
+          },
+          {
+            "name": "B",
+            "query": "histogram_quantile(0.90,sum by (le)(rate(vllm_time_to_first_token_seconds_bucket[5m])))",
+            "legend": "p90",
+            "disabled": false
+          },
+          {
+            "name": "C",
+            "query": "histogram_quantile(0.99,sum by (le)(rate(vllm_time_to_first_token_seconds_bucket[5m])))",
+            "legend": "p99",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "3"
+      },
+      "yAxisUnit": "s",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "4",
+      "title": "E2E Request Latency (s)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "histogram_quantile(0.50,sum by (le)(rate(vllm_e2e_request_latency_seconds_bucket[5m])))",
+            "legend": "p50",
+            "disabled": false
+          },
+          {
+            "name": "B",
+            "query": "histogram_quantile(0.90,sum by (le)(rate(vllm_e2e_request_latency_seconds_bucket[5m])))",
+            "legend": "p90",
+            "disabled": false
+          },
+          {
+            "name": "C",
+            "query": "histogram_quantile(0.99,sum by (le)(rate(vllm_e2e_request_latency_seconds_bucket[5m])))",
+            "legend": "p99",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "4"
+      },
+      "yAxisUnit": "s",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "5",
+      "title": "Queue / Prefill / Decode Time (p90, s)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "histogram_quantile(0.90,sum by (le)(rate(vllm_request_queue_time_seconds_bucket[5m])))",
+            "legend": "queue p90",
+            "disabled": false
+          },
+          {
+            "name": "B",
+            "query": "histogram_quantile(0.90,sum by (le)(rate(vllm_request_prefill_time_seconds_bucket[5m])))",
+            "legend": "prefill p90",
+            "disabled": false
+          },
+          {
+            "name": "C",
+            "query": "histogram_quantile(0.90,sum by (le)(rate(vllm_request_decode_time_seconds_bucket[5m])))",
+            "legend": "decode p90",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "5"
+      },
+      "yAxisUnit": "s",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "6",
+      "title": "Inter-Token Latency / TPOT (p90, s)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "histogram_quantile(0.90,sum by (le)(rate(vllm_inter_token_latency_seconds_bucket[5m])))",
+            "legend": "ITL p90",
+            "disabled": false
+          },
+          {
+            "name": "B",
+            "query": "histogram_quantile(0.90,sum by (le)(rate(vllm_request_time_per_output_token_seconds_bucket[5m])))",
+            "legend": "TPOT p90",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "6"
+      },
+      "yAxisUnit": "s",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "7",
+      "title": "Requests: Running / Waiting",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "sum(vllm_num_requests_running)",
+            "legend": "running",
+            "disabled": false
+          },
+          {
+            "name": "B",
+            "query": "sum(vllm_num_requests_waiting)",
+            "legend": "waiting",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "7"
+      },
+      "yAxisUnit": "none",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "8",
+      "title": "Request Rate & Preemptions",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "sum(rate(vllm_request_success_total[5m]))",
+            "legend": "success/s",
+            "disabled": false
+          },
+          {
+            "name": "B",
+            "query": "sum(rate(vllm_num_preemptions_total[5m]))",
+            "legend": "preemptions/s",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "8"
+      },
+      "yAxisUnit": "none",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "9",
+      "title": "KV Cache Usage (%)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "max(vllm_kv_cache_usage_perc)*100",
+            "legend": "kv cache %",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "9"
+      },
+      "yAxisUnit": "percent",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "10",
+      "title": "Prefix Cache Hit Rate (%)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "sum(rate(vllm_prefix_cache_hits_total[5m]))/clamp_min(sum(rate(vllm_prefix_cache_queries_total[5m])),1)*100",
+            "legend": "prefix hit %",
+            "disabled": false
+          },
+          {
+            "name": "B",
+            "query": "sum(rate(vllm_mm_cache_hits_total[5m]))/clamp_min(sum(rate(vllm_mm_cache_queries_total[5m])),1)*100",
+            "legend": "mm cache hit %",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "10"
+      },
+      "yAxisUnit": "percent",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "11",
+      "title": "Batch Size (iteration tokens, p90)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "histogram_quantile(0.90,sum by (le)(rate(vllm_iteration_tokens_total_bucket[5m])))",
+            "legend": "tokens/step p90",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "11"
+      },
+      "yAxisUnit": "none",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "12",
+      "title": "Prompt vs Generation Tokens (cumulative)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "sum(vllm_prompt_tokens_total)",
+            "legend": "prompt tokens",
+            "disabled": false
+          },
+          {
+            "name": "B",
+            "query": "sum(vllm_generation_tokens_total)",
+            "legend": "generation tokens",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "12"
+      },
+      "yAxisUnit": "none",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "13",
+      "title": "GPU Utilisation (%)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "DCGM_FI_DEV_GPU_UTIL",
+            "legend": "{{gpu}} util %",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "13"
+      },
+      "yAxisUnit": "percent",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "14",
+      "title": "GPU Power (W)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "DCGM_FI_DEV_POWER_USAGE",
+            "legend": "{{gpu}} W",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "14"
+      },
+      "yAxisUnit": "none",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "15",
+      "title": "GPU Temperature (C)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "DCGM_FI_DEV_GPU_TEMP",
+            "legend": "{{gpu}} C",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "15"
+      },
+      "yAxisUnit": "none",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "16",
+      "title": "GPU Memory Used (MiB)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "DCGM_FI_DEV_FB_USED",
+            "legend": "{{gpu}} used",
+            "disabled": false
+          },
+          {
+            "name": "B",
+            "query": "DCGM_FI_DEV_FB_FREE",
+            "legend": "{{gpu}} free",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "16"
+      },
+      "yAxisUnit": "none",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "17",
+      "title": "GPU SM Clock (MHz)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "DCGM_FI_DEV_SM_CLOCK",
+            "legend": "{{gpu}} SM MHz",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "17"
+      },
+      "yAxisUnit": "none",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    },
+    {
+      "id": "18",
+      "title": "GPU Memory Copy Utilisation (%)",
+      "description": "",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "promql",
+        "promql": [
+          {
+            "name": "A",
+            "query": "DCGM_FI_DEV_MEM_COPY_UTIL",
+            "legend": "{{gpu}} mem-copy %",
+            "disabled": false
+          }
+        ],
+        "builder": {
+          "queryData": [],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "query": "",
+            "legend": "",
+            "disabled": false
+          }
+        ],
+        "id": "18"
+      },
+      "yAxisUnit": "percent",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "timePreferance": "GLOBAL_TIME",
+      "softMax": null,
+      "softMin": null,
+      "fillSpans": false,
+      "isStacked": false
+    }
+  ],
+  "variables": {},
+  "version": "v4"
+}
