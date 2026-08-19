@@ -6,4 +6,3 @@ resources:
   - nvidia-device-plugin.yaml
   - runtime-test.yaml
   - dcgm-exporter.yaml
-  - dcgm-exporter-values.yaml
