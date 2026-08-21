@@ -1,0 +1,9 @@
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: r2-creds
+  namespace: cnpg-infra
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  itemPath: "vaults/gearhawk-k8s/items/7w7p7vvq56d7o73s6cdvbmos2y"
