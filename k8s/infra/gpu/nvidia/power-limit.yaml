@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gpu-power
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: privileged
+    pod-security.kubernetes.io/warn-version: latest
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nvidia-power-limit
+  namespace: gpu-power
+spec:
+  selector:
+    matchLabels:
+      app: nvidia-power-limit
+  template:
+    metadata:
+      labels:
+        app: nvidia-power-limit
+    spec:
+      runtimeClassName: nvidia
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: extensions.talos.dev/nonfree-kmod-nvidia-production
+                    operator: Exists
+      initContainers:
+        - name: apply
+          image: debian:stable-slim
+          env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: all
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: utility
+          securityContext:
+            capabilities:
+              add: ["SYS_ADMIN"]
+          command:
+            - sh
+            - -c
+            - |
+              set -u
+              nvidia-smi -L >/dev/null 2>&1 || { echo "no NVIDIA GPU on $(hostname); nothing to do"; exit 0; }
+              nvidia-smi -pm 1 || echo "WARN: could not enable persistence mode"
+              nvidia-smi --query-gpu=uuid,name,power.min_limit,power.max_limit \
+                         --format=csv,noheader,nounits |
+              while IFS=, read -r uuid name minw maxw; do
+                uuid=$(echo "$uuid" | xargs); name=$(echo "$name" | xargs)
+                case "$name" in
+                  *"RTX 3090"*) want=250 ;;
+                  *) echo "skip $name ($uuid): no policy"; continue ;;
+                esac
+                minw=${minw%.*}; maxw=${maxw%.*}
+                [ "$want" -lt "$minw" ] && want=$minw
+                [ "$want" -gt "$maxw" ] && want=$maxw
+                echo "set $name ($uuid) -> ${want}W (envelope ${minw}-${maxw}W)"
+                nvidia-smi -i "$uuid" -pl "$want" || echo "FAILED: $name ($uuid)"
+              done
+              exit 0
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.10
