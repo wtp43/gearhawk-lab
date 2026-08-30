@@ -43,17 +43,16 @@ spec:
                   name: solidtime-owner
                   key: password
           readinessProbe:
-            httpGet:
-              path: /up
+            tcpSocket:
               port: 8000
             initialDelaySeconds: 10
             periodSeconds: 10
           livenessProbe:
-            httpGet:
-              path: /up
+            tcpSocket:
               port: 8000
-            initialDelaySeconds: 30
+            initialDelaySeconds: 45
             periodSeconds: 20
+            failureThreshold: 3
           resources:
             requests:
               cpu: 250m
