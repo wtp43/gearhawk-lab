@@ -32,6 +32,8 @@ spec:
       server: "*"
     - namespace: "solidtime"
       server: "*"
+    - namespace: "dataflarelabs-docs"
+      server: "*"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
