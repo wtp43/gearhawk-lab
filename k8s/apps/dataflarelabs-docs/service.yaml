@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dataflarelabs-docs-svc
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  selector:
+    app: dataflarelabs-docs
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3000
