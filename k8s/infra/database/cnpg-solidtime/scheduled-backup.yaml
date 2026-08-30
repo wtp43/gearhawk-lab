@@ -1,0 +1,16 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: scheduled-backup-solidtime
+  namespace: cnpg-solidtime
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  suspend: false
+  schedule: "0 0 3 * * *"
+  cluster:
+    name: solidtime-cluster
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+  immediate: true

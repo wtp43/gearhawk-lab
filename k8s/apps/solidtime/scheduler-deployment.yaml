@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solidtime-scheduler
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: solidtime-scheduler
+  template:
+    metadata:
+      labels:
+        app: solidtime-scheduler
+    spec:
+      containers:
+        - name: solidtime-scheduler
+          image: solidtime/solidtime:0.19.1
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: solidtime-config
+            - secretRef:
+                name: solidtime-app
+          env:
+            - name: CONTAINER_MODE
+              value: scheduler
+            - name: AUTO_DB_MIGRATE
+              value: "false"
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: solidtime-owner
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: solidtime-owner
+                  key: password
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi

@@ -22,6 +22,10 @@ ingress:
     originRequest:
       originServerName: "*.gearhawk.io"
       noTLSVerify: true # No valid cert during testing
+  - hostname: docs.dataflarelabs.com
+    service: http://dataflarelabs-docs-svc.dataflarelabs-docs.svc.cluster.local:80
+  - hostname: solidtime.dataflarelabs.com
+    service: http://solidtime-svc.solidtime.svc.cluster.local:80
   - service: http_status:404
   # https://ryan-schachte.com/blog/cf_tunnel_tcp/
   # - hostname: cnpg.gearhawk.io

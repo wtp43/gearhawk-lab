@@ -28,6 +28,10 @@ spec:
       server: "*"
     - namespace: "vllm-openai"
       server: "*"
+    - namespace: "spark-dashboard"
+      server: "*"
+    - namespace: "solidtime"
+      server: "*"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"

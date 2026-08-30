@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: solidtime
+
+resources:
+  - ns.yaml
+  - app-secret.yaml
+  - db-secret.yaml
+  - config.yaml
+  - deployment.yaml
+  - scheduler-deployment.yaml
+  - service.yaml
+
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/name: solidtime
+      app.kubernetes.io/part-of: dataflarelabs
+      app.kubernetes.io/component: time-tracking
+      app.kubernetes.io/instance: solidtime

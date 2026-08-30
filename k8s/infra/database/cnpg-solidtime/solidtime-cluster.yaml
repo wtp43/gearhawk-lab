@@ -1,0 +1,67 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: solidtime-cluster
+  namespace: cnpg-solidtime
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.5
+  imagePullPolicy: IfNotPresent
+  instances: 1
+  startDelay: 300
+  stopDelay: 300
+  primaryUpdateStrategy: unsupervised
+
+  postgresql:
+    parameters:
+      timezone: "Canada/Eastern"
+      max_connections: "50"
+      shared_buffers: "128MB"
+      effective_cache_size: "384MB"
+      maintenance_work_mem: "32MB"
+      checkpoint_completion_target: "0.9"
+      wal_buffers: "8MB"
+      default_statistics_target: "100"
+      random_page_cost: "1.1"
+      effective_io_concurrency: "200"
+      work_mem: "4MB"
+      huge_pages: "off"
+      min_wal_size: "256MB"
+      max_wal_size: "1GB"
+
+    pg_hba:
+      - host all all all md5
+
+  bootstrap:
+    initdb:
+      database: solidtime
+      owner: solidtime
+      secret:
+        name: solidtime-owner
+
+  storage:
+    storageClass: no-replicas
+    size: 10Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: r2-store
+        serverName: solidtime-cnpg-2026-08-28
+
+  monitoring:
+    enablePodMonitor: false
+
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: false

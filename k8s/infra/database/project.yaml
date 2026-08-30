@@ -23,6 +23,8 @@ spec:
       server: "*"
     - namespace: "cnpg-data-warehouse"
       server: "*"
+    - namespace: "cnpg-solidtime"
+      server: "*"
     - namespace: "typesense"
       server: "*"
     - namespace: "redis"

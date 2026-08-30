@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: solidtime-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+data:
+  APP_NAME: Solidtime
+  APP_ENV: production
+  APP_DEBUG: "false"
+  APP_URL: https://solidtime.dataflarelabs.com
+  APP_FORCE_HTTPS: "true"
+  TRUSTED_PROXIES: "*"
+  APP_ENABLE_REGISTRATION: "false"
+  DB_CONNECTION: pgsql
+  DB_HOST: solidtime-cluster-rw.cnpg-solidtime.svc.cluster.local
+  DB_PORT: "5432"
+  DB_DATABASE: solidtime
+  DB_SSLMODE: prefer
+  CACHE_DRIVER: database
+  SESSION_DRIVER: database
+  QUEUE_CONNECTION: sync
+  FILESYSTEM_DISK: local
+  LOG_CHANNEL: stderr
+  LOG_LEVEL: info
