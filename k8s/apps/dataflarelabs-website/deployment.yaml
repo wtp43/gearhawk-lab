@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dataflarelabs-website
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dataflarelabs-website
+  template:
+    metadata:
+      labels:
+        app: dataflarelabs-website
+    spec:
+      containers:
+        - name: dataflarelabs-website
+          image: ghcr.io/wtp43/dataflarelabs-website:v0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      imagePullSecrets:
+        - name: docker-secret

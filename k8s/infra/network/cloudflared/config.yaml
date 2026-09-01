@@ -22,10 +22,21 @@ ingress:
     originRequest:
       originServerName: "*.gearhawk.io"
       noTLSVerify: true # No valid cert during testing
+  # docs/solidtime still route straight to their services. Their HTTPRoutes on
+  # the external gateway are committed but not yet in the traffic path -- flip
+  # these two entries to the gateway once cert-dataflarelabs reports Ready.
   - hostname: docs.dataflarelabs.com
     service: http://dataflarelabs-docs-svc.dataflarelabs-docs.svc.cluster.local:80
   - hostname: solidtime.dataflarelabs.com
     service: http://solidtime-svc.solidtime.svc.cluster.local:80
+  - hostname: dataflarelabs.com
+    service: https://cilium-gateway-external.gateway.svc.cluster.local:443
+    originRequest:
+      originServerName: dataflarelabs.com
+  - hostname: www.dataflarelabs.com
+    service: https://cilium-gateway-external.gateway.svc.cluster.local:443
+    originRequest:
+      originServerName: www.dataflarelabs.com
   - service: http_status:404
   # https://ryan-schachte.com/blog/cf_tunnel_tcp/
   # - hostname: cnpg.gearhawk.io

@@ -7,6 +7,7 @@ resources:
   - docker-secret.yaml
   - deployment.yaml
   - service.yaml
+  - external-route.yaml
 
 labels:
   - includeSelectors: false

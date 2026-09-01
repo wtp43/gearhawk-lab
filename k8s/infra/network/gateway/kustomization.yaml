@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - cert-gearhawk.yaml
+  - cert-dataflarelabs.yaml
   - gateway-class.yaml
   - ns.yaml
   - gw-external.yaml
