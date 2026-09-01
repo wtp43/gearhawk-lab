@@ -13,7 +13,13 @@ spec:
   hostnames:
     - www.dataflarelabs.com
   rules:
-    - filters:
+    # Cilium does not route a rule carrying only filters, so the match is
+    # explicit even though "/" is the spec default.
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
         - type: RequestRedirect
           requestRedirect:
             scheme: https
