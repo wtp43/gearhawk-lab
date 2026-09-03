@@ -49,14 +49,6 @@ spec:
     pg_hba:
       - host all all all md5
 
-  bootstrap:
-    recovery:
-      source: s3
-      database: data_warehouse
-      owner: data_warehouse_owner
-      secret:
-        name: data-warehouse-owner
-
   enableSuperuserAccess: false
 
   storage:
@@ -88,22 +80,12 @@ spec:
         inRoles:
           - pg_read_all_data
 
-  externalClusters:
-    - name: s3
-      plugin:
-        name: barman-cloud.cloudnative-pg.io
-        parameters:
-          # Recovery Object Store (pull, read-only)
-          barmanObjectName: s3-store
-          serverName: scheduled-backup-cnpg-data-warehouse-v2 # the target path where base + wal objects are stored
-  # WAL archiving suspended for the S3 egress freeze; restore in 2026-09.
-  # plugins:
-  #   - name: barman-cloud.cloudnative-pg.io
-  #     isWALArchiver: true
-  #     parameters:
-  #       # Backup Object Store (push, read-write)
-  #       barmanObjectName: s3-store
-  #       serverName: scheduled-backup-cnpg-data-warehouse-v2-2026-05-24 # this s3 path must be empty during recovery
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: r2-store
+        serverName: data-warehouse-cnpg-2026-09-02
 
   resources:
     requests:

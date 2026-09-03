@@ -39,14 +39,6 @@ spec:
       max_parallel_workers: "8"
       max_parallel_maintenance_workers: "4"
 
-  bootstrap:
-    recovery:
-      source: s3
-      database: hatchet
-      owner: hatchet
-      secret:
-        name: hatchet-owner
-
   enableSuperuserAccess: true
   superuserSecret:
     name: gearhawk-postgres-superuser
@@ -62,22 +54,12 @@ spec:
     storageClass: no-replicas
     size: 30Gi
 
-  externalClusters:
-    - name: s3
-      plugin:
-        name: barman-cloud.cloudnative-pg.io
-        parameters:
-          # Recovery Object Store (pull, read-only)
-          barmanObjectName: s3-store
-          serverName: scheduled-backup-cnpg-hatchet # the target path where base + wal objects are stored
-  # WAL archiving suspended for the S3 egress freeze; restore in 2026-09.
-  # plugins:
-  #   - name: barman-cloud.cloudnative-pg.io
-  #     isWALArchiver: true
-  #     parameters:
-  #       # Backup Object Store (push, read-write)
-  #       barmanObjectName: s3-store
-  #       serverName: scheduled-backup-cnpg-hatchet-2026-05-24 # this s3 path must be empty during recovery
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: r2-store
+        serverName: hatchet-cnpg-2026-09-02
 
   resources:
     requests:

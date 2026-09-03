@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - ns.yaml
   - pg-dev-cluster.yaml
-  - aws-s3-creds.yaml
+  - r2-creds.yaml
   - role-secrets.yaml
-  - s3-store.yaml
+  - r2-store.yaml
   - pooler-rw.yaml

@@ -33,19 +33,6 @@ spec:
     pg_hba:
       - host all all all md5
 
-  bootstrap:
-    recovery:
-      source: s3
-      database: postgres
-      owner: monitoring
-      secret:
-        name: signoz-owner
-    # initdb:
-    #   database: signoz
-    #   owner: signoz
-    #   secret:
-    #     name: signoz-owner
-
   enableSuperuserAccess: true
   superuserSecret:
     name: gearhawk-postgres-superuser
@@ -54,29 +41,12 @@ spec:
     storageClass: no-replicas
     size: 10Gi
 
-  externalClusters:
-    - name: s3
-      plugin:
-        name: barman-cloud.cloudnative-pg.io
-        parameters:
-          # Recovery Object Store (pull, read-only)
-          barmanObjectName: s3-store
-          serverName: scheduled-backup-cnpg-infra-2026-05-24 # the target path where base + wal objects are stored
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
-        # R2 trial object store (push, read-write)
         barmanObjectName: r2-store
-        serverName: r2-trial-cnpg-infra-2026-08-20 # this path must be empty during recovery
-  # WAL archiving suspended for the S3 egress freeze; restore in 2026-09.
-  # plugins:
-  #   - name: barman-cloud.cloudnative-pg.io
-  #     isWALArchiver: true
-  #     parameters:
-  #       # Backup Object Store (push, read-write)
-  #       barmanObjectName: s3-store
-  #       serverName: scheduled-backup-cnpg-infra-2026-08-12 # this s3 path must be empty during recovery
+        serverName: infra-cnpg-2026-09-02
   monitoring:
     enablePodMonitor: false
 
