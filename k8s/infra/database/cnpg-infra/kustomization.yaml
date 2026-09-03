@@ -4,9 +4,7 @@ kind: Kustomization
 resources:
   - ns.yaml
   - infra-cluster.yaml
-  - aws-s3-creds.yaml
   - scheduled-backup-infra.yaml
   - role-secrets.yaml
-  - s3-store.yaml
   - r2-creds.yaml
   - r2-store.yaml

@@ -3,9 +3,9 @@ kind: Kustomization
 
 resources:
   - ns.yaml
-  - aws-s3-creds.yaml
+  - r2-creds.yaml
   - scheduled-backup.yaml
   - role-secrets.yaml
-  - s3-store.yaml
+  - r2-store.yaml
   - pooler-rw.yaml
   - data-warehouse-cluster.yaml
