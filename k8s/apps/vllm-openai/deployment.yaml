@@ -38,8 +38,11 @@ spec:
               value: "8000"
             - name: VISION
               value: "1"
+            # VISION=1 makes start_qwen.sh hardcode --limit-mm-per-prompt image
+            # count 1. EXTRA_ARGS is expanded after it, so raising it here is the
+            # supported override; drop this and multi-image prompts silently cap at 1.
             - name: EXTRA_ARGS
-              value: "--served-model-name qwen3.8-27b"
+              value: '--served-model-name qwen3.8-27b --limit-mm-per-prompt {"image":{"count":3}}'
           resources:
             limits:
               nvidia.com/gpu: 1
