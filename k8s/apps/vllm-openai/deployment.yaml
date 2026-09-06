@@ -27,7 +27,7 @@ spec:
         - name: docker-secret
       containers:
         - name: vllm-openai
-          image: vllm/vllm-openai:nightly@sha256:045ede572515526c6dc1f4380ba6b988736adc3769db61cc3ce4ff3cca226ed8
+          image: vllm/vllm-openai:nightly@sha256:89dd8f442a3f4c08c6b3cd634c4f735cd709160651c296596673cf974ea6ee39
           imagePullPolicy: IfNotPresent
           args:
             - --model=cyankiwi/gemma-4-26B-A4B-it-qat-AWQ-INT4
