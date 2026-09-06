@@ -27,41 +27,30 @@ spec:
         - name: docker-secret
       containers:
         - name: vllm-openai
-          image: vllm/vllm-openai:nightly@sha256:045ede572515526c6dc1f4380ba6b988736adc3769db61cc3ce4ff3cca226ed8
+          image: ghcr.io/syv-ai/qwen38-27b-rtx3090:latest@sha256:232b7b6bb19ef1c2d19965667f4fb166bfe4ea42b2c42e86ba34ee1dba623dda
           imagePullPolicy: IfNotPresent
-          args:
-            - --model=cyankiwi/gemma-4-26B-A4B-it-qat-AWQ-INT4
-            - --served-model-name
-            - gemma-4-26b-a4b
-            - qwen3.5-9b
-            - --host=0.0.0.0
-            - --port=8000
-            - --reasoning-parser=gemma4
-            - --tensor-parallel-size=1
-            - --max-model-len=32768
-            - --max-num-batched-tokens=4096
-            - --gpu-memory-utilization=0.94
-            - --kv-cache-dtype=int4_per_token_head
-            - --max-num-seqs=16
-            - --enable-prefix-caching
-            - --limit-mm-per-prompt.image=3
+          args: ["batch"]
           ports:
             - name: http
               containerPort: 8000
           env:
-            - name: HF_HOME
-              value: "/data/hf"
-            - name: VLLM_USE_FLASHINFER_SAMPLER
+            - name: PORT
+              value: "8000"
+            - name: VISION
               value: "1"
+            - name: EXTRA_ARGS
+              value: "--served-model-name qwen3.8-27b"
           resources:
             limits:
               nvidia.com/gpu: 1
+          # First boot pulls a 9.5GB image, downloads + requantizes the model, and
+          # JIT-compiles kernels; startupProbe gates liveness so it can take ~1h.
           startupProbe:
             httpGet:
               path: /health
               port: 8000
             periodSeconds: 15
-            failureThreshold: 160
+            failureThreshold: 240
           readinessProbe:
             httpGet:
               path: /health
@@ -75,8 +64,11 @@ spec:
             failureThreshold: 5
           volumeMounts:
             - name: vllm-openai-data
-              mountPath: /data
-            # vLLM uses shared memory for its worker IPC; the 64 MB default is not enough.
+              mountPath: /app/models
+              subPath: syv-models
+            - name: vllm-openai-data
+              mountPath: /cache
+              subPath: syv-cache
             - name: dshm
               mountPath: /dev/shm
       volumes:
@@ -86,4 +78,4 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
-            sizeLimit: 8Gi
+            sizeLimit: 16Gi
