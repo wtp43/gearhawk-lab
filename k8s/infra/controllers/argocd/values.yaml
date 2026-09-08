@@ -35,9 +35,6 @@ controller:
     limits:
       memory: 4Gi
 
-dex:
-  enabed: false
-
 redis:
   resources:
     requests:
