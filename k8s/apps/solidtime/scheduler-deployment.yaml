@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: solidtime-scheduler
-          image: solidtime/solidtime:0.19.1
+          image: solidtime/solidtime:0.20.0
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
