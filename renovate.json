@@ -8,5 +8,5 @@
       "/k8s/.+\\.ya?ml$/"
     ]
   },
-  "prConcurrentLimit": 5
+  "prConcurrentLimit": 50
 }
