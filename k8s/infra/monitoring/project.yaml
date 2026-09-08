@@ -15,13 +15,7 @@ spec:
       server: "*"
     - namespace: "monitoring"
       server: "*"
-    - namespace: "kubewall-system"
-      server: "*"
-    - namespace: "healthchecks"
-      server: "*"
     - namespace: "signoz"
-      server: "*"
-    - namespace: "prometheus-stack"
       server: "*"
   clusterResourceWhitelist:
     - group: "*"

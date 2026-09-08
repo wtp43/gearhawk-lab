@@ -27,8 +27,6 @@ spec:
       server: "*"
     - namespace: "typesense"
       server: "*"
-    - namespace: "redis"
-      server: "*"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"

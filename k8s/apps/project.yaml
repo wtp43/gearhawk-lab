@@ -24,8 +24,6 @@ spec:
       server: "*"
     - namespace: "web-gearhawk-dev"
       server: "*"
-    - namespace: "vllm"
-      server: "*"
     - namespace: "vllm-openai"
       server: "*"
     - namespace: "spark-dashboard"
