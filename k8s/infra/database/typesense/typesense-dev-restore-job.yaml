@@ -45,7 +45,7 @@ spec:
             sizeLimit: 4Gi
       containers:
         - name: restore
-          image: python:3.12-alpine
+          image: python:3.14-alpine
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
