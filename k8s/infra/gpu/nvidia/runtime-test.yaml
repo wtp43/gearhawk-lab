@@ -10,6 +10,6 @@ spec:
     kubernetes.io/hostname: work-00
   containers:
     - name: test
-      image: nvcr.io/nvidia/cuda:12.5.0-base-ubuntu22.04
+      image: nvcr.io/nvidia/cuda:12.9.2-base-ubuntu22.04
       command: ["nvidia-smi"]
   restartPolicy: Never
