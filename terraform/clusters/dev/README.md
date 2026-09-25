@@ -15,10 +15,12 @@ quorum lost → the VIP cannot move (etcd has no quorum) and the API is down.
 clusters/dev/
   main.tf                 module "talos" { source = "../../talos" }
   machines.tf             talos_machine depends_on chain, talos_cluster, kubeconfig
-  providers.tf            proxmox provider (creds from prod's proxmox.auto.tfvars)
+  backend.tf              R2 state (key gearhawk-lab/dev/terraform.tfstate)
+  bootstrap.tf            1Password Connect seeds + ArgoCD
+  providers.tf            proxmox (creds from prod's proxmox.auto.tfvars), talos, helm, kubernetes, onepassword, unifi
   variables.tf            root var schemas
   output.tf               writes kubeconfig/talosconfig/machine-configs to output/
-  talos_cluster.auto.tfvars   endpoint = VIP (.69), allowSchedulingOnControlPlanes
+  talos_cluster.auto.tfvars   endpoint = VIP (.90), allowSchedulingOnControlPlanes
   talos_nodes.auto.tfvars     3 control planes + 1 worker on msa21/msa22
   talos_image.auto.tfvars     dev-owned image: version, -dev suffix
   image/                      dev's own schematic.yaml / gpu_schematic.yaml
@@ -26,20 +28,21 @@ clusters/dev/
   Taskfile.yml
 ```
 
-State is **local and separate** from prod (`clusters/dev/terraform.tfstate`), so
-a dev `destroy` cannot touch prod.
+State lives in R2 under its own key (`gearhawk-lab/dev/terraform.tfstate`),
+separate from prod's, so a dev `destroy` cannot touch prod.
 
-## Addressing (all within 192.168.50.61-95, no prod overlap)
+## Addressing (192.168.50.86-91)
 
-`.60` is the dev workstation; never assign it here.
+Outside prod: the Cilium LB pool (.65-.85), the prod VIP (.99) and nodes
+(.100-.116). `.60` is the dev workstation; never assign it here.
 
 | Node         | Host   | IP            | vm_id |
 |--------------|--------|---------------|-------|
-| VIP          | —      | 192.168.50.69 | —     |
-| ctrl-dev-00  | msa21  | 192.168.50.64 | 300   |
-| ctrl-dev-01  | msa21  | 192.168.50.61 | 301   |
-| ctrl-dev-02  | msa22  | 192.168.50.62 | 302   |
-| work-dev-00  | msa22  | 192.168.50.63 | 303   |
+| VIP          | —      | 192.168.50.90 | —     |
+| ctrl-dev-00  | msa21  | 192.168.50.86 | 300   |
+| ctrl-dev-01  | msa21  | 192.168.50.87 | 301   |
+| ctrl-dev-02  | msa22  | 192.168.50.88 | 302   |
+| work-dev-00  | msa22  | 192.168.50.89 | 303   |
 
 Two control planes share msa21, so losing that whole host loses quorum; stopping
 any single VM does not.
@@ -50,7 +53,7 @@ any single VM does not.
 task init
 task plan      # review before first apply
 task create
-export KUBECONFIG=$(pwd)/output/kube-config.yaml   # server: https://192.168.50.69:6443 (the VIP)
+export KUBECONFIG=$(pwd)/output/kube-config.yaml   # server: https://192.168.50.90:6443 (the VIP)
 kubectl get nodes
 ```
 
@@ -59,13 +62,13 @@ kubectl get nodes
 ```sh
 # which control-plane node currently holds the VIP
 talosctl --talosconfig output/talos-config.yaml \
-  -n 192.168.50.64,192.168.50.61,192.168.50.62 get addresses | grep 192.168.50.69
+  -n 192.168.50.86,192.168.50.87,192.168.50.88 get addresses | grep 192.168.50.90
 
 # stop the VIP holder's *VM* (not the physical host — prod shares these hosts).
 # Either `talosctl shutdown -n <holder-ip>` or stop the VM in Proxmox.
 
 # quorum (2/3) still holds; VIP should move and the API stay reachable:
-kubectl get nodes          # keeps working against https://192.168.50.69:6443
+kubectl get nodes          # keeps working against https://192.168.50.90:6443
 ```
 
 ## Testing a Talos upgrade
@@ -97,10 +100,10 @@ bootstrap manifests). `talos_machine` ignores those image tags
   the factory but stores it as `talos-<schematic>-<version>-nocloud-amd64-dev.img`
   — a distinct file from prod's. dev and prod each manage their own ISO, so a dev
   `terraform destroy` only removes the `-dev` copy and never touches prod.
-- **kubeconfig points at the VIP** (`192.168.50.69`), by design. Reach it from a
+- **kubeconfig points at the VIP** (`192.168.50.90`), by design. Reach it from a
   host on the 192.168.50.0/24 L2 segment.
 - Do **not** point `talosctl` endpoints at the VIP — use the node IPs
-  (.64/.61/.62). The talosconfig this writes already does this correctly.
+  (.86/.87/.88). The talosconfig this writes already does this correctly.
 - **kubelet serving cert approver at bootstrap.** The kubelet uses
   `rotate-server-certificates`, so its `:10250` serving cert needs a CSR
   approver. Prod deploys `kubelet-serving-cert-approver` post-bootstrap (in
