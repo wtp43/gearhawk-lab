@@ -12,3 +12,9 @@ variable "root_objects" {
   description = "AppProjects and Applications that hand the cluster over to git"
   type        = any
 }
+
+variable "apps_chart_version" {
+  description = "argocd-apps chart version used to create the root objects"
+  type        = string
+  default     = "2.0.5"
+}

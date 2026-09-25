@@ -1,6 +1,10 @@
 locals {
-  onepassword_vault = "eaoayya6ri4l6rw4umfonud5mu"
+  onepassword_vault = data.onepassword_vault.gearhawk_k8s.uuid
   k8s_dir           = "${path.root}/../../../k8s"
+}
+
+data "onepassword_vault" "gearhawk_k8s" {
+  name = "gearhawk-k8s"
 }
 
 data "onepassword_item" "connect_credentials" {
@@ -15,9 +19,9 @@ ephemeral "onepassword_item" "connect_token" {
 
 module "onepassword_connect" {
   source     = "../../bootstrap/onepassword-connect"
-  depends_on = [talos_cluster.this]
+  depends_on = [terraform_data.kubernetes_ready]
 
-  connect_credentials = data.onepassword_item.connect_credentials.file[0].content_base64
+  connect_credentials = data.onepassword_item.connect_credentials.file[0].content
   operator_token      = ephemeral.onepassword_item.connect_token.credential
 }
 

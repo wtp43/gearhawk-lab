@@ -1,5 +1,5 @@
 variable "connect_credentials" {
-  description = "Base64-encoded 1password-credentials.json for the Connect server"
+  description = "Contents of the Connect server's 1password-credentials.json"
   type        = string
   ephemeral   = true
 }

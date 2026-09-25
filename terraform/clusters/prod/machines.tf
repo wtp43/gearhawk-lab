@@ -136,6 +136,14 @@ resource "talos_cluster" "this" {
   kubernetes_version   = "v${trimprefix(var.talos_cluster_config.kubernetes_version, "v")}"
 }
 
+resource "terraform_data" "kubernetes_ready" {
+  triggers_replace = talos_cluster.this.id
+
+  provisioner "local-exec" {
+    command = "talosctl --talosconfig ${local_file.talos_config.filename} -e ${module.talos.control_plane_ips[0]} -n ${module.talos.control_plane_ips[0]} health --wait-timeout 15m"
+  }
+}
+
 resource "talos_cluster_kubeconfig" "this" {
   depends_on = [talos_cluster.this]
 
