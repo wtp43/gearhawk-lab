@@ -26,9 +26,6 @@ machine:
       ]
 %{ endif }
   network:
-%{~ if !use_hostname_config }
-    hostname: ${hostname}
-%{~ endif }
     interfaces:
       - deviceSelector:
           hardwareAddr: ${mac_address}
@@ -46,6 +43,7 @@ machine:
     extraConfig:
       imageGCHighThresholdPercent: 60
       imageGCLowThresholdPercent: 50
+      imageMaximumGCAge: 168h
     extraArgs:
       rotate-server-certificates: true
     extraMounts:

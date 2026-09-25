@@ -13,6 +13,8 @@ spec:
       server: "*"
     - namespace: "kube-system"
       server: "*"
+    - namespace: "onepassword"
+      server: "*"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"

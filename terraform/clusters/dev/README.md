@@ -1,8 +1,9 @@
 # dev cluster
 
-A throwaway 3-node Talos cluster that **reuses the same `../../talos` module as
-prod**. Its purpose is to validate the Talos VIP as the Kubernetes API endpoint
-and confirm failover when a control-plane node dies while etcd quorum holds.
+A throwaway Talos cluster (3 control planes + 1 worker) that **reuses the same
+`../../talos` module as prod**. Its purpose is to validate the Talos VIP as the
+Kubernetes API endpoint, confirm failover when a control-plane node dies while
+etcd quorum holds, and trial Talos/Kubernetes upgrades before prod.
 
 etcd quorum for 3 nodes is 2, so the cluster tolerates exactly **one** node
 loss: stop 1 VM → 2/3 up → quorum holds → VIP fails over. Stop 2 → 1/3 < 2 →
@@ -13,12 +14,13 @@ quorum lost → the VIP cannot move (etcd has no quorum) and the API is down.
 ```
 clusters/dev/
   main.tf                 module "talos" { source = "../../talos" }
+  machines.tf             talos_machine depends_on chain, talos_cluster, kubeconfig
   providers.tf            proxmox provider (creds from prod's proxmox.auto.tfvars)
   variables.tf            root var schemas
   output.tf               writes kubeconfig/talosconfig/machine-configs to output/
   talos_cluster.auto.tfvars   endpoint = VIP (.69), allowSchedulingOnControlPlanes
-  talos_nodes.auto.tfvars     3 control planes: .60/.61/.62 on trpro/msa21/msa22
-  talos_image.auto.tfvars     dev-owned image: version, update_version, -dev suffix
+  talos_nodes.auto.tfvars     3 control planes + 1 worker on msa21/msa22
+  talos_image.auto.tfvars     dev-owned image: version, -dev suffix
   image/                      dev's own schematic.yaml / gpu_schematic.yaml
   cilium-values.yaml          dev copy (cluster name talos-dev, id 2)
   Taskfile.yml
@@ -27,14 +29,20 @@ clusters/dev/
 State is **local and separate** from prod (`clusters/dev/terraform.tfstate`), so
 a dev `destroy` cannot touch prod.
 
-## Addressing (all within 192.168.50.60-95, no prod overlap)
+## Addressing (all within 192.168.50.61-95, no prod overlap)
+
+`.60` is the dev workstation; never assign it here.
 
 | Node         | Host   | IP            | vm_id |
 |--------------|--------|---------------|-------|
 | VIP          | —      | 192.168.50.69 | —     |
-| ctrl-dev-00  | trpro  | 192.168.50.60 | 300   |
+| ctrl-dev-00  | msa21  | 192.168.50.64 | 300   |
 | ctrl-dev-01  | msa21  | 192.168.50.61 | 301   |
 | ctrl-dev-02  | msa22  | 192.168.50.62 | 302   |
+| work-dev-00  | msa22  | 192.168.50.63 | 303   |
+
+Two control planes share msa21, so losing that whole host loses quorum; stopping
+any single VM does not.
 
 ## Usage
 
@@ -51,7 +59,7 @@ kubectl get nodes
 ```sh
 # which control-plane node currently holds the VIP
 talosctl --talosconfig output/talos-config.yaml \
-  -n 192.168.50.60,192.168.50.61,192.168.50.62 get addresses | grep 192.168.50.69
+  -n 192.168.50.64,192.168.50.61,192.168.50.62 get addresses | grep 192.168.50.69
 
 # stop the VIP holder's *VM* (not the physical host — prod shares these hosts).
 # Either `talosctl shutdown -n <holder-ip>` or stop the VM in Proxmox.
@@ -62,30 +70,25 @@ kubectl get nodes          # keeps working against https://192.168.50.69:6443
 
 ## Testing a Talos upgrade
 
-dev owns its image (`talos_image.auto.tfvars` + `image/`), independent of prod,
-so you can trial a new Talos release here first.
+`talos_machine` upgrades nodes in place; the VM and its disk are never replaced.
+The `depends_on` chain in `machines.tf` runs nodes one at a time, control planes
+first.
 
 ```sh
-# dev runs v1.13.4; prod is on v1.11.5.
-# 1. set the target release in talos_image.auto.tfvars
-#    update_version = "v1.14.0"
-# 2. flip one node to the new image in talos_nodes.auto.tfvars
-#    "ctrl-dev-02" = { ... update = true }
-task plan      # only ctrl-dev-02 should change (reprovisioned onto v1.14.0)
+# 1. canary: add talos_version = "v1.14.1" to one node in talos_nodes.auto.tfvars
+task plan      # only that node's talos_machine should change (image)
 task create
-# 3. verify, then roll the rest by setting update = true on the others
-talosctl --talosconfig output/talos-config.yaml -n 192.168.50.62 version
+# 2. set talos_image.version = "v1.14.1", remove the per-node override
+task plan      # the canary shows no change; every other node's image updates
+task create
 ```
 
-Each node's image carries the `-dev` suffix and dev's own schematic, so none of
-this touches prod's images or nodes.
+## Testing a Kubernetes upgrade
 
-## Health gate
-
-`task create` enforces the `talos_cluster_health` check (a 10-minute gate);
-`task destroy` passes `-var skip_health_check=true` so teardown is never blocked
-by an unhealthy cluster. To install without the gate while debugging, run
-`terraform apply -var skip_health_check=true ...` directly.
+Bump `kubernetes_version` in `talos_cluster.auto.tfvars`. `talos_cluster` runs
+Talos's `upgrade-k8s` (control plane components, then kubelets, then the
+bootstrap manifests). `talos_machine` ignores those image tags
+(`ignore_kubernetes_upgrade_drift`), so it never races the upgrade.
 
 ## Caveats
 
@@ -97,7 +100,7 @@ by an unhealthy cluster. To install without the gate while debugging, run
 - **kubeconfig points at the VIP** (`192.168.50.69`), by design. Reach it from a
   host on the 192.168.50.0/24 L2 segment.
 - Do **not** point `talosctl` endpoints at the VIP — use the node IPs
-  (.60/.61/.62). The talosconfig this writes already does this correctly.
+  (.64/.61/.62). The talosconfig this writes already does this correctly.
 - **kubelet serving cert approver at bootstrap.** The kubelet uses
   `rotate-server-certificates`, so its `:10250` serving cert needs a CSR
   approver. Prod deploys `kubelet-serving-cert-approver` post-bootstrap (in

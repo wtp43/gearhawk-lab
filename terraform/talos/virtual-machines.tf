@@ -42,14 +42,7 @@ resource "proxmox_virtual_environment_vm" "this" {
     file_format  = "raw"
     size         = each.value.default_datastore_size
 
-    # file_id      = proxmox_virtual_environment_download_file.this["${each.value.host_node}_${each.value.update == true ? local.update_image_id : local.image_id}"].id
-    file_id = proxmox_virtual_environment_download_file.this[
-      "${each.value.host_node}_${
-        each.value.update == true
-        ? (each.value.gpu ? local.update_gpu_image_id : local.update_image_id)
-        : (each.value.gpu ? local.gpu_image_id : local.image_id)
-      }"
-    ].id
+    file_id = proxmox_virtual_environment_download_file.this[local.node_image[each.key].download].id
   }
 
   # dynamic "disk" {
@@ -99,5 +92,9 @@ resource "proxmox_virtual_environment_vm" "this" {
       rombar = true
       xvga   = false
     }
+  }
+
+  lifecycle {
+    ignore_changes = [disk[0].file_id]
   }
 }
