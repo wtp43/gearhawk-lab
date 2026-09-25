@@ -4,7 +4,7 @@
 version: "3"
 
 vars:
-  PROXMOX_VARS: "-var-file=../../proxmox.auto.tfvars"
+  PROXMOX_VARS: "-var-file=../prod/proxmox.auto.tfvars"
 
 tasks:
   init:
@@ -22,14 +22,12 @@ tasks:
     cmds:
       - terraform apply -auto-approve {{.PROXMOX_VARS}}
       - 'echo "Dev kubeconfig:  export KUBECONFIG=$(pwd)/output/kube-config.yaml"'
-      - 'echo "Dev talosconfig: talosctl --talosconfig $(pwd)/output/talos-config.yaml -e 192.168.50.60 -n 192.168.50.60,192.168.50.61,192.168.50.62 ..."'
+      - 'echo "Dev talosconfig: talosctl --talosconfig $(pwd)/output/talos-config.yaml -e 192.168.50.64 -n 192.168.50.64,192.168.50.61,192.168.50.62 ..."'
 
   destroy:
     desc: Destroy the dev cluster
     cmds:
-      # Skip the health gate on teardown so an unhealthy cluster can't block it.
-      # Installs (apply) still enforce health (skip_health_check defaults false).
-      - terraform destroy -auto-approve {{.PROXMOX_VARS}} -var 'skip_health_check=true'
+      - terraform destroy -auto-approve {{.PROXMOX_VARS}}
 
   recreate:
     desc: Recreate the dev cluster

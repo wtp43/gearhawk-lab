@@ -1,0 +1,9 @@
+connect:
+  credentialsName: op-credentials
+  credentialsKey: 1password-credentials.json
+
+operator:
+  create: true
+  token:
+    name: onepassword-token
+    key: token

@@ -13,13 +13,13 @@ resource "local_file" "talos_config" {
 }
 
 resource "local_file" "kube_config" {
-  content         = module.talos.kube_config.kubeconfig_raw
+  content         = talos_cluster_kubeconfig.this.kubeconfig_raw
   filename        = "output/kube-config.yaml"
   file_permission = "0600"
 }
 
 output "kube_config" {
-  value     = module.talos.kube_config.kubeconfig_raw
+  value     = talos_cluster_kubeconfig.this.kubeconfig_raw
   sensitive = true
 }
 

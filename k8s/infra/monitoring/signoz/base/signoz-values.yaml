@@ -22,6 +22,20 @@ signoz:
           name: signoz-secret
           key: db_url
 clickhouse:
+  # https://github.com/SigNoz/charts/issues/905
+  clickhouseOperator:
+    zookeeperLog:
+      ttl: 1
+    processorsProfileLog:
+      ttl: 1
+    queryLog:
+      ttl: 7
+    partLog:
+      ttl: 7
+    asynchronousMetricLog:
+      ttl: 7
+    metricLog:
+      ttl: 7
   resources:
     requests:
       cpu: 1000m
