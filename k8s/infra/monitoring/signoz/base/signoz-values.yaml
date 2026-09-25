@@ -59,6 +59,24 @@ clickhouse:
           </default>
         </profiles>
       </clickhouse>
+    config.d/system_log.xml: |
+      <clickhouse>
+        <text_log>
+          <ttl>event_date + INTERVAL 3 DAY DELETE</ttl>
+        </text_log>
+        <latency_log>
+          <ttl>event_date + INTERVAL 3 DAY DELETE</ttl>
+        </latency_log>
+        <error_log>
+          <ttl>event_date + INTERVAL 7 DAY DELETE</ttl>
+        </error_log>
+        <query_metric_log>
+          <ttl>event_date + INTERVAL 3 DAY DELETE</ttl>
+        </query_metric_log>
+        <background_schedule_pool_log>
+          <ttl>event_date + INTERVAL 3 DAY DELETE</ttl>
+        </background_schedule_pool_log>
+      </clickhouse>
 
 otelCollector:
   name: "otel-collector"
