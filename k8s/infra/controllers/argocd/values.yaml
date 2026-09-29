@@ -28,6 +28,11 @@ crds:
   keep: false
 
 controller:
+  replicas: 2
+  dynamicClusterDistribution: true
+  pdb:
+    enabled: true
+    maxUnavailable: 1
   resources:
     requests:
       cpu: 100m
@@ -44,6 +49,10 @@ redis:
       memory: 1Gi
 
 server:
+  replicas: 2
+  pdb:
+    enabled: true
+    maxUnavailable: 1
   resources:
     requests:
       cpu: 50m
@@ -52,6 +61,10 @@ server:
       memory: 1Gi
 
 repoServer:
+  replicas: 2
+  pdb:
+    enabled: true
+    maxUnavailable: 1
   containerSecurityContext:
     readOnlyRootFilesystem: true
   volumes:
@@ -90,6 +103,10 @@ repoServer:
           name: cmp-tmp
 
 applicationSet:
+  replicas: 2
+  pdb:
+    enabled: true
+    maxUnavailable: 1
   resources:
     requests:
       cpu: 50m
