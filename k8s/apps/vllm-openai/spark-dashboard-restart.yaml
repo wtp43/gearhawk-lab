@@ -25,7 +25,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: restart
-          image: registry.k8s.io/kubectl:v1.34.0@sha256:497d298f891edb7608dfce9dae4bb08dffc4ddcd7f5d24a0512d4bbf33e04f26
+          image: registry.k8s.io/kubectl:v1.37.1@sha256:b7cab618e281b1ee7484e7b706a96e2135fbb6e072c2a573a7dab4e87d7f2385
           args: ["rollout", "restart", "deployment/spark-dashboard", "-n", "spark-dashboard"]
           securityContext:
             allowPrivilegeEscalation: false
