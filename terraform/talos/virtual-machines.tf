@@ -10,6 +10,8 @@ resource "proxmox_virtual_environment_vm" "this" {
   on_boot     = true
   vm_id       = each.value.vm_id
 
+  reboot_after_update = false
+
   machine       = "q35"
   scsi_hardware = "virtio-scsi-single"
   bios          = "seabios"
@@ -36,7 +38,7 @@ resource "proxmox_virtual_environment_vm" "this" {
     datastore_id = each.value.datastore_id
     interface    = "scsi0"
     iothread     = true
-    cache        = "writethrough"
+    cache        = "none"
     discard      = "on"
     ssd          = true
     file_format  = "raw"
