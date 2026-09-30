@@ -86,6 +86,7 @@ loadBalancer:
 gatewayAPI:
   enabled: true
 envoy:
+  xdsMode: split
   securityContext:
     capabilities:
       keepCapNetBindService: true
