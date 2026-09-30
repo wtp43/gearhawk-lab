@@ -99,7 +99,7 @@ Don't change `talos_image.version`, `talos_machine_config_version`, `talos_nodes
 ### If something goes wrong
 
 - **Apply failed partway:** run `terragrunt apply` again.
-- **Gateway routes return 503 `no healthy upstream`:** `cilium-envoy` lost its config after the Cilium agents restarted. Run `kubectl -n kube-system rollout restart ds/cilium-envoy`.
+- **Gateway routes fail after a Cilium change:** check `kubectl -n kube-system get cm cilium-config -o jsonpath='{.data.envoy-xds-mode}'` is `split`. In `ads` mode every agent restart drops Gateway traffic on that node for about 60 s. If routes still return 503 `no healthy upstream`, run `kubectl -n kube-system rollout restart ds/cilium-envoy`.
 - **The upgrade itself is bad:** fix forward. Kubernetes can't be downgraded.
 - **The state is broken:**
   1. Find a snapshot:
