@@ -4,6 +4,7 @@ charts/example
 **/infra/**/charts
 
 .terraform
+.terragrunt-cache
 output
 
 *.tfstate

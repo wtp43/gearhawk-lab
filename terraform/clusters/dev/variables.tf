@@ -79,3 +79,8 @@ variable "argocd_revision" {
   type        = string
   default     = "talos-machine-upgrades"
 }
+
+variable "output_dir" {
+  type    = string
+  default = "output"
+}

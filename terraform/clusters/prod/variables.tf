@@ -86,3 +86,17 @@ variable "bootstrap_argocd" {
   type        = bool
   default     = false
 }
+
+variable "via_terragrunt" {
+  type    = bool
+  default = false
+  validation {
+    condition     = var.via_terragrunt
+    error_message = "Run terragrunt, not terraform, so state is snapshotted first."
+  }
+}
+
+variable "output_dir" {
+  type    = string
+  default = "output"
+}

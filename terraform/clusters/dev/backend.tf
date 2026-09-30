@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket       = "dataflarelabs-tfstate"
-    key          = "gearhawk-lab/dev/terraform.tfstate"
+    key          = "dataflarelabs/dev/terraform.tfstate"
     region       = "auto"
     profile      = "dataflarelabs-tfstate"
     use_lockfile = true

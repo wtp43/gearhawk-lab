@@ -5,13 +5,13 @@ tasks:
   init:
     desc: Initialize the project
     cmds:
-      - terraform init -upgrade
+      - terragrunt init -upgrade
       # - go mod download
 
   create:
     desc: Create the cluster
     cmds:
-      - terraform apply -auto-approve
+      - terragrunt apply -auto-approve
       - ./get_talos_kubernetes_config.sh
       # - ./post-bootstrap/patch-user-volume.sh
 
