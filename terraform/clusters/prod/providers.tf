@@ -62,9 +62,7 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.ca_certificate)
 }
 
-provider "onepassword" {
-  account = "my.1password.com"
-}
+provider "onepassword" {}
 
 ephemeral "onepassword_item" "unifi" {
   vault = local.onepassword_vault

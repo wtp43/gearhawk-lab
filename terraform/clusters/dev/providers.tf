@@ -40,9 +40,7 @@ provider "proxmox" {
   }
 }
 
-provider "onepassword" {
-  account = "my.1password.com"
-}
+provider "onepassword" {}
 
 ephemeral "onepassword_item" "unifi" {
   vault = local.onepassword_vault

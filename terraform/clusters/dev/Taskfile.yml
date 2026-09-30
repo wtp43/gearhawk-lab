@@ -1,33 +1,28 @@
 # https://taskfile.dev/installation/
-# Dev cluster. Proxmox credentials are NOT duplicated here — they are read from
-# the prod root's proxmox.auto.tfvars via -var-file so there is a single source.
 version: "3"
-
-vars:
-  PROXMOX_VARS: "-var-file=../prod/proxmox.auto.tfvars"
 
 tasks:
   init:
     desc: Initialize the dev project
     cmds:
-      - terraform init -upgrade
+      - terragrunt init -upgrade
 
   plan:
     desc: Plan the dev cluster
     cmds:
-      - terraform plan {{.PROXMOX_VARS}}
+      - terragrunt plan
 
   create:
     desc: Create the dev cluster
     cmds:
-      - terraform apply -auto-approve {{.PROXMOX_VARS}}
+      - terragrunt apply -auto-approve
       - 'echo "Dev kubeconfig:  export KUBECONFIG=$(pwd)/output/kube-config.yaml"'
       - 'echo "Dev talosconfig: talosctl --talosconfig $(pwd)/output/talos-config.yaml -e 192.168.50.86 -n 192.168.50.86,192.168.50.87,192.168.50.88 ..."'
 
   destroy:
     desc: Destroy the dev cluster
     cmds:
-      - terraform destroy -auto-approve {{.PROXMOX_VARS}}
+      - terragrunt destroy -auto-approve
 
   recreate:
     desc: Recreate the dev cluster
