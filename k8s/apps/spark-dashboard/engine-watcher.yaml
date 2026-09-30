@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: engine-watcher
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: engine-watcher
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: ["spark-dashboard"]
+    verbs: ["get", "list", "watch", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: engine-watcher
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: engine-watcher
+subjects:
+  - kind: ServiceAccount
+    name: engine-watcher
+    namespace: spark-dashboard
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: engine-watcher
+data:
+  watch.sh: |
+    #!/bin/bash
+    set -u
+    while true; do
+      vllm_ready=$(kubectl -n vllm-openai get pods -l app=vllm-openai \
+        -o jsonpath='{range .items[*]}{range .status.conditions[?(@.type=="Ready")]}{.status} {.lastTransitionTime}{"\n"}{end}{end}' \
+        | awk '$1=="True"{print $2}' | sort | tail -1)
+      dash_started=$(kubectl -n spark-dashboard get pods -l app=spark-dashboard \
+        -o jsonpath='{range .items[*]}{.status.containerStatuses[0].state.running.startedAt}{"\n"}{end}' \
+        | sort | tail -1)
+      if [[ -n "$vllm_ready" && -n "$dash_started" && "$vllm_ready" > "$dash_started" ]]; then
+        echo "$(date -u +%FT%TZ) vllm ready at $vllm_ready, dashboard started $dash_started: restarting dashboard"
+        kubectl -n spark-dashboard rollout restart deployment/spark-dashboard
+        kubectl -n spark-dashboard rollout status deployment/spark-dashboard --timeout=5m
+      fi
+      sleep 15
+    done
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: engine-watcher
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: engine-watcher
+  template:
+    metadata:
+      labels:
+        app: engine-watcher
+    spec:
+      serviceAccountName: engine-watcher
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: watch
+          image: alpine/k8s:1.34.1@sha256:ec714df3813b5405292860f8a1c55c5727bf8c33c88992f1e981efad8065547f
+          command: ["bash", "/scripts/watch.sh"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: scripts
+          configMap:
+            name: engine-watcher
+        - name: tmp
+          emptyDir: {}

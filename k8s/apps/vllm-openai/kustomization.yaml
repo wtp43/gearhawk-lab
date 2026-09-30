@@ -8,7 +8,7 @@ resources:
   - vllm-openai-pvc.yaml
   - deployment.yaml
   - vllm-openai-svc.yaml
-  - spark-dashboard-restart.yaml
+  - engine-watcher-rbac.yaml
 
 labels:
   - includeSelectors: false

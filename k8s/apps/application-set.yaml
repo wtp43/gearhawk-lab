@@ -34,17 +34,3 @@ spec:
         automated:
           selfHeal: true
           prune: true
-  # Apps listed below are operator-managed: ArgoCD still reports drift but will never
-  # auto-sync, self-heal, or prune them. Sync them by hand from the UI or `argocd app sync`.
-  # vllm and vllm-openai share the single GPU on work-00, so the operator scales one down
-  # before scaling the other up; self-heal would undo that.
-  #
-  # `spec.project` is re-asserted unconditionally so this patch never renders empty --
-  # an empty `spec:` in a merge patch clears fields (argoproj/argo-cd#17040).
-  templatePatch: |
-    spec:
-      project: applications
-    {{- if has .path.basename (list "vllm" "vllm-openai") }}
-      syncPolicy:
-        automated: null
-    {{- end }}
