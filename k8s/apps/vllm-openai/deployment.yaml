@@ -46,7 +46,7 @@ spec:
             # count 1. EXTRA_ARGS is expanded after it, so raising it here is the
             # supported override; drop this and multi-image prompts silently cap at 1.
             - name: EXTRA_ARGS
-              value: '--served-model-name qwen3.8-27b --limit-mm-per-prompt {"image":{"count":4}}'
+              value: '--served-model-name qwen3.8-27b --limit-mm-per-prompt {"image":{"count":4}} --disable-access-log-for-endpoints /health,/metrics,/ping'
           resources:
             limits:
               nvidia.com/gpu: 1
