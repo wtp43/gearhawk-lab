@@ -16,6 +16,7 @@ spec:
       labels:
         app: spark-dashboard
     spec:
+      serviceAccountName: spark-dashboard
       runtimeClassName: nvidia
       nodeSelector:
         kubernetes.io/hostname: work-00
@@ -49,7 +50,11 @@ spec:
             - name: SPARK_DASHBOARD_ENGINE
               value: vllm
             - name: SPARK_DASHBOARD_ENGINE_URL
-              value: http://vllm-openai-svc.vllm-openai.svc.cluster.local:8000
+              value: http://localhost:8000
+            - name: SPARK_DASHBOARD_ENABLE_LOG_VIEWER
+              value: "true"
+            - name: DOCKER_HOST
+              value: unix:///run/docker-shim/docker.sock
             - name: NVIDIA_VISIBLE_DEVICES
               value: all
             - name: NVIDIA_DRIVER_CAPABILITIES
@@ -77,7 +82,37 @@ spec:
           volumeMounts:
             - name: state
               mountPath: /var/lib/spark-dashboard
+            - name: docker-sock
+              mountPath: /run/docker-shim
+        - name: docker-shim
+          image: python:3.13-alpine@sha256:79e7a9b9ff1cbceff819f856fb374477792a5967759d94df266de7b7b4120e6f
+          imagePullPolicy: IfNotPresent
+          command: ["python3", "/app/docker-shim.py"]
+          env:
+            - name: PYTHONDONTWRITEBYTECODE
+              value: "1"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+          volumeMounts:
+            - name: docker-shim
+              mountPath: /app
+            - name: docker-sock
+              mountPath: /run/docker-shim
       volumes:
         - name: state
           persistentVolumeClaim:
             claimName: spark-dashboard-pvc
+        - name: docker-shim
+          configMap:
+            name: docker-shim
+        - name: docker-sock
+          emptyDir: {}

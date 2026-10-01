@@ -9,6 +9,7 @@ resources:
   - deployment.yaml
   - vllm-openai-svc.yaml
   - engine-watcher-rbac.yaml
+  - spark-dashboard-logs-rbac.yaml
 
 labels:
   - includeSelectors: false
