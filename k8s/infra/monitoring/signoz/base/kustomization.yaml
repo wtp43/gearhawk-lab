@@ -22,3 +22,15 @@ helmCharts:
     version: 0.17.1
     releaseName: k8s-infra
     valuesFile: ./k8s-infra-values.yaml
+
+patches:
+  - target:
+      kind: Job
+      name: signoz-telemetrystore-migrator
+    patch: |
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1hook
+        value: Sync
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1hook-delete-policy
+        value: BeforeHookCreation
