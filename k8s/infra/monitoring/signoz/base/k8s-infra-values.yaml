@@ -48,6 +48,8 @@ presets:
       enabled: true
       namespaces:
         - kube-system
+      additionalExclude:
+        - /var/log/pods/signoz_chi-signoz-clickhouse-*/*/*.log
   kubeletMetrics:
     enabled: true
     insecureSkipVerify: false

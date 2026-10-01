@@ -24,6 +24,10 @@ signoz:
 clickhouse:
   # https://github.com/SigNoz/charts/issues/905
   clickhouseOperator:
+    logger:
+      level: warning
+    traceLog:
+      ttl: 1
     zookeeperLog:
       ttl: 1
     processorsProfileLog:
