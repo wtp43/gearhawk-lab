@@ -27,7 +27,7 @@ spec:
         - name: docker-secret
       containers:
         - name: vllm-openai
-          image: ghcr.io/syv-ai/hyperqwen:latest@sha256:34c2e3a408e2a6ec94d3c6434ff14550b4525301f1ad6c06e40e409db1eefd55
+          image: ghcr.io/syv-ai/hyperqwen:latest@sha256:27ce54cbc402e643a375fcb4fbe18db293f7b3bb7717a050ed39c03b37bdb788
           imagePullPolicy: IfNotPresent
           args: ["batch"]
           ports:
