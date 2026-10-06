@@ -38,15 +38,18 @@ spec:
               value: "8000"
             - name: VISION
               value: "1"
+            # Off: reusing a cached prefix shifted discovery answers vs a fresh
+            # prefill (2026-10-06). From vLLM 0.28 hybrids cache by default, so
+            # EXTRA_ARGS carries --no-enable-prefix-caching; =0 alone only drops align.
             - name: PREFIX_CACHE
-              value: "1"
+              value: "0"
             - name: VISION_OFFLOAD
               value: "0"
             # VISION=1 makes start_qwen.sh hardcode --limit-mm-per-prompt image
             # count 1. EXTRA_ARGS is expanded after it, so raising it here is the
             # supported override; drop this and multi-image prompts silently cap at 1.
             - name: EXTRA_ARGS
-              value: '--served-model-name qwen3.8-27b --limit-mm-per-prompt {"image":{"count":4}} --disable-access-log-for-endpoints /health,/metrics,/ping'
+              value: '--served-model-name qwen3.8-27b --limit-mm-per-prompt {"image":{"count":4}} --disable-access-log-for-endpoints /health,/metrics,/ping --no-enable-prefix-caching'
           resources:
             limits:
               nvidia.com/gpu: 1
