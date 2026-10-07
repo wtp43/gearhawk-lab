@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-classification
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm-classification
+  template:
+    metadata:
+      labels:
+        app: vllm-classification
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        kubernetes.io/hostname: work-00
+      imagePullSecrets:
+        - name: docker-secret
+      containers:
+        - name: d1
+          image: pytorch/pytorch:2.14.1-cuda12.6-cudnn9-runtime@sha256:1262abc856a428933c0477b4be87079173a0b087b7691c47fcb396b7b5775c56
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - >-
+              pip install --no-cache-dir --root-user-action=ignore -q
+              "transformers==5.19.0" "fastapi==0.142.4" "uvicorn==0.54.0" "pillow==12.3.0" "torchvision==0.29.1"
+              && exec uvicorn server:app --app-dir /app --host 0.0.0.0 --port 8000 --no-access-log
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: PIP_BREAK_SYSTEM_PACKAGES
+              value: "1"
+            - name: MODEL
+              value: LiquidAI/d1-3B
+            - name: MODEL_REVISION
+              value: 051bcc464b01b9f92942b364d9586b0ef5912432
+            - name: HF_HOME
+              value: /data/hf
+            - name: MAX_BATCH
+              value: "64"
+            - name: BATCH_WAIT_MS
+              value: "5"
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 10
+            failureThreshold: 120
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            failureThreshold: 5
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: app
+              mountPath: /app
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: vllm-classification-pvc
+        - name: app
+          configMap:
+            name: vllm-classification-app
