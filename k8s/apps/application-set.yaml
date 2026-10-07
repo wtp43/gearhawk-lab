@@ -34,3 +34,10 @@ spec:
         automated:
           selfHeal: true
           prune: true
+  templatePatch: |
+    spec:
+      project: applications
+    {{- if has .path.basename (list "vllm-openai") }}
+      syncPolicy:
+        automated: null
+    {{- end }}

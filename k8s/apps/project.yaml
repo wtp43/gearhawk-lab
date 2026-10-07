@@ -26,6 +26,8 @@ spec:
       server: "*"
     - namespace: "vllm-openai"
       server: "*"
+    - namespace: "vllm-classification"
+      server: "*"
     - namespace: "spark-dashboard"
       server: "*"
     - namespace: "solidtime"
