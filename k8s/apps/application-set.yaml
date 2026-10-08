@@ -37,7 +37,7 @@ spec:
   templatePatch: |
     spec:
       project: applications
-    {{- if has .path.basename (list "vllm-openai") }}
+    {{- if has .path.basename (list "vllm-openai" "vllm-classification") }}
       syncPolicy:
         automated: null
     {{- end }}
