@@ -34,7 +34,7 @@
 
 - Rename the repo `wtp43/gearhawk-lab` to `wtp43/dataflarelabs-infrastructure`. GitHub redirects the old URL after a rename, so do the rename first and then update references while the redirect covers the gap:
   - This repo:
-    - `repoURL` and `sourceRepos` in `k8s/sets/*`, every `k8s/**/application-set.yaml` and `project.yaml`, `k8s/docs/argocd.yaml`, and `k8s/infra/gpu/nvidia/{nvidia-device-plugin,dcgm-exporter}.yaml`.
+    - `repoURL` and `sourceRepos` in `k8s/sets/*`, every `k8s/**/application-set.yaml` and `project.yaml`, `docs/k8s/argocd.yaml`, and `k8s/infra/gpu/nvidia/{nvidia-device-plugin,dcgm-exporter}.yaml`.
     - `terraform/clusters/dev/bootstrap.tf`.
     - The README title. Also fix the stale R2 key in `terraform/clusters/dev/README.md`: it says `gearhawk-lab/dev`, but `backend.tf` uses `dataflarelabs/dev`.
     - Run `git grep -i gearhawk-lab` afterwards to catch anything else.
