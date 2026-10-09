@@ -17,3 +17,8 @@ labels:
       app.kubernetes.io/name: vllm-openai
       app.kubernetes.io/component: inference
       app.kubernetes.io/instance: vllm-openai
+
+configMapGenerator:
+  - name: vllm-openai-dockerenv
+    literals:
+      - .dockerenv=
