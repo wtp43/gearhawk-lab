@@ -5,21 +5,88 @@ memory-modded, sourced from Taobao). Each GPU runs its own model replica; no ten
 
 ## Required hardware
 
-| Item                                                 | Qty | Notes                                                                                                    |
-| ---------------------------------------------------- | --- | -------------------------------------------------------------------------------------------------------- |
-| Xeon Platinum 8268                                   | 2   | Both sockets required: slots 6/8 hang off CPU2, and Dell requires 2 CPUs for GPUs                        |
-| DDR4 RDIMM, 2R, 16/32/64 GB                          | 12  | One DIMM per channel (6 per socket). 3200 sticks run at 2933                                             |
-| RTX 3080 20GB blower, 2-slot, 2× 8-pin               | 3   | See [GPU purchase checks](#gpu-purchase-checks)                                                          |
-| GPU power cable, CPU/EPS 8-pin → 2× 8-pin (6+2) PCIe | 3   | One per GPU. See [Power cables](#power-cables)                                                           |
-| GPU power interposer board                           | 1   | Four `J_GPU_POWER_225W` connectors, one per GPU                                                          |
-| High-performance middle fans (Fan3–Fan6)             | 4   | Fan1/Fan2 stay standard                                                                                  |
-| External GPU fans, left (8DF31) and right (K22DD)    | 2   | Both required once a GPU is in slot 6 or 8                                                               |
-| GPU air shroud (MRY2P)                               | 1   | Installed alongside the main air shroud                                                                  |
-| GPU card holder                                      | 1   | Supports the far end of full-length cards                                                                |
-| PSU, 1600 W / 2000 W / 2400 W Platinum               | 2   | Dell minimum for GPUs is 1100 W, but 3 GPUs + 2× 205 W CPUs is ~1.5 kW. 2000/2400 W need 200–240 V input |
+| Item                                                 | Qty | Notes                                                                                                              |
+| ---------------------------------------------------- | --- | ------------------------------------------------------------------------------------------------------------------ |
+| Xeon Platinum 8268                                   | 2   | Both sockets required: slots 6/8 hang off CPU2, and Dell requires 2 CPUs for GPUs. See [CPU options](#cpu-options) |
+| High-wattage CPU heatsink                            | 2   | Required for CPUs over 150 W                                                                                       |
+| DDR4 RDIMM, 2R, 16/32/64 GB                          | 12  | One DIMM per channel (6 per socket). 3200 sticks run at 2933                                                       |
+| RTX 3080 20GB blower, 2-slot, 2× 8-pin               | 3   | See [GPU purchase checks](#gpu-purchase-checks)                                                                    |
+| GPU power cable, CPU/EPS 8-pin → 2× 8-pin (6+2) PCIe | 3   | One per GPU. See [Power cables](#power-cables)                                                                     |
+| GPU power interposer board                           | 1   | Four `J_GPU_POWER_225W` connectors, one per GPU                                                                    |
+| High-performance middle fans (Fan3–Fan6)             | 4   | Fan1/Fan2 stay standard                                                                                            |
+| External GPU fans, left and right                    | 2   | Both required once a GPU is in slot 6 or 8                                                                         |
+| GPU air shroud                                       | 1   | Installed alongside the main air shroud                                                                            |
+| GPU card holder                                      | 1   | Supports the far end of full-length cards                                                                          |
+| PSU, 1600 W / 2000 W / 2400 W Platinum               | 2   | Dell minimum for GPUs is 1100 W, but 3 GPUs + 2× 205 W CPUs is ~1.5 kW. 2000/2400 W need 200–240 V input           |
+| Rack ears, left and right                            | 2   | See [Rack mode](#rack-mode)                                                                                        |
+| Rails or 4-post rack shelf                           | 1   | See [Rack mode](#rack-mode)                                                                                        |
 
-Not supported with GPUs: the 18× 3.5" drive chassis, dual PERC, Fresh Air configs. Two 205 W CPUs or
-300 W GPUs cap ambient at 30 °C.
+Not supported with GPUs: tower mode, the 18× 3.5" drive chassis, dual PERC, Fresh Air configs. Two 205 W
+CPUs or 300 W GPUs cap ambient at 30 °C.
+
+## CPU options
+
+Must be 2nd-gen Xeon Scalable (Cascade Lake): the 32 GB 3200 RDIMMs on hand do not run on 1st gen
+(Skylake, 81xx/61xx). 32 GB 2Rx8 sticks use 16 Gb DRAM, which Skylake does not support. Cascade Lake runs
+memory at 2933 at most. T640 limits: 28 cores, 205 W TDP.
+
+| CPU             | Cores | TDP   | PassMark, 2 CPUs   | Pair price (USD, Oct 2026) | Notes                                                                      |
+| --------------- | ----- | ----- | ------------------ | -------------------------- | -------------------------------------------------------------------------- |
+| Platinum 8269CY | 26    | 205 W | 57,890 (3 samples) | ~150                       | OEM part, not on Dell's list. Confirmed drop-in in a T640 by two STH users |
+| Platinum 8268   | 24    | 205 W | 58,170             | ~230                       | On Dell's list                                                             |
+| Gold 6238R      | 28    | 165 W | 57,955             | ~340                       | On Dell's list. Same score at 165 W                                        |
+| Platinum 8280   | 28    | 205 W | 61,416             | ~620                       | On Dell's list. +6% over 8268                                              |
+| Gold 6258R      | 28    | 205 W | 63,243             | ~710                       | On Dell's list. Fastest at ≤205 W, +9% over 8268                           |
+| Gold 6252       | 24    | 150 W | 46,370             | ~90                        | On Dell's list. −20%, but keeps the standard heatsinks                     |
+
+- Update to the latest BIOS before swapping CPUs. The T640 Technical Guide lists the "R" refresh parts.
+- Skip the 8260: same price as the 8268, 10% slower.
+- OEM parts confirmed working in a T640 (STH): 8269CY, 8270CL, 6240C, 6271C, 6267. The 8255C boots but
+  scores about half the 8269CY in LINPACK.
+- OEM parts to avoid: 8273CL (boot loop, iDRAC "BIOS halted"), 8272CL (no confirmed boot), 8259CL and
+  8275CL (need a VRM ICC_MAX mod to 255 A; the 8275CL failed POST in an R740). The 8259CL is also 210 W.
+
+## Rack mode
+
+GPUs are supported only in rack mode.
+
+- Of the tower-to-rack kit, only the rack ears are needed to mount. The kit's VGA module and cable add a
+  front VGA port, and Dell's conversion steps never install them. The slide cover and Mylar sticker are
+  cosmetic.
+- Remove the system feet or caster wheels.
+- Dell lists one rail for the T640: type C4 ReadyRails II sliding, shared with the T630. T620 rails and
+  T440 (C2) rails are not listed as compatible.
+- C4 rails install tool-less in square and unthreaded round holes. Threaded holes need a minor conversion
+  and your own screws (head ≤10 mm). No 2-post racks. Rail depth: 756 mm, 840 mm with the CMA.
+- Front-to-rear post spacing (outer faces) must fall within:
+
+| Rack hole type | Post spacing (mm) |
+| -------------- | ----------------- |
+| Square         | 686–756           |
+| Round          | 672–749           |
+| Threaded       | 686–771           |
+
+- Alternative: L-shaped shelf rails or a 4-post shelf, with the ears holding the front. The server cannot
+  slide out on bearings for service.
+
+## Part numbers
+
+Dell's manual and rail matrix give no part numbers (the matrix uses rail type C4). Check the label before
+buying.
+
+| Part                                            | Part number                                 | Source                                                                         |
+| ----------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------ |
+| External GPU fan, left / right                  | 8DF31 / K22DD                               | Reseller                                                                       |
+| GPU air shroud                                  | MRY2P                                       | Unverified                                                                     |
+| GPU power interposer board                      | X7C1K                                       | Reseller                                                                       |
+| High-performance middle fan                     | KJN71                                       | STH forum: Dell support specified it for a GPU config                          |
+| Middle fan tray / standard middle fan           | 6KK42 / CKY79                               | STH forum                                                                      |
+| High-wattage CPU heatsink                       | KN2PJ (also 0VX3D, order code 412-AANJ)     | STH forum, photo of label                                                      |
+| Standard CPU heatsink (up to 150 W)             | 489KP (order code 412-AANI)                 | STH forum                                                                      |
+| Rack ear, right / left                          | R7YDD / 607X0                               | Reseller                                                                       |
+| Tower-to-rack conversion kit                    | W8C14 / FP0PJ / F0YV3 (order code 770-BCJK) | Reseller; 770-BCJK from a Dell Community user post                             |
+| Front VGA module / VGA cable / rack slide cover | 8TRDC / V1514 / FKN1F                       | Reseller                                                                       |
+| Rails, ReadyRails II sliding, type C4           | 770-BBJJ (kit D2K5P; rails 8MVV0 / Y5VX8)   | Dell: the 770-BBJJ store page lists the T640. D2K5P and rail numbers: reseller |
 
 ## GPU slots
 
@@ -130,4 +197,7 @@ power connectors and bracket end:
 ## References
 
 - [Dell PowerEdge T640 Technical Guide](https://i.dell.com/sites/csdocuments/product_docs/en/poweredge-t640-technical-guide.pdf) (slot table, memory speeds, GPU restrictions, PSU options)
+- [Dell Enterprise Systems Rail Sizing and Rack Compatibility Matrix](https://www.delltechnologies.com/asset/en-us/services/services-for-isg-products/announcements-communications/dell-technologies-enterprise-systems-rail-sizing-and-rack-compatibility-matrix.pdf) (C4 rail, rack types, post spacing)
+- [STH: Dell PowerEdge T640 as a Workstation](https://forums.servethehome.com/index.php?threads/dell-poweredge-t640-as-a-workstation-powerful-and-silent.31033/) (OEM CPU reports, heatsink and fan part numbers)
+- [PassMark CPU Mark](https://www.cpubenchmark.net/) (dual-CPU scores: `cpu.php?id=<ID>&cpuCount=2`)
 - [Dell PowerEdge T640 Installation and Service Manual](https://www.gotomojo.com/wp-content/uploads/2019/07/Dell-PowerEdge-T640-Owners-Manual.pdf) (GPU card restrictions, GPU power interposer board)
