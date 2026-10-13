@@ -65,6 +65,30 @@ spec:
                 nvidia-smi -i "$uuid" -pl "$want" || echo "FAILED: $name ($uuid)"
               done
               exit 0
+        # nvidia-smi cannot set fan speed; NVML can. Holds while persistence mode keeps the driver loaded.
+        - name: fan
+          image: python:3.13-slim
+          env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: all
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: utility
+          securityContext:
+            capabilities:
+              add: ["SYS_ADMIN"]
+          command:
+            - sh
+            - -c
+            - |
+              pip install -q --root-user-action=ignore nvidia-ml-py && python - <<'PY'
+              import pynvml as n
+              n.nvmlInit()
+              for i in range(n.nvmlDeviceGetCount()):
+                  h = n.nvmlDeviceGetHandleByIndex(i)
+                  for f in range(n.nvmlDeviceGetNumFans(h)):
+                      n.nvmlDeviceSetFanSpeed_v2(h, f, 100)
+                      print(f"gpu {i} fan {f} -> 100%")
+              PY
       containers:
         - name: pause
           image: registry.k8s.io/pause:3.10
