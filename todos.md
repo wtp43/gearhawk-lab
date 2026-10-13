@@ -4,7 +4,12 @@
 
 - Fit NVMe heatsinks on msa21 and msa22: their NM790s run at 70–76°C and throttle above 90°C, which stalled the etcd leader (ctrl-06 on msa22) on 2026-09-28.
 - Repaste the RTX 3090 and compare hot spot and memory junction temperatures before and after:
-  - Find a way to read both. NVML/DCGM usually only report the core temperature on GeForce cards, so check what `dcgm-exporter` actually exposes first.
+  - Measuring them. NVIDIA has no supported way to read these on GeForce under Linux: on work-00 (driver 595.91.07) `nvidia-smi -q -d TEMPERATURE` shows `Memory Current Temp : N/A` and dcgm-exporter's `DCGM_FI_DEV_MEMORY_TEMP` is always `0`. Only the core temp (`DCGM_FI_DEV_GPU_TEMP`) is real. Options, in order of preference:
+    1. [LACT](https://github.com/ilya-zlobintsev/LACT) ≥ 0.10: reads hot spot and per-chip VRAM temps (tested on Ampere) through NVIDIA's own NVAPI library, `libnvidia-api.so.1`, using undocumented calls. No `/dev/mem` or kernel args needed. The library is on work-00 at `/usr/local/lib` (Talos NVIDIA extension) but isn't injected into GPU containers, so run a privileged pod on work-00 with it mounted via hostPath. Check whether `lact cli` can print temps without the GUI; if not, script the same NVAPI calls (`lact-daemon/src/server/gpu_controller/nvidia/nvapi.rs`).
+    2. [ThomasBaruzier/gddr6-core-junction-vram-temps](https://github.com/ThomasBaruzier/gddr6-core-junction-vram-temps): core, hot spot and VRAM, 3090 tested, `--once --json` output. Reads registers through `/dev/mem`, so it needs root, a privileged pod with `/dev/mem` mounted, and usually `iomem=relaxed` in `customization.extraKernelArgs` of `terraform/talos/image/gpu_schematic.yaml` (new image plus an upgrade/reboot of work-00). Unverified whether the Talos kernel exposes `/dev/mem` at all.
+    3. [olealgoritme/gddr6](https://github.com/olealgoritme/gddr6): the original and most-starred `/dev/mem` reader, VRAM only (no hot spot). Same requirements as option 2.
+    4. Boot work-00 into a live Linux USB with one of the above, or into Windows with HWiNFO, and run a comparable GPU load there before and after.
+  - Keep the fan setting identical for both runs: `k8s/infra/gpu/nvidia/power-limit.yaml` pins the fans at 100%.
   - Before: record core, hot spot and memory junction temperatures, fan speed, power draw and clocks at idle and after ~20 minutes of sustained vllm-openai load. Note the room temperature.
   - Repaste. While the card is open, check the thermal pads, since memory junction temperature depends on them rather than the paste.
   - After: repeat the same load at a similar room temperature and compare the numbers.
