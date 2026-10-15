@@ -29,7 +29,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: spark-dashboard
-          image: ghcr.io/niklasfrick/spark-dashboard:v0.14.0@sha256:8d859e722b482fec4bf0756a7f45c42d9d0be6c71bbca1a7cce9fa53f883159c
+          image: ghcr.io/niklasfrick/spark-dashboard:v0.15.0@sha256:ac1ce9f0977d13abc4b3b59892758c38e487b8fbb43c2c84ed649d1a11b175da
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
