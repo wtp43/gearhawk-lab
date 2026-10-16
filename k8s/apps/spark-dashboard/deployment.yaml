@@ -47,10 +47,6 @@ spec:
               value: "1000"
             - name: SPARK_DASHBOARD_STATE_DIR
               value: /var/lib/spark-dashboard
-            - name: SPARK_DASHBOARD_ENGINE
-              value: vllm
-            - name: SPARK_DASHBOARD_ENGINE_URL
-              value: http://localhost:8000
             - name: SPARK_DASHBOARD_ENABLE_LOG_VIEWER
               value: "true"
             - name: DOCKER_HOST

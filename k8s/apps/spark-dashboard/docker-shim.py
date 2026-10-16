@@ -64,6 +64,21 @@ def current_pod():
     return max(running, key=rank, default=None)
 
 
+def model_root():
+    conn = http.client.HTTPConnection(UPSTREAM_HOST, int(UPSTREAM_PORT), timeout=5)
+    try:
+        conn.request("GET", "/v1/models")
+        resp = conn.getresponse()
+        if resp.status != 200:
+            return None
+        models = json.load(resp)["data"]
+        return models[0].get("root") or models[0]["id"] if models else None
+    except (OSError, ValueError, KeyError):
+        return None
+    finally:
+        conn.close()
+
+
 class DockerApi(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
@@ -104,6 +119,7 @@ class DockerApi(BaseHTTPRequestHandler):
         pod = current_pod()
         if pod is None:
             return self.send_json(200, [])
+        root = model_root()
         self.send_json(
             200,
             [
@@ -111,7 +127,7 @@ class DockerApi(BaseHTTPRequestHandler):
                     "Id": CONTAINER_ID,
                     "Names": [f"/{CONTAINER_ID}"],
                     "Image": "vllm",
-                    "Command": "vllm serve",
+                    "Command": f"vllm serve {root}" if root else "vllm serve",
                     "State": "running",
                     "Status": "Up",
                     "Ports": [
