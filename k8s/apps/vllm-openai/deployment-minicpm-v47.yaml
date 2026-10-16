@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-openai
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm-openai
+  template:
+    metadata:
+      labels:
+        app: vllm-openai
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        kubernetes.io/hostname: work-00
+      # MiniCPM-V 4.7 35B-A3B on llama.cpp: its vLLM 4-bit builds (AWQ/GPTQ, 22.6 GB) leave no room on 24 GB.
+      # Open PR ggml-org/llama.cpp#30510 is applied over the pinned commit: without it llama.cpp gives the image's
+      # marker tokens the wrong positions, which shifts where the model places things (PR's test: 3/18 vs 15/18 hits).
+      initContainers:
+        - name: prep
+          image: nvidia/cuda:12.9.1-devel-ubuntu24.04@sha256:020bc241a628776338f4d4053fed4c38f6f7f3d7eb5919fecb8de313bb8ba47c
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              LLAMA_SHA=620d2225cc436ab0b001e3200e590e3b286ef9ab
+              PR_BASE=3fb47677eaf0ebb569a1f94c756dcf58b8584cc0
+              PR_HEAD=e2e5608915876bded43bd701b45e2da81db09653
+              HF=https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B-gguf/resolve/9f04f64dcb4f92823f8060a911b0101d75eb22d9
+              SRC=/data/llama.cpp-620d2225-pr30510
+              M=/data/models
+              if [ -x "$SRC/build/bin/llama-server" ] && [ -f "$M/MiniCPM-V-4_7-35B-A3B-Q4_K_M.gguf.ok" ] \
+                && [ -f "$M/mmproj-model-f16-4x.gguf.ok" ]; then
+                exit 0
+              fi
+              apt-get update -qq
+              apt-get install -y -qq --no-install-recommends git cmake ninja-build curl ca-certificates >/dev/null
+              mkdir -p "$M"
+              fetch() {
+                [ -f "$M/$1.ok" ] && return 0
+                curl -fsSL --retry 5 -C - -o "$M/$1" "$HF/$1"
+                echo "$2  $M/$1" | sha256sum -c - && touch "$M/$1.ok"
+              }
+              fetch MiniCPM-V-4_7-35B-A3B-Q4_K_M.gguf bf3d1c67f7843193e4483aebd26c5dea6b6d1f6a06ffa03c2387a6f3cc6d7df5 &
+              P1=$!
+              fetch mmproj-model-f16-4x.gguf 30f4daac0f61c2ca28d68b5f901c0501cb7a269a1357a9e380d2c376c6ed6518 &
+              P2=$!
+              if [ ! -x "$SRC/build/bin/llama-server" ]; then
+                if [ ! -d "$SRC/.git" ]; then
+                  git clone -q --filter=blob:none https://github.com/ggml-org/llama.cpp "$SRC"
+                  git -C "$SRC" checkout -q "$LLAMA_SHA"
+                  git -C "$SRC" fetch -q origin "$PR_HEAD"
+                  git -C "$SRC" diff "$PR_BASE" "$PR_HEAD" > /tmp/pr30510.diff
+                  echo "028ed5aee26e200373539f2cbade2814901df5529994897b2f74b0aaba28941b  /tmp/pr30510.diff" | sha256sum -c -
+                  git -C "$SRC" apply /tmp/pr30510.diff
+                fi
+                # The build pod has no GPU, so no libcuda.so.1 to link against (same flag as llama.cpp's CUDA Dockerfile).
+                cmake -S "$SRC" -B "$SRC/build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON \
+                  -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DLLAMA_BUILD_TESTS=OFF \
+                  -DCMAKE_EXE_LINKER_FLAGS=-Wl,--allow-shlib-undefined
+                cmake --build "$SRC/build" --target llama-server llama-bench
+              fi
+              wait $P1
+              wait $P2
+          volumeMounts:
+            - name: bolt-data
+              mountPath: /data
+      containers:
+        - name: vllm-openai
+          image: nvidia/cuda:12.9.1-devel-ubuntu24.04@sha256:020bc241a628776338f4d4053fed4c38f6f7f3d7eb5919fecb8de313bb8ba47c
+          imagePullPolicy: IfNotPresent
+          # mmproj-model-f16-4x: the card's "finer detail" image mode (4x token merge, not the default 16x).
+          # --fit off: fail on a GPU overflow instead of silently moving layers to the CPU.
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              exec /data/llama.cpp-620d2225-pr30510/build/bin/llama-server \
+                --model /data/models/MiniCPM-V-4_7-35B-A3B-Q4_K_M.gguf \
+                --mmproj /data/models/mmproj-model-f16-4x.gguf \
+                --alias minicpm-v-4.7-35b-a3b \
+                --host 0.0.0.0 \
+                --port 8000 \
+                --ctx-size 32768 \
+                --parallel 8 \
+                --kv-unified \
+                --n-gpu-layers 999 \
+                --fit off \
+                --flash-attn on \
+                --batch-size 2048 \
+                --ubatch-size 512 \
+                --jinja \
+                --metrics \
+                --no-webui
+          ports:
+            - name: http
+              containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+            failureThreshold: 240
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            failureThreshold: 5
+          volumeMounts:
+            - name: bolt-data
+              mountPath: /data
+      volumes:
+        - name: bolt-data
+          persistentVolumeClaim:
+            claimName: vllm-openai-bolt-pvc

@@ -29,6 +29,10 @@ configMapGenerator:
       - patches/triton_attention_helpers.py
       - patches/gemma4_sage_triton.py
       - patches/triton_flashinfer.py
+  # llama.cpp: Nemotron Bolt's vision part honours --image-min/max-tokens (only the Bolt deployment mounts it).
+  - name: vllm-openai-llama-patch
+    files:
+      - patches/llama-nemotron-omni-image-tokens.diff
   - name: vllm-openai-dockerenv
     literals:
       - .dockerenv=

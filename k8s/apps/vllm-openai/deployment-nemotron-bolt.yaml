@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-openai
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm-openai
+  template:
+    metadata:
+      labels:
+        app: vllm-openai
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        kubernetes.io/hostname: work-00
+      # Nemotron 3.5 Bolt 74B-A9B on llama.cpp: vLLM runs this checkpoint's IQ2_XXS experts only through b12x, which
+      # refuses anything but SM12x. llama.cpp support landed in ggml-org/llama.cpp#30520 (2026-10-15), before any
+      # release or image, so the init container builds the pinned commit for sm86 once and keeps it on the volume.
+      initContainers:
+        - name: prep
+          image: nvidia/cuda:12.9.1-devel-ubuntu24.04@sha256:020bc241a628776338f4d4053fed4c38f6f7f3d7eb5919fecb8de313bb8ba47c
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              LLAMA_SHA=620d2225cc436ab0b001e3200e590e3b286ef9ab
+              HF=https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-24GB-GGUF/resolve/724e3fee41becc4048998e2204748147876ed56b
+              SRC=/data/llama.cpp-$LLAMA_SHA
+              M=/data/models
+              PATCH=/patches/llama-nemotron-omni-image-tokens.diff
+              if [ -x "$SRC/build/bin/llama-server" ] && [ -f "$SRC/.image-tokens-patch" ] \
+                && [ -f "$M/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-24GB.gguf.ok" ] \
+                && [ -f "$M/mmproj-NVIDIA-Nemotron-3.5-Bolt-74B-A9B-24GB.gguf.ok" ]; then
+                exit 0
+              fi
+              apt-get update -qq
+              apt-get install -y -qq --no-install-recommends git cmake ninja-build curl ca-certificates >/dev/null
+              mkdir -p "$M"
+              fetch() {
+                [ -f "$M/$1.ok" ] && return 0
+                curl -fsSL --retry 5 -C - -o "$M/$1" "$HF/$1"
+                echo "$2  $M/$1" | sha256sum -c - && touch "$M/$1.ok"
+              }
+              fetch NVIDIA-Nemotron-3.5-Bolt-74B-A9B-24GB.gguf 91d63363e782c8a3d5f4be42816eba8e0d42dd2530bd07a7d0d2dc440599af75 &
+              P1=$!
+              fetch mmproj-NVIDIA-Nemotron-3.5-Bolt-74B-A9B-24GB.gguf 0ee891eadc7bf0cae6289b249c74eb1ef420534351f6ef8b64d49f0ca6a926b0 &
+              P2=$!
+              if [ ! -d "$SRC/.git" ]; then
+                git clone -q --filter=blob:none https://github.com/ggml-org/llama.cpp "$SRC"
+                git -C "$SRC" checkout -q "$LLAMA_SHA"
+              fi
+              if [ ! -f "$SRC/.image-tokens-patch" ]; then
+                echo "9ffd44b5812c972c0494c258811e120b398b24074ceb7148c98c7ba07dc10dbd  $PATCH" | sha256sum -c -
+                git -C "$SRC" apply "$PATCH"
+                touch "$SRC/.image-tokens-patch"
+              fi
+              # The build pod has no GPU, so no libcuda.so.1 to link against (same flag as llama.cpp's CUDA Dockerfile).
+              cmake -S "$SRC" -B "$SRC/build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON \
+                -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DLLAMA_BUILD_TESTS=OFF \
+                -DCMAKE_EXE_LINKER_FLAGS=-Wl,--allow-shlib-undefined
+              cmake --build "$SRC/build" --target llama-server llama-bench
+              wait $P1
+              wait $P2
+          volumeMounts:
+            - name: bolt-data
+              mountPath: /data
+            - name: llama-patch
+              mountPath: /patches
+              readOnly: true
+      containers:
+        - name: vllm-openai
+          image: nvidia/cuda:12.9.1-devel-ubuntu24.04@sha256:020bc241a628776338f4d4053fed4c38f6f7f3d7eb5919fecb8de313bb8ba47c
+          imagePullPolicy: IfNotPresent
+          # 32k context shared by all slots (8 attention layers: ~4 KiB of q8_0 KV per token). Each slot also holds
+          # ~165 MiB of f32 Mamba state, which is what limits --parallel next to 22.1 GiB of weights.
+          # --fit off: fail on a GPU overflow instead of silently moving layers to the CPU.
+          # --image-max-tokens 1120: Gemma's per-image cap at the same 32 source px per token. The mmproj default
+          # (3.4 MP, 3,328 tokens) ran the image encoder out of memory at 8 concurrent role checks (2026-10-15).
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              exec /data/llama.cpp-620d2225cc436ab0b001e3200e590e3b286ef9ab/build/bin/llama-server \
+                --model /data/models/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-24GB.gguf \
+                --mmproj /data/models/mmproj-NVIDIA-Nemotron-3.5-Bolt-74B-A9B-24GB.gguf \
+                --image-max-tokens 1120 \
+                --alias nemotron-3.5-bolt-74b-a9b \
+                --host 0.0.0.0 \
+                --port 8000 \
+                --ctx-size 32768 \
+                --parallel 4 \
+                --kv-unified \
+                --n-gpu-layers 999 \
+                --fit off \
+                --flash-attn on \
+                --cache-type-k q8_0 \
+                --cache-type-v q8_0 \
+                --batch-size 2048 \
+                --ubatch-size 512 \
+                --jinja \
+                --metrics \
+                --no-webui
+          ports:
+            - name: http
+              containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+            failureThreshold: 240
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            failureThreshold: 5
+          volumeMounts:
+            - name: bolt-data
+              mountPath: /data
+      volumes:
+        - name: bolt-data
+          persistentVolumeClaim:
+            claimName: vllm-openai-bolt-pvc
+        - name: llama-patch
+          configMap:
+            name: vllm-openai-llama-patch

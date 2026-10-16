@@ -1,0 +1,25 @@
+diff --git a/tools/mtmd/clip.cpp b/tools/mtmd/clip.cpp
+index 4c1185a43..0627bcd72 100644
+--- a/tools/mtmd/clip.cpp
++++ b/tools/mtmd/clip.cpp
+@@ -1535,7 +1535,19 @@ struct clip_model_loader {
+                         get_u32(KEY_PROJ_SCALE_FACTOR, hparams.n_merge);
+                         get_u32(KEY_IMAGE_MIN_PIXELS, hparams.image_min_pixels);
+                         get_u32(KEY_IMAGE_MAX_PIXELS, hparams.image_max_pixels);
+-                        hparams.warmup_image_size = hparams.image_size;
++                        {
++                            // --image-min/max-tokens take precedence, as for Qwen-VL; warm up at the largest image so
++                            // its compute buffer is reserved at load instead of growing past the free VRAM later
++                            const int unit = hparams.patch_size * hparams.n_merge;
++                            if (hparams.custom_image_min_tokens > 0) {
++                                hparams.image_min_pixels = hparams.custom_image_min_tokens * unit * unit;
++                            }
++                            if (hparams.custom_image_max_tokens > 0) {
++                                hparams.image_max_pixels = hparams.custom_image_max_tokens * unit * unit;
++                            }
++                            hparams.image_min_pixels = std::min(hparams.image_min_pixels, hparams.image_max_pixels);
++                            hparams.warmup_image_size = (int) std::sqrt((double) hparams.image_max_pixels) / unit * unit;
++                        }
+                     } break;
+                 case PROJECTOR_TYPE_PARAKEET:
+                     {
