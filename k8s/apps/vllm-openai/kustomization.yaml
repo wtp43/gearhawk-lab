@@ -6,7 +6,7 @@ resources:
   - ns.yaml
   - secrets.yaml
   - vllm-openai-pvc.yaml
-  - deployment.yaml
+  - deployment-gemma4-a4b.yaml
   - vllm-openai-svc.yaml
   - engine-watcher-rbac.yaml
   - spark-dashboard-logs-rbac.yaml
@@ -19,6 +19,11 @@ labels:
       app.kubernetes.io/instance: vllm-openai
 
 configMapGenerator:
+  # vLLM 0.31.0 gemma4_mm.py with open PRs #60577 + #60478 (Gemma 4 vision encoder) and our per-image pixel-density
+  # patch (GEMMA4_SOURCE_PX_PER_TOKEN); only the Gemma test deployment mounts it.
+  - name: vllm-openai-gemma4-patch
+    files:
+      - patches/gemma4_mm.py
   - name: vllm-openai-dockerenv
     literals:
       - .dockerenv=
