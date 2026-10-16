@@ -24,7 +24,7 @@ spec:
       # marker tokens the wrong positions, which shifts where the model places things (PR's test: 3/18 vs 15/18 hits).
       initContainers:
         - name: prep
-          image: nvidia/cuda:12.9.1-devel-ubuntu24.04@sha256:020bc241a628776338f4d4053fed4c38f6f7f3d7eb5919fecb8de313bb8ba47c
+          image: nvidia/cuda:13.4.2-devel-ubuntu24.04@sha256:7005688f5eaa5a9aaa9e555f546107c4454446a543347fd48b0bdb63ea027ad2
           imagePullPolicy: IfNotPresent
           command: ["/bin/bash", "-c"]
           args:
@@ -74,7 +74,7 @@ spec:
               mountPath: /data
       containers:
         - name: vllm-openai
-          image: nvidia/cuda:12.9.1-devel-ubuntu24.04@sha256:020bc241a628776338f4d4053fed4c38f6f7f3d7eb5919fecb8de313bb8ba47c
+          image: nvidia/cuda:13.4.2-devel-ubuntu24.04@sha256:7005688f5eaa5a9aaa9e555f546107c4454446a543347fd48b0bdb63ea027ad2
           imagePullPolicy: IfNotPresent
           # mmproj-model-f16-4x: the card's "finer detail" image mode (4x token merge, not the default 16x).
           # --fit off: fail on a GPU overflow instead of silently moving layers to the CPU.
