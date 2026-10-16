@@ -26,6 +26,8 @@ spec:
           # Same serving settings as the hyperqwen batch deployment where the model allows; 1,120 tokens per image is
           # Gemma's largest budget and the closest to the 27B's screenshot detail (~880 tokens for a 1280x703 frame).
           # Batched tokens at least 2,496: one Gemma image item can take that many and is never split.
+          # GPU share 0.92, not 0.94: the image encoder's run-time activations sit outside vLLM's profiled budget
+          # (0.94 ran out of memory at 8 concurrent role checks, 2026-10-15).
           # gemma4_mm.py is replaced by the ConfigMap copy (vLLM PRs #60577 + #60478) only over the stock 0.31.0 file.
           # vLLM PR #61405 (open): with VLLM_MARLIN_INPUT_DTYPE=int8 the compressed-tensors Marlin MoE never gets the
           # input global scales, so every expert output is garbage. Applied here until the PR ships.
@@ -35,7 +37,18 @@ spec:
               set -euo pipefail
               G=$(python3 -c 'import os, vllm; print(os.path.join(os.path.dirname(vllm.__file__), "model_executor/models/gemma4_mm.py"))')
               echo "ee9b33f5f3d76bfec371dfc65292a915cc5b4741367ba0b28a450a5af8c40f9f  $G" | sha256sum -c -
-              cp /patches/gemma4_mm.py "$G"
+              cp /patches/gemma4_mm.py /patches/gemma4_sage_triton.py "$(dirname "$G")"/
+              if [ "${VLLM_TRITON_ATTN_PR60317:-0}" = 1 ]; then
+                O=$(dirname "$G")/../../v1/attention/ops
+                echo "65d0fbcf33d00789df8ca688c0a1c908e710cfaef53471178747ecae11f05829  $O/triton_unified_attention.py" | sha256sum -c -
+                echo "d134f1919807183f54a3a57499703da44ab2127d033aff3c1509a3274f37a5f7  $O/triton_attention_helpers.py" | sha256sum -c -
+                cp /patches/triton_unified_attention.py /patches/triton_attention_helpers.py "$O"/
+              fi
+              if [ "${VLLM_TRITON_FLASHINFER_SM86:-0}" = 1 ]; then
+                B=$(dirname "$G")/../../v1/attention/backends
+                echo "48d5f967e388d4e8d6bbec8d827b44d855346bc2fada28adf65768bf6623527b  $B/triton_flashinfer.py" | sha256sum -c -
+                cp /patches/triton_flashinfer.py "$B"/
+              fi
               python3 - <<'PY'
               import os, vllm
               p = os.path.join(os.path.dirname(vllm.__file__), "model_executor/layers/quantization/compressed_tensors/compressed_tensors_moe/compressed_tensors_moe_wna16.py")
@@ -51,7 +64,7 @@ spec:
                 '--served-model-name=gemma-4-26b-a4b-qat' \
                 '--host=0.0.0.0' \
                 '--port=8000' \
-                '--gpu-memory-utilization=0.94' \
+                '--gpu-memory-utilization=0.92' \
                 '--max-model-len=32768' \
                 '--max-num-seqs=64' \
                 '--max-num-batched-tokens=2560' \
@@ -61,15 +74,18 @@ spec:
                 '--enable-prefix-caching' \
                 '--compilation-config={"max_cudagraph_capture_size":64,"custom_ops":["+rms_norm","+silu_and_mul"]}' \
                 '--enable-prompt-tokens-details' \
-                '--trust-request-mm-kwargs'
+                '--trust-request-mm-kwargs' \
+                '--attention-backend=TRITON_FLASHINFER'
           ports:
             - name: http
               containerPort: 8000
           env:
             - name: HF_HOME
               value: /cache/huggingface
+            # Own cache dir: vLLM keys its AOT compile cache on the config, not the model code, so the graph compiled
+            # before GEMMA4_LM_MLP_INT8 is loaded from /cache/vllm and asserts on the replaced MLP weights (2026-10-15).
             - name: VLLM_CACHE_ROOT
-              value: /cache/vllm
+              value: /cache/vllm-lmint8
             # int8 activations on the 4-bit Marlin layers and experts (int8 tensor cores on sm86).
             - name: VLLM_MARLIN_INPUT_DTYPE
               value: int8
@@ -77,6 +93,22 @@ spec:
             # image (the crop too) to the full token budget.
             - name: GEMMA4_SOURCE_PX_PER_TOKEN
               value: "32"
+            # Open vLLM PR #60317: Triton attention tile sizes for Gemma 4's head-256/512 layers, incl. an sm86 branch.
+            - name: VLLM_TRITON_ATTN_PR60317
+              value: "1"
+            # Our patch: vLLM's Triton+FlashInfer composite enabled on sm86 (image batches Triton, text batches FlashInfer).
+            - name: VLLM_TRITON_FLASHINFER_SM86
+              value: "1"
+            # Our patch: SageAttention's int8 Q.K Triton kernel for the image encoder (patches/gemma4_sage_triton.py).
+            - name: GEMMA4_VISION_ATTN
+              value: sage
+            # Our patch: W8A8 int8 for the image encoder layers' linear projections.
+            - name: GEMMA4_VISION_INT8
+              value: "1"
+            # Our patch: W8A8 int8 for the language model's dense MLP, which the checkpoint leaves in fp16
+            # (8k text prefill +9%, 28k +6%; 78- and 302-case role checks unchanged, 2026-10-15).
+            - name: GEMMA4_LM_MLP_INT8
+              value: "1"
           resources:
             limits:
               nvidia.com/gpu: 1

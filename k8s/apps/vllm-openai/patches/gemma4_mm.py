@@ -16,6 +16,7 @@ reason about temporal order.
 
 import math
 import os
+import re
 from collections.abc import Hashable, Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal, cast
 
@@ -130,6 +131,98 @@ if _SOURCE_PX_PER_TOKEN:
         )
 
     _hf_image_processing.get_aspect_ratio_preserving_size = _density_aspect_size
+
+
+# Local patch, not upstream: HF's vision pooler builds a float32 one-hot matrix of images x patches x output tokens
+# (~45 MB per 1,120-token image), and PR #60478 pools every same-length image of an encoder step in one call; with
+# small images many share a step and that ran the 3090 out of memory (2026-10-15). Same averages by scatter-add, a few
+# images at a time.
+from transformers.models.gemma4 import modeling_gemma4 as _hf_modeling
+
+_POOL_IMAGES_PER_CALL = 4
+
+
+def _scatter_avg_pool_by_positions(self, hidden_states, pixel_position_ids, length):
+    input_seq_len = hidden_states.shape[1]
+    k = int((input_seq_len // length) ** 0.5)
+    k_squared = k**2
+    if k_squared * length != input_seq_len:
+        raise ValueError(
+            f"Cannot pool {hidden_states.shape} to {length}: {k=}^2 times {length=} must be {input_seq_len}."
+        )
+    outputs, masks = [], []
+    for start in range(0, hidden_states.shape[0], _POOL_IMAGES_PER_CALL):
+        hidden = hidden_states[start : start + _POOL_IMAGES_PER_CALL]
+        clamped = pixel_position_ids[start : start + _POOL_IMAGES_PER_CALL].clamp(min=0)
+        max_x = clamped[..., 0].max(dim=-1, keepdim=True)[0] + 1
+        cells = torch.div(clamped, k, rounding_mode="floor")
+        cells = (cells[..., 0] + (max_x // k) * cells[..., 1]).long()
+        pooled = hidden.new_zeros(hidden.shape[0], length, hidden.shape[2], dtype=torch.float32)
+        pooled.scatter_add_(1, cells.unsqueeze(-1).expand(-1, -1, hidden.shape[2]), hidden.float())
+        counts = torch.zeros(hidden.shape[0], length, dtype=torch.int32, device=hidden.device)
+        counts.scatter_add_(1, cells, torch.ones_like(cells, dtype=torch.int32))
+        outputs.append((pooled / k_squared).to(hidden_states.dtype))
+        masks.append(counts > 0)
+    return torch.cat(outputs), torch.cat(masks)
+
+
+_hf_modeling.Gemma4VisionPooler._avg_pool_by_positions = _scatter_avg_pool_by_positions
+
+# Local patch, not upstream: GEMMA4_VISION_ATTN=sage runs the vision tower's attention with SageAttention's int8
+# Q.K Triton kernel (gemma4_sage_triton.py, vendored). Batches with a mask keep stock SDPA.
+_VISION_ATTN = os.environ.get("GEMMA4_VISION_ATTN") or ""
+if _VISION_ATTN == "sage":
+    from transformers import AttentionInterface
+    from transformers.integrations.sdpa_attention import sdpa_attention_forward
+
+    from vllm.model_executor.models.gemma4_sage_triton import sage_attention
+
+    def _sage_attention_forward(module, query, key, value, attention_mask, dropout=0.0, scaling=None, **kwargs):
+        if attention_mask is not None or not query.is_cuda or query.shape[-1] > 128:
+            return sdpa_attention_forward(
+                module, query, key, value, attention_mask, dropout=dropout, scaling=scaling, **kwargs
+            )
+        scale = query.shape[-1] ** -0.5 if scaling is None else scaling
+        return sage_attention(query, key, value, scale).transpose(1, 2).contiguous(), None
+
+    AttentionInterface.register("gemma4_sage", _sage_attention_forward)
+
+# Local patch, not upstream: GEMMA4_VISION_INT8=1 runs the vision encoder layers' q/k/v/o and MLP projections as
+# W8A8 int8 (per-output-channel weights quantized once after loading, per-token activations; cutlass_scaled_mm on
+# the int8 tensor cores). The patch embedder stays bf16: HF reads its weight dtype.
+# GEMMA4_LM_MLP_INT8=1 does the same for the language model's dense (non-expert) MLP, which the AWQ checkpoint
+# leaves in fp16: on GeForce the fp16 GEMM accumulates in fp32 at half rate, 20% of an 8k text prefill (2026-10-15).
+_VISION_INT8 = os.environ.get("GEMMA4_VISION_INT8") == "1"
+_VISION_INT8_LAYER = re.compile(r"encoder\.layers\.\d+\..*(q_proj|k_proj|v_proj|o_proj|gate_proj|up_proj|down_proj)")
+_LM_MLP_INT8 = os.environ.get("GEMMA4_LM_MLP_INT8") == "1"
+_LM_MLP_INT8_LAYER = re.compile(r"layers\.\d+\.mlp\.(gate_up_proj|down_proj)$")
+
+
+def _use_int8_linears(root: nn.Module, layer_re: re.Pattern[str]) -> None:
+    from vllm import _custom_ops as ops
+    from vllm.model_executor.layers.linear import LinearBase, UnquantizedLinearMethod
+
+    class _W8A8Int8Online(UnquantizedLinearMethod):
+        def process_weights_after_loading(self, layer: nn.Module) -> None:
+            w = layer.weight.data
+            scale = w.abs().amax(dim=1, keepdim=True).float().clamp(min=1e-8) / 127.0
+            w_q = torch.round(w.float() / scale).clamp(-127, 127).to(torch.int8)
+            layer.weight_q = nn.Parameter(w_q.t(), requires_grad=False)
+            layer.weight_scale = nn.Parameter(scale.reshape(1, -1).contiguous(), requires_grad=False)
+            layer.weight = nn.Parameter(torch.empty(0, dtype=w.dtype, device=w.device), requires_grad=False)
+
+        def apply(self, layer: nn.Module, x: torch.Tensor, bias: torch.Tensor | None = None) -> torch.Tensor:
+            x_q, x_s, _ = ops.scaled_int8_quant(x.reshape(-1, x.shape[-1]).contiguous())
+            out = ops.cutlass_scaled_mm(x_q, layer.weight_q, x_s, layer.weight_scale, out_dtype=x.dtype, bias=bias)
+            return out.reshape(*x.shape[:-1], -1)
+
+    for name, module in root.named_modules():
+        if (
+            isinstance(module, LinearBase)
+            and isinstance(module.quant_method, UnquantizedLinearMethod)
+            and layer_re.search(name)
+        ):
+            module.quant_method = _W8A8Int8Online()
 _VIDEO_MAX_SOFT_TOKENS = 70  # soft tokens per video frame (vs 280 for images)
 _VIDEO_MAX_FRAMES = 32  # max sampled frames per video
 
@@ -1396,6 +1489,10 @@ class Gemma4ForConditionalGeneration(
                 prefix=maybe_prefix(prefix, "vision_tower"),
             )
             _optimize_hf_multimodal_tower(self.vision_tower)
+            if _VISION_ATTN == "sage":
+                self.vision_tower.config._attn_implementation = "gemma4_sage"
+            if _VISION_INT8:
+                _use_int8_linears(self.vision_tower, _VISION_INT8_LAYER)
 
         # ---- Audio tower (variants with audio_config) ----
         self.embed_audio: Gemma4MultimodalEmbedder | None
@@ -1434,6 +1531,8 @@ class Gemma4ForConditionalGeneration(
                     architectures=["Gemma4ForCausalLM"],
                 ),
             )
+            if _LM_MLP_INT8:
+                _use_int8_linears(self.language_model, _LM_MLP_INT8_LAYER)
 
             # Pre-allocate PLE buffer for CUDA graph compatibility.
             # Some variants have hidden_size_per_layer_input=None (no PLE).

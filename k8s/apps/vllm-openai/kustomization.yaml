@@ -20,10 +20,19 @@ labels:
 
 configMapGenerator:
   # vLLM 0.31.0 gemma4_mm.py with open PRs #60577 + #60478 (Gemma 4 vision encoder) and our per-image pixel-density
-  # patch (GEMMA4_SOURCE_PX_PER_TOKEN); only the Gemma test deployment mounts it.
+  # patch (GEMMA4_SOURCE_PX_PER_TOKEN); the Triton attention files carry open PR #60317 (Gemma 4 tile sizes, incl. sm86).
+  # Only the Gemma test deployment mounts it.
   - name: vllm-openai-gemma4-patch
     files:
       - patches/gemma4_mm.py
+      - patches/triton_unified_attention.py
+      - patches/triton_attention_helpers.py
+      - patches/gemma4_sage_triton.py
+      - patches/triton_flashinfer.py
+  # llama.cpp: Nemotron Bolt's vision part honours --image-min/max-tokens (only the Bolt deployment mounts it).
+  - name: vllm-openai-llama-patch
+    files:
+      - patches/llama-nemotron-omni-image-tokens.diff
   - name: vllm-openai-dockerenv
     literals:
       - .dockerenv=
