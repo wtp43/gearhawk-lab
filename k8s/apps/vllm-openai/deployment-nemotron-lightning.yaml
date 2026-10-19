@@ -43,7 +43,7 @@ spec:
                 '--host=0.0.0.0' \
                 '--port=8000' \
                 '--gpu-memory-utilization=0.92' \
-                '--max-model-len=16384' \
+                '--max-model-len=131072' \
                 '--max-num-seqs=32' \
                 '--max-num-batched-tokens=8192' \
                 '--async-scheduling' \
@@ -51,6 +51,8 @@ spec:
                 '--compilation-config={"max_cudagraph_capture_size":64,"custom_ops":["+rms_norm","+silu_and_mul"]}' \
                 '--enable-prompt-tokens-details' \
                 '--reasoning-parser=nemotron_v3' \
+                '--enable-auto-tool-choice' \
+                '--tool-call-parser=qwen3_coder' \
                 '--default-chat-template-kwargs={"enable_thinking":false}'
           ports:
             - name: http
@@ -58,6 +60,8 @@ spec:
           env:
             - name: HF_HOME
               value: /cache/huggingface
+            - name: VLLM_MARLIN_INPUT_DTYPE
+              value: int8
             - name: VLLM_CACHE_ROOT
               value: /cache/vllm-lightning
           resources:
