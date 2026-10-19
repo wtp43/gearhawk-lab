@@ -27,7 +27,7 @@ spec:
         - name: docker-secret
       containers:
         - name: vllm-openai
-          image: ghcr.io/syv-ai/hyperqwen:sha-3acb93f@sha256:f761ce93d19e6c5a5dfbfb36d8eb98bf7f52fd09cd456465ed14ffcc673b0ffe
+          image: ghcr.io/syv-ai/hyperqwen:latest@sha256:b628adf36b14490292e90981fe44b2decabd2f4f24299500af970b31d12f3a26
           imagePullPolicy: IfNotPresent
           args: ["batch"]
           ports:
@@ -38,18 +38,15 @@ spec:
               value: "8000"
             - name: VISION
               value: "1"
-            # Off: reusing a cached prefix shifted discovery answers vs a fresh
-            # prefill (2026-10-06). From vLLM 0.28 hybrids cache by default, so
-            # EXTRA_ARGS carries --no-enable-prefix-caching; =0 alone only drops align.
             - name: PREFIX_CACHE
-              value: "0"
+              value: "1"
             - name: VISION_OFFLOAD
               value: "0"
             # VISION=1 makes start_qwen.sh hardcode --limit-mm-per-prompt image
             # count 1. EXTRA_ARGS is expanded after it, so raising it here is the
             # supported override; drop this and multi-image prompts silently cap at 1.
             - name: EXTRA_ARGS
-              value: '--served-model-name qwen3.8-27b --limit-mm-per-prompt {"image":{"count":4}} --disable-access-log-for-endpoints /health,/metrics,/ping --no-enable-prefix-caching'
+              value: '--served-model-name qwen3.8-27b --limit-mm-per-prompt {"image":{"count":4}} --disable-access-log-for-endpoints /health,/metrics,/ping'
           resources:
             limits:
               nvidia.com/gpu: 1
