@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-openai
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm-openai
+  template:
+    metadata:
+      labels:
+        app: vllm-openai
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        kubernetes.io/hostname: work-00
+      containers:
+        - name: vllm-openai
+          image: vllm/vllm-openai:v0.32.0@sha256:befccf0e7e4089aa23926bb6f887a85c0d46c2a99e6de5c5ffdf5cb7957c5b34
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              exec vllm serve 'aiprimebuilds/LFM2.5-24B-A2B-GPTQ' \
+                '--revision=89f63708c6f43c8e4e3645cd07e55a96f9487f98' \
+                '--served-model-name=lfm2.5-24b-a2b' \
+                '--host=0.0.0.0' \
+                '--port=8000' \
+                '--gpu-memory-utilization=0.92' \
+                '--max-model-len=32768' \
+                '--max-num-seqs=64' \
+                '--max-num-batched-tokens=8192' \
+                '--async-scheduling' \
+                '--no-enable-prefix-caching' \
+                '--enable-prompt-tokens-details' \
+                '--reasoning-parser=deepseek_r1' \
+                '--enable-auto-tool-choice' \
+                '--tool-call-parser=lfm2'
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: HF_HOME
+              value: /cache/huggingface
+            - name: VLLM_CACHE_ROOT
+              value: /cache/vllm-lfm25-v032
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+            failureThreshold: 240
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            failureThreshold: 5
+          volumeMounts:
+            - name: vllm-openai-data
+              mountPath: /cache
+              subPath: syv-cache
+            - name: dshm
+              mountPath: /dev/shm
+      volumes:
+        - name: vllm-openai-data
+          persistentVolumeClaim:
+            claimName: vllm-openai-pvc
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi

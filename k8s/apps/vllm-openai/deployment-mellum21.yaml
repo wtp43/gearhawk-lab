@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-openai
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm-openai
+  template:
+    metadata:
+      labels:
+        app: vllm-openai
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        kubernetes.io/hostname: work-00
+      containers:
+        - name: vllm-openai
+          image: vllm/vllm-openai:v0.31.0@sha256:c1c9f6fd5c109ba7f0546a59f5b2f15fb87f64c77782e90a27b648b42a8e67c3
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              python3 - <<'PY'
+              import os, vllm
+              p = os.path.join(os.path.dirname(vllm.__file__), "model_executor/layers/quantization/compressed_tensors/compressed_tensors_moe/compressed_tensors_moe_wna16.py")
+              s = open(p).read()
+              a = '            w2_bias=getattr(layer, "w2_bias", None),\n            gemm1_clamp_limit=getattr(layer, "swiglu_limit", None),\n'
+              b = '            w2_bias=getattr(layer, "w2_bias", None),\n            a1_gscale=getattr(layer, "w13_input_global_scale", None),\n            a2_gscale=getattr(layer, "w2_input_global_scale", None),\n            gemm1_clamp_limit=getattr(layer, "swiglu_limit", None),\n'
+              if b not in s:
+                  assert s.count(a) == 1, "vLLM PR #61405 anchor not found"
+                  open(p, "w").write(s.replace(a, b))
+              print("patched", p)
+              PY
+              exec vllm serve 'cyankiwi/Mellum2.1-12B-A2.5B-Thinking-AWQ-INT4' \
+                '--served-model-name=mellum2.1-12b' \
+                '--host=0.0.0.0' \
+                '--port=8000' \
+                '--gpu-memory-utilization=0.92' \
+                '--max-model-len=16384' \
+                '--max-num-seqs=64' \
+                '--max-num-batched-tokens=8192' \
+                '--async-scheduling' \
+                '--enable-prefix-caching' \
+                '--compilation-config={"max_cudagraph_capture_size":64,"custom_ops":["+rms_norm","+silu_and_mul"]}' \
+                '--enable-prompt-tokens-details' \
+                '--reasoning-parser=qwen3' \
+                '--default-chat-template-kwargs={"enable_thinking":false}'
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: HF_HOME
+              value: /cache/huggingface
+            - name: VLLM_CACHE_ROOT
+              value: /cache/vllm-mellum
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+            failureThreshold: 240
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            failureThreshold: 5
+          volumeMounts:
+            - name: vllm-openai-data
+              mountPath: /cache
+              subPath: syv-cache
+            - name: dshm
+              mountPath: /dev/shm
+      volumes:
+        - name: vllm-openai-data
+          persistentVolumeClaim:
+            claimName: vllm-openai-pvc
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
