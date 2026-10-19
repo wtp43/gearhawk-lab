@@ -33,6 +33,9 @@ configMapGenerator:
   - name: vllm-openai-llama-patch
     files:
       - patches/llama-nemotron-omni-image-tokens.diff
+  - name: vllm-openai-lfm25-template
+    files:
+      - patches/lfm25_nothink.jinja
   - name: vllm-openai-dockerenv
     literals:
       - .dockerenv=

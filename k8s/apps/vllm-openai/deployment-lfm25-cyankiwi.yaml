@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-openai
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm-openai
+  template:
+    metadata:
+      labels:
+        app: vllm-openai
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        kubernetes.io/hostname: work-00
+      containers:
+        - name: vllm-openai
+          image: vllm/vllm-openai:v0.32.0@sha256:befccf0e7e4089aa23926bb6f887a85c0d46c2a99e6de5c5ffdf5cb7957c5b34
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              python3 - <<'PY'
+              import os, vllm
+              d = os.path.dirname(vllm.__file__)
+              p = os.path.join(d, "model_executor/layers/quantization/compressed_tensors/compressed_tensors_moe/compressed_tensors_moe_wna16.py")
+              s = open(p).read()
+              a = '            w2_bias=getattr(layer, "w2_bias", None),\n            gemm1_clamp_limit=getattr(layer, "swiglu_limit", None),\n'
+              b = '            w2_bias=getattr(layer, "w2_bias", None),\n            a1_gscale=getattr(layer, "w13_input_global_scale", None),\n            a2_gscale=getattr(layer, "w2_input_global_scale", None),\n            gemm1_clamp_limit=getattr(layer, "swiglu_limit", None),\n'
+              if b not in s:
+                  assert s.count(a) == 1, "vLLM PR #61405 anchor not found"
+                  open(p, "w").write(s.replace(a, b))
+              for f, a, b in [
+                  ("model_executor/kernels/linear/mixed_precision/marlin.py",
+                   "assert c.weight_type == scalar_types.uint4b8, (",
+                   "assert c.weight_type in (scalar_types.uint4b8, scalar_types.uint4), ("),
+                  ("model_executor/layers/quantization/utils/marlin_utils.py",
+                   'assert wtype == scalar_types.uint4b8, (\n            "W8A8-INT8',
+                   'assert wtype in (scalar_types.uint4b8, scalar_types.uint4), (\n            "W8A8-INT8'),
+              ]:
+                  p = os.path.join(d, f)
+                  s = open(p).read()
+                  if b not in s:
+                      assert s.count(a) == 1, f"Marlin int8 zero-point anchor not found in {f}"
+                      open(p, "w").write(s.replace(a, b))
+              print("patched")
+              PY
+              exec vllm serve 'cyankiwi/LFM2.5-24B-A2B-AWQ-INT4' \
+                '--revision=347aa904833303a21b227c4db540f86d1184921a' \
+                '--served-model-name=lfm2.5-24b-a2b' \
+                '--host=0.0.0.0' \
+                '--port=8000' \
+                '--gpu-memory-utilization=0.92' \
+                '--max-model-len=32768' \
+                '--max-num-seqs=64' \
+                '--max-num-batched-tokens=8192' \
+                '--async-scheduling' \
+                '--no-enable-prefix-caching' \
+                '--compilation-config={"max_cudagraph_capture_size":64,"custom_ops":["+rms_norm","+silu_and_mul"]}' \
+                '--enable-prompt-tokens-details' \
+                '--chat-template=/templates/lfm25_nothink.jinja' \
+                '--default-chat-template-kwargs={"enable_thinking":false}' \
+                '--reasoning-parser=qwen3' \
+                '--enable-auto-tool-choice' \
+                '--tool-call-parser=lfm2'
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: HF_HOME
+              value: /cache/huggingface
+            - name: VLLM_CACHE_ROOT
+              value: /cache/vllm-lfm25-cyankiwi
+            - name: VLLM_MARLIN_INPUT_DTYPE
+              value: int8
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+            failureThreshold: 240
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            failureThreshold: 5
+          volumeMounts:
+            - name: vllm-openai-data
+              mountPath: /cache
+              subPath: syv-cache
+            - name: dshm
+              mountPath: /dev/shm
+            - name: lfm25-template
+              mountPath: /templates
+      volumes:
+        - name: vllm-openai-data
+          persistentVolumeClaim:
+            claimName: vllm-openai-pvc
+        - name: lfm25-template
+          configMap:
+            name: vllm-openai-lfm25-template
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
