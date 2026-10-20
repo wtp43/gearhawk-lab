@@ -6,7 +6,7 @@ resources:
   - ns.yaml
   - secrets.yaml
   - vllm-openai-pvc.yaml
-  - deployment-gemma4-a4b.yaml
+  - deployment.yaml
   - vllm-openai-svc.yaml
   - engine-watcher-rbac.yaml
   - spark-dashboard-logs-rbac.yaml
