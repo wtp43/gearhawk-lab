@@ -23,6 +23,18 @@
   - Typesense (`typesense-cluster`, `typesense-dev`) and RabbitMQ: the RabbitMQ operator refuses storage class changes, and the Typesense operator's behaviour is untested. Do it during a rebuild or as a pod-by-pod PVC swap, trying `typesense-dev` first.
   - Never force a Replace sync on a PVC to change its class: `reclaimPolicy: Delete` destroys the data.
 
+## Databases
+
+- Alert when CNPG backups stop landing in R2. Today nothing goes red if base backups or WAL archiving break: ArgoCD prunes every Backup CR (next item), every cluster has `enablePodMonitor: false`, and SigNoz has no backup alert.
+  - Base backups: alert when `status.serverRecoveryWindow.<serverName>.lastSuccessfulBackupTime` on the barman `ObjectStore` (`r2-store` in each `cnpg-*` namespace) is older than ~26h. Schedules are daily at 00:00 UTC, solidtime at 03:00. The Cluster `LastBackupSucceeded` condition is a second signal. Neither is a metric yet, so export them, e.g. via kube-state-metrics `customResourceState` scraped by the SigNoz collector. The CNPG exporter's `cnpg_collector_last_available_backup_timestamp` is probably useless here: it reads Cluster `status.lastSuccessfulBackup`, which is null with plugin backups.
+  - WAL archiving: scrape the CNPG exporter on port 9187 of each instance pod and alert on `cnpg_pg_stat_archiver_seconds_since_last_archival` and a rising `cnpg_pg_stat_archiver_failed_count`. Only meaningful on clusters with the `plugin-barman-cloud` sidecar; without it archiving is a silent no-op that still counts as success.
+  - Ignore `cnpg-dev`: it restores from the data-warehouse catalog and never backs up.
+  - Prove each alert fires on a scratch cluster (e.g. an ObjectStore with bad credentials), not by breaking a prod schedule.
+- Stop ArgoCD pruning CNPG Backup CRs. CNPG copies the ScheduledBackup's `argocd.argoproj.io/instance` label onto each Backup, so `prune: true` deletes it on the next sync, along with its phase and error message. That is why the cause of hatchet's failed backup on 2026-09-28 is unknown.
+  - Add `postgresql.cnpg.io` / `Backup` to `resource.exclusions` under `configs.cm` in `k8s/infra/controllers/argocd/values.yaml`. Setting the key replaces the chart's default exclusion list (Endpoints, Lease, Cilium, Kyverno reports, …), so copy the defaults in alongside it.
+  - Backup CRs then accumulate, one per cluster per day. Add a CronJob that deletes those older than ~14 days.
+  - Once they persist, alert on any Backup with `phase: failed`.
+
 ## Documentation
 
 - Write detailed homelab infrastructure docs in `README.md`, modelled on https://github.com/niklasfrick/homelab. Today the README has a flat Stack list plus the Talos/Kubernetes upgrade runbook. Add:
