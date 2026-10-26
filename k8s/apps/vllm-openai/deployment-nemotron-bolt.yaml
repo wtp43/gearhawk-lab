@@ -24,7 +24,7 @@ spec:
       # release or image, so the init container builds the pinned commit for sm86 once and keeps it on the volume.
       initContainers:
         - name: prep
-          image: nvidia/cuda:12.9.1-devel-ubuntu24.04@sha256:020bc241a628776338f4d4053fed4c38f6f7f3d7eb5919fecb8de313bb8ba47c
+          image: nvidia/cuda:12.9.2-devel-ubuntu24.04@sha256:16656a1ef115bca9e1f820c6349876f1486d2b3c9a0e615773799fe402960dc5
           imagePullPolicy: IfNotPresent
           command: ["/bin/bash", "-c"]
           args:
@@ -76,7 +76,7 @@ spec:
               readOnly: true
       containers:
         - name: vllm-openai
-          image: nvidia/cuda:12.9.1-devel-ubuntu24.04@sha256:020bc241a628776338f4d4053fed4c38f6f7f3d7eb5919fecb8de313bb8ba47c
+          image: nvidia/cuda:12.9.2-devel-ubuntu24.04@sha256:16656a1ef115bca9e1f820c6349876f1486d2b3c9a0e615773799fe402960dc5
           imagePullPolicy: IfNotPresent
           # 32k context shared by all slots (8 attention layers: ~4 KiB of q8_0 KV per token). Each slot also holds
           # ~165 MiB of f32 Mamba state, which is what limits --parallel next to 22.1 GiB of weights.
