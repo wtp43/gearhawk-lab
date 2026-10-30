@@ -13,6 +13,12 @@
   - Before: record core, hot spot and memory junction temperatures, fan speed, power draw and clocks at idle and after ~20 minutes of sustained vllm-openai load. Note the room temperature.
   - Repaste. While the card is open, check the thermal pads, since memory junction temperature depends on them rather than the paste.
   - After: repeat the same load at a similar room temperature and compare the numbers.
+- Tune a CPU power cap for the crawler servers (R640s and T640, dual Xeon Platinum 8269CY, 205 W TDP each). Near the top of the clock range, power grows roughly with the cube of frequency (P = αCV²f, and V rises with f), so a package cap below 205 W should cost little throughput. Expected gain: about 6230R efficiency (150 W) at 8269CY prices, plus less heat and fan noise in the 1U R640s. The "~95% throughput at 165–170 W" figure is an estimate, not a published number, so measure it.
+  - Cap each socket through RAPL: `echo <watts×10⁶> > /sys/class/powercap/intel-rapl:{0,1}/constraint_0_power_limit_uw` ([kernel powercap docs](https://kernel.org/doc/html/v6.6/power/powercap/powercap.html)). The value resets on reboot, so persist it with a privileged DaemonSet (or Talos-equivalent) on the crawler nodes.
+  - Before: set the BIOS System Profile to Performance Per Watt (OS); Dell's Performance profile disables C-states and adds ~50–80 W idle per server.
+  - Run the crawler at a steady load and step the cap 205 → 185 → 170 → 150 W. At each step, record pages/min, iDRAC wall power (RAPL only sees the package, not RAM/fans/PSU losses), CPU temps and fan speed.
+  - Pick the cap where pages per kWh peaks, or just before throughput drops sharply. Memory-heavy workloads can briefly overshoot RAPL limits ([Ostapenco & Lefèvre, ICA3PP 2024](https://perso.ens-lyon.fr/laurent.lefevre/pdf/ICA3PP2024_Ostapenco_Lefevre.pdf)), so check the wall readings, not just the cap value.
+  - Power budget context: the rack runs from one 30 A / 240 V circuit (~5,760 W continuous). With two SMT3000RMI2Us on an A/B feed, redundancy holds only while the total stays ≤ ~2,700 W, so a cap that keeps the T640 plus R640s under that is worth more than its efficiency alone.
 
 ## Storage
 
