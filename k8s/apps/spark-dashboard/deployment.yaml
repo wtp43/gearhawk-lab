@@ -81,7 +81,7 @@ spec:
             - name: docker-sock
               mountPath: /run/docker-shim
         - name: docker-shim
-          image: python:3.13-alpine@sha256:79e7a9b9ff1cbceff819f856fb374477792a5967759d94df266de7b7b4120e6f
+          image: python:3.13-alpine@sha256:4d511039677430640754cd1417737349067dfcdaba4dcf7e576334516f9f4c30
           imagePullPolicy: IfNotPresent
           command: ["python3", "/app/docker-shim.py"]
           env:
