@@ -67,7 +67,7 @@ spec:
               exit 0
         # nvidia-smi cannot set fan speed; NVML can. Holds while persistence mode keeps the driver loaded.
         - name: fan
-          image: python:3.13-slim
+          image: python:3.15-slim
           env:
             - name: NVIDIA_VISIBLE_DEVICES
               value: all
