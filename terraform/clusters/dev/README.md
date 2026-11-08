@@ -21,7 +21,7 @@ clusters/dev/
   variables.tf            root var schemas
   output.tf               writes kubeconfig/talosconfig/machine-configs to output/
   talos_cluster.auto.tfvars   endpoint = VIP (.90), allowSchedulingOnControlPlanes
-  talos_nodes.auto.tfvars     3 control planes + 1 worker on msa21/msa22
+  talos_nodes.auto.tfvars     3 control planes + 1 worker on trpro
   talos_image.auto.tfvars     dev-owned image: version, -dev suffix
   image/                      dev's own schematic.yaml / gpu_schematic.yaml
   cilium-values.yaml          dev copy (cluster name talos-dev, id 2)
@@ -39,13 +39,16 @@ Outside prod: the Cilium LB pool (.65-.85), the prod VIP (.99) and nodes
 | Node         | Host   | IP            | vm_id |
 |--------------|--------|---------------|-------|
 | VIP          | —      | 192.168.50.90 | —     |
-| ctrl-dev-00  | msa21  | 192.168.50.86 | 300   |
-| ctrl-dev-01  | msa21  | 192.168.50.87 | 301   |
-| ctrl-dev-02  | msa22  | 192.168.50.88 | 302   |
-| work-dev-00  | msa22  | 192.168.50.89 | 303   |
+| ctrl-dev-00  | trpro  | 192.168.50.86 | 300   |
+| ctrl-dev-01  | trpro  | 192.168.50.87 | 301   |
+| ctrl-dev-02  | trpro  | 192.168.50.88 | 302   |
+| work-dev-00  | trpro  | 192.168.50.89 | 303   |
 
-Two control planes share msa21, so losing that whole host loses quorum; stopping
-any single VM does not.
+All four VMs share trpro, so losing that host takes the whole dev cluster down;
+stopping any single VM does not. Their disks go on trpro's `local` (the WD NVMe),
+not `sabrent-1tb`, so dev etcd doesn't contend with prod's ctrl-00. The 16 dev
+vCPUs overcommit trpro's 64 threads alongside work-00 (58) and ctrl-00 (4); fine
+for a throwaway cluster, but expect noisier latency while work-00 is busy.
 
 ## Usage
 
