@@ -15,7 +15,7 @@ memory-modded, sourced from Taobao). Each GPU runs its own model replica; no ten
 | GPU power interposer board                           | 1   | Four `J_GPU_POWER_225W` connectors, one per GPU                                                                    |
 | High-performance middle fans (Fan3–Fan6)             | 4   | Fan1/Fan2 stay standard                                                                                            |
 | External GPU fans, left and right                    | 2   | Both required once a GPU is in slot 6 or 8                                                                         |
-| GPU air shroud                                       | 1   | Installed alongside the main air shroud                                                                            |
+| GPU air shroud, side                                 | 1   | Installed alongside the main air shroud; the main shroud likely becomes the GPU version. See [Part numbers](#part-numbers) |
 | GPU card holder                                      | 1   | Supports the far end of full-length cards                                                                          |
 | PSU, 1600 W / 2000 W / 2400 W Platinum               | 2   | Dell minimum for GPUs is 1100 W, but 3 GPUs + 2× 205 W CPUs is ~1.5 kW. 2000/2400 W need 200–240 V input           |
 | Rack ears, left and right                            | 2   | See [Rack mode](#rack-mode)                                                                                        |
@@ -77,7 +77,10 @@ buying.
 | Part                                            | Part number                                 | Source                                                                         |
 | ----------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------ |
 | External GPU fan, left / right                  | 8DF31 / K22DD                               | Reseller                                                                       |
-| GPU air shroud                                  | MRY2P                                       | Unverified                                                                     |
+| GPU air shroud, side (ASSY,SHRD,SIDE,GPGPU)     | MRY2P                                       | Dell Community moderator post (US parts), see note below                       |
+| GPU side baffle, reseller label                 | DFKY5 / VC478 (also 0DFKY5, 0VC478, 4WFVV)  | Reseller; listings disagree on left vs right. Probably the same part as MRY2P  |
+| Main air shroud, GPU version / standard version | GXH1V / RF4VK                               | Dell Community moderator post (US parts), see note below                       |
+| Shroud pin holder, right                        | 8057W                                       | Dell Community moderator post                                                  |
 | GPU power interposer board                      | X7C1K                                       | Reseller                                                                       |
 | High-performance middle fan                     | KJN71                                       | STH forum: Dell support specified it for a GPU config                          |
 | Middle fan tray / standard middle fan           | 6KK42 / CKY79                               | STH forum                                                                      |
@@ -87,6 +90,14 @@ buying.
 | Tower-to-rack conversion kit                    | W8C14 / FP0PJ / F0YV3 (order code 770-BCJK) | Reseller; 770-BCJK from a Dell Community user post                             |
 | Front VGA module / VGA cable / rack slide cover | 8TRDC / V1514 / FKN1F                       | Reseller                                                                       |
 | Rails, ReadyRails II sliding, type C4           | 770-BBJJ (kit D2K5P; rails 8MVV0 / Y5VX8)   | Dell: the 770-BBJJ store page lists the T640. D2K5P and rail numbers: reseller |
+
+Shrouds: a Dell moderator listed the T640 shroud service parts for the US market
+([Dell Community, 2024-01-02](https://www.dell.com/community/en/conversations/power-cooling/dell-t640-gpu-shroud-pn/6547b5422da6d352bfe2a9e6))
+and called GXH1V and MRY2P "the GPU shrouds". Going by the descriptions, a GPU build uses the GPU main shroud (GXH1V)
+in place of the standard one (RF4VK), plus the side GPU shroud (MRY2P). The post doesn't say outright that the main
+shroud must be swapped, so check the label on the shroud the server has now. DFKY5 / VC478 appear only in reseller
+listings, as a "GPU system baffle". It is probably the number printed on the MRY2P part, but that isn't confirmed,
+so compare listing photos before buying.
 
 ## GPU slots
 
