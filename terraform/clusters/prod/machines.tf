@@ -37,23 +37,8 @@ resource "talos_machine" "ctrl_01" {
   }
 }
 
-resource "talos_machine" "ctrl_05" {
-  depends_on = [talos_machine.ctrl_01]
-
-  node                            = local.machines["ctrl-05"].node
-  client_configuration            = module.talos.machine_client_configuration
-  machine_configuration           = local.machines["ctrl-05"].machine_configuration
-  image                           = module.talos.installer_images["ctrl-05"]
-  drain_on_upgrade                = false
-  ignore_kubernetes_upgrade_drift = true
-
-  lifecycle {
-    replace_triggered_by = [terraform_data.vm["ctrl-05"]]
-  }
-}
-
 resource "talos_machine" "ctrl_06" {
-  depends_on = [talos_machine.ctrl_05]
+  depends_on = [talos_machine.ctrl_01]
 
   node                            = local.machines["ctrl-06"].node
   client_configuration            = module.talos.machine_client_configuration
@@ -127,23 +112,8 @@ resource "talos_machine" "work_01" {
   }
 }
 
-resource "talos_machine" "work_05" {
-  depends_on = [talos_machine.work_01]
-
-  node                            = local.machines["work-05"].node
-  client_configuration            = module.talos.machine_client_configuration
-  machine_configuration           = local.machines["work-05"].machine_configuration
-  image                           = module.talos.installer_images["work-05"]
-  drain_on_upgrade                = false
-  ignore_kubernetes_upgrade_drift = true
-
-  lifecycle {
-    replace_triggered_by = [terraform_data.vm["work-05"]]
-  }
-}
-
 resource "talos_machine" "work_00" {
-  depends_on = [talos_machine.work_05]
+  depends_on = [talos_machine.work_01]
 
   node                            = local.machines["work-00"].node
   client_configuration            = module.talos.machine_client_configuration
