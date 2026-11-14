@@ -41,3 +41,8 @@ spec:
       syncPolicy:
         automated: null
     {{- end }}
+    {{- if has .path.basename (list "kaneo") }}
+      source:
+        plugin:
+          name: kustomize-build-with-helm
+    {{- end }}

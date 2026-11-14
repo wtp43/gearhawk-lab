@@ -1,0 +1,23 @@
+# Rendered by the kustomize-build-with-helm ArgoCD plugin (see the templatePatch
+# in ../application-set.yaml); plain kustomize builds ignore helmCharts.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kaneo
+
+resources:
+  - ns.yaml
+  - db-secret.yaml
+  - app-secret.yaml
+
+helmCharts:
+  - name: kaneo
+    repo: oci://ghcr.io/usekaneo/charts
+    version: 2.49.0
+    releaseName: kaneo
+    namespace: kaneo
+    valuesFile: values.yaml
+
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/part-of: dataflarelabs
