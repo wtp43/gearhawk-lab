@@ -1,0 +1,57 @@
+# https://github.com/usekaneo/kaneo/blob/main/charts/kaneo/values.yaml
+
+# The database lives in CNPG (k8s/infra/database/cnpg-kaneo), backed up to R2.
+postgresql:
+  enabled: false
+
+kaneo:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+  env:
+    clientUrl: https://kaneo.dataflarelabs.com
+    existingSecret:
+      enabled: true
+      name: kaneo-app
+      key: AUTH_SECRET
+    # The first account (instance admin) is exempt; everyone else needs an invite.
+    disableRegistration: true
+    database:
+      external:
+        enabled: true
+        existingSecret:
+          enabled: true
+          name: kaneo-owner
+          passwordKey: uri
+
+  # kaneo-app also carries NOTIFICATION_SECRET_ENCRYPTION_KEY, the R2 keys and
+  # the GitHub App / OAuth credentials (see app-secret.yaml).
+  extraEnvFrom:
+    - secretRef:
+        name: kaneo-app
+
+  extraEnv:
+    # Uploads: browsers PUT straight to R2 with presigned URLs; the bucket stays
+    # private and needs a CORS rule for https://kaneo.dataflarelabs.com.
+    - name: S3_ENDPOINT
+      value: https://ef958561965cfffa26ef01e72a2432ca.r2.cloudflarestorage.com
+    - name: S3_BUCKET
+      value: kaneo-uploads
+    - name: S3_REGION
+      value: auto
+    - name: S3_FORCE_PATH_STYLE
+      value: "false"
+
+# kaneo.dataflarelabs.com is covered by the external gateway's wildcard listener
+# and the cloudflared *.dataflarelabs.com rule.
+gateway:
+  enabled: true
+  parentRefs:
+    - name: external
+      namespace: gateway
+  hostnames:
+    - kaneo.dataflarelabs.com
