@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vllm-openai
+  name: vllm-gemma
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
@@ -10,11 +10,11 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app: vllm-openai
+      app: vllm-gemma
   template:
     metadata:
       labels:
-        app: vllm-openai
+        app: vllm-gemma
     spec:
       runtimeClassName: nvidia
       nodeSelector:
@@ -65,21 +65,24 @@ spec:
                 '--host=0.0.0.0' \
                 '--port=8000' \
                 '--gpu-memory-utilization=0.92' \
-                '--max-model-len=32768' \
-                '--max-num-seqs=64' \
+                '--max-model-len=16384' \
+                '--max-num-seqs=16' \
                 '--max-num-batched-tokens=2560' \
                 '--async-scheduling' \
                 '--limit-mm-per-prompt={"image":{"count":4}}' \
                 '--mm-processor-kwargs={"max_soft_tokens":1120}' \
+                '--kv-cache-dtype=int8_per_token_head' \
                 '--enable-prefix-caching' \
-                '--compilation-config={"max_cudagraph_capture_size":64,"custom_ops":["+rms_norm","+silu_and_mul"]}' \
+                '--compilation-config={"max_cudagraph_capture_size":16,"custom_ops":["+rms_norm","+silu_and_mul"]}' \
                 '--enable-prompt-tokens-details' \
                 '--trust-request-mm-kwargs' \
-                '--attention-backend=TRITON_FLASHINFER'
+                '--attention-backend=TRITON_ATTN'
           ports:
             - name: http
               containerPort: 8000
           env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: GPU-6fc2bd87-100f-0a32-ba7d-fec4eea4e277 # RTX 3080
             - name: HF_HOME
               value: /cache/huggingface
             # Own cache dir: vLLM keys its AOT compile cache on the config, not the model code, so the graph compiled
@@ -109,9 +112,6 @@ spec:
             # (8k text prefill +9%, 28k +6%; 78- and 302-case role checks unchanged, 2026-10-15).
             - name: GEMMA4_LM_MLP_INT8
               value: "1"
-          resources:
-            limits:
-              nvidia.com/gpu: 1
           startupProbe:
             httpGet:
               path: /health

@@ -17,10 +17,6 @@ spec:
         app: vllm-openai
     spec:
       runtimeClassName: nvidia
-      # nodeSelector rather than nodeName: nodeName bypasses the scheduler, which would
-      # skip nvidia.com/gpu accounting and let this pod land on the GPU alongside
-      # vllm-server. With the resource request below, the scheduler guarantees only one
-      # of the two holds the single RTX 3090 at a time.
       nodeSelector:
         kubernetes.io/hostname: work-00
       imagePullSecrets:
@@ -34,6 +30,8 @@ spec:
             - name: http
               containerPort: 8000
           env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: GPU-f303736f-ed53-32b9-edb4-5495556a23d2 # RTX 3090
             - name: PORT
               value: "8000"
             - name: VISION
@@ -51,9 +49,6 @@ spec:
             # supported override; drop this and multi-image prompts silently cap at 1.
             - name: EXTRA_ARGS
               value: '--served-model-name qwen3.8-27b --limit-mm-per-prompt {"image":{"count":4}} --disable-access-log-for-endpoints /health,/metrics,/ping'
-          resources:
-            limits:
-              nvidia.com/gpu: 1
           # First boot pulls a 9.5GB image, downloads + requantizes the model, and
           # JIT-compiles kernels; startupProbe gates liveness so it can take ~1h.
           startupProbe:

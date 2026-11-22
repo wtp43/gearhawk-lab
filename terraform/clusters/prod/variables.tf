@@ -67,7 +67,7 @@ variable "talos_nodes" {
       ram_dedicated          = number
       talos_version          = optional(string)
       gpu                    = optional(bool, false)
-      gpu_device_id          = optional(string)
+      gpu_device_ids         = optional(list(string), [])
       default_datastore_size = number
       datastore_id           = optional(string)
       datastore_id2          = optional(string)

@@ -1,9 +1,9 @@
-# trpro RTX 3090 Unlock
+# trpro RTX 3090 / RTX 3080 Unlock
 
 GeForce cards run fp16/bf16 tensor math with fp32 accumulation at half rate, set by a hardware flag.
 [gpu-unlock](https://github.com/Zagitta/gpu-unlock) is a kernel module that clears that flag at boot.
-It runs on the Proxmox host `trpro`, before `vfio-pci` passes the 3090 (`0000:41:00.0`) to `work-00`
-(VM 200). Nothing changes in Talos, Kubernetes or Terraform.
+It runs on the Proxmox host `trpro`, before `vfio-pci` passes the RTX 3090 (`0000:41:00.0`) and the RTX 3080
+20GB (`0000:01:00.0`, added 2026-11-22) to `work-00` (VM 200). Nothing changes in Talos, Kubernetes or Terraform.
 
 The Qwen model on `vllm-openai` benefits even though it is quantized: W4A16 and int8 Marlin only store
 the weights as integers and run the math in fp16 with fp32 accumulation, and FlashInfer and the
@@ -13,7 +13,7 @@ is memory-bound and doesn't change.
 ## Boot flow
 
 1. The initramfs `init-top/gpu-unlock` hook loads `gpu_unlock` before udev starts.
-2. With `gpu_unlock.targets=0000:41:00.0` on the kernel command line, it starts the card's SEC2 with
+2. With `gpu_unlock.targets=0000:41:00.0,0000:01:00.0` on the kernel command line, it starts the card's SEC2 with
    NVIDIA's 610.43.03 Booter firmware, opens the speed registers (SS0 `0x88888888`, SS1 `0x8`) and
    resets the card (FLR), which leaves the setting in place.
 3. `vfio_pci` loads later from `/etc/modules` and claims the card; the VM starts.
@@ -34,6 +34,7 @@ already bound to a driver or was initialised since power-on, the module skips it
 | `dkms`, `gcc`, `make`, `dpkg-dev`    | Debian 13, `--no-install-recommends`                                       |
 | `proxmox-headers-7.0.14-19-pve`      | Headers for the running kernel only                                        |
 | Kernel argument                      | `/etc/default/grub.d/gpu-unlock.cfg`                                       |
+| vfio-pci IDs                         | `/etc/modprobe.d/vfio.conf`: `10de:2204,10de:2206,10de:1aef`               |
 | Package files                        | `/root/gpu-unlock-2.0.0/*.deb`                                             |
 
 The recovery boot entry doesn't get the argument, so it boots without the unlock.
@@ -72,8 +73,8 @@ apt-get install --no-install-recommends dkms gcc proxmox-headers-$(uname -r) \
 On trpro after boot:
 
 ```sh
-journalctl -k -b | grep gpu_unlock    # stage=flr ... ss0=0x88888888 ss1=0x8, then "unlocked"
-lspci -nnk -s 41:00                   # still "Kernel driver in use: vfio-pci"
+journalctl -k -b | grep gpu_unlock    # per card: stage=flr ... ss0=0x88888888 ss1=0x8, then "unlocked"
+lspci -nnk -s 41:00; lspci -nnk -s 01:00   # still "Kernel driver in use: vfio-pci"
 ```
 
 In the guest, a bf16 matmul tells locked from unlocked: the locked card tops out around 75 TFLOPS.
@@ -128,3 +129,18 @@ HyperQwen gains far less than the matmul because its prefill already runs above 
 fp16/fp32-accumulate rate (~1,700 tok/s × 54 GFLOP/token ≈ 90 TFLOPS > 61.6), so its main GEMMs use a
 path the lock doesn't affect. Only the rest (attention and the other bf16 kernels) speeds up. Models
 that run their GEMMs in plain bf16/fp16 should gain more.
+
+### RTX 3080 20GB
+
+Measured 2026-11-22. 4096² matmul on the free card at 320 W: bf16 105.3 TFLOPS @ 1,680 MHz, fp16
+102.3 TFLOPS; a locked 3080 tops out near 59.5. Capped at 240 W since (`power-limit.yaml`).
+
+`tools/bench.sh` on Gemma 4 26B-A4B (`vllm-gemma`, 16 seqs, int8 KV), total tok/s:
+
+| Run                  | 320 W | 240 W | Change |
+| -------------------- | ----- | ----- | ------ |
+| prefill 4000/64 c=16 | 6,999 | 6,357 | −9%    |
+| decode 1000/256 c=1  | 575   | 558   | −3%    |
+| decode 1000/256 c=8  | 2,239 | 2,067 | −8%    |
+| decode 1000/256 c=16 | 2,316 | 2,177 | −6%    |
+| decode 1000/256 c=32 | 2,402 | 2,260 | −6%    |

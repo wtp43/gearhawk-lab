@@ -85,11 +85,10 @@ resource "proxmox_virtual_environment_vm" "this" {
   }
 
   dynamic "hostpci" {
-    for_each = each.value.gpu ? [1] : []
+    for_each = each.value.gpu ? each.value.gpu_device_ids : []
     content {
-      # Passthrough iGPU
-      device = "hostpci0"
-      id     = each.value.gpu_device_id
+      device = "hostpci${hostpci.key}"
+      id     = hostpci.value
       pcie   = true
       rombar = true
       xvga   = false

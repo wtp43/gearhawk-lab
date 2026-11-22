@@ -56,6 +56,6 @@ variable "nodes" {
     ram_dedicated          = number
     talos_version          = optional(string)
     gpu                    = optional(bool, false)
-    gpu_device_id          = optional(string)
+    gpu_device_ids         = optional(list(string), [])
   }))
 }

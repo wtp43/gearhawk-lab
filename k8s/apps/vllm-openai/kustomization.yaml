@@ -7,7 +7,9 @@ resources:
   - secrets.yaml
   - vllm-openai-pvc.yaml
   - deployment.yaml
+  - deployment-gemma4-a4b.yaml
   - vllm-openai-svc.yaml
+  - vllm-gemma-svc.yaml
   - engine-watcher-rbac.yaml
   - spark-dashboard-logs-rbac.yaml
 
@@ -21,7 +23,7 @@ labels:
 configMapGenerator:
   # vLLM 0.31.0 gemma4_mm.py with open PRs #60577 + #60478 (Gemma 4 vision encoder) and our per-image pixel-density
   # patch (GEMMA4_SOURCE_PX_PER_TOKEN); the Triton attention files carry open PR #60317 (Gemma 4 tile sizes, incl. sm86).
-  # Only the Gemma test deployment mounts it.
+  # Only the Gemma deployment mounts it.
   - name: vllm-openai-gemma4-patch
     files:
       - patches/gemma4_mm.py
