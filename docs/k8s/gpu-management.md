@@ -3,6 +3,12 @@
 Spec for running heterogeneous GPUs on `work-00` with per-card scheduling and per-card power limits.
 Written to be pasted into Superthread; kept here because no Superthread integration is wired up yet.
 
+> **Status (2026-11-22):** the second card is an RTX 3080 20GB. The pattern-based resource names below don't
+> work: device plugin 0.19 drops `resources.gpus` with "Customizing the 'resources' field is not yet supported".
+> Every GPU workload now pins its card with `NVIDIA_VISIBLE_DEVICES=<uuid>` and requests no `nvidia.com/gpu`:
+> HyperQwen on the 3090, Gemma and smaller models on the 3080 (`GPU-6fc2bd87-100f-0a32-ba7d-fec4eea4e277`). Power
+> caps: 3090 250 W, 3080 240 W (`k8s/infra/gpu/nvidia/power-limit.yaml`).
+
 ## Current state
 
 - `work-00` holds a single RTX 3090. It is the only GPU node (`nvidia.com/gpu: 1`).
