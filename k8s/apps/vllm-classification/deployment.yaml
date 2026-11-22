@@ -35,6 +35,8 @@ spec:
             - name: http
               containerPort: 8000
           env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: GPU-6fc2bd87-100f-0a32-ba7d-fec4eea4e277 # RTX 3080
             - name: PIP_BREAK_SYSTEM_PACKAGES
               value: "1"
             - name: MODEL
@@ -47,9 +49,6 @@ spec:
               value: "64"
             - name: BATCH_WAIT_MS
               value: "5"
-          resources:
-            limits:
-              nvidia.com/gpu: 1
           startupProbe:
             httpGet:
               path: /health

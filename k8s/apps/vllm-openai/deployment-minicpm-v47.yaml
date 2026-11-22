@@ -101,9 +101,9 @@ spec:
           ports:
             - name: http
               containerPort: 8000
-          resources:
-            limits:
-              nvidia.com/gpu: 1
+          env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: GPU-6fc2bd87-100f-0a32-ba7d-fec4eea4e277 # RTX 3080
           startupProbe:
             httpGet:
               path: /health

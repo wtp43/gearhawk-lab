@@ -56,6 +56,7 @@ spec:
                 uuid=$(echo "$uuid" | xargs); name=$(echo "$name" | xargs)
                 case "$name" in
                   *"RTX 3090"*) want=250 ;;
+                  *"RTX 3080"*) want=240 ;;
                   *) echo "skip $name ($uuid): no policy"; continue ;;
                 esac
                 minw=${minw%.*}; maxw=${maxw%.*}
