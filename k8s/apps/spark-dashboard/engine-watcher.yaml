@@ -38,7 +38,7 @@ data:
     #!/bin/bash
     set -u
     while true; do
-      vllm_ready=$(kubectl -n vllm-openai get pods -l app=vllm-openai \
+      vllm_ready=$(kubectl -n vllm-openai get pods -l 'app in (vllm-openai,vllm-gemma)' \
         -o jsonpath='{range .items[*]}{range .status.conditions[?(@.type=="Ready")]}{.status} {.lastTransitionTime}{"\n"}{end}{end}' \
         | awk '$1=="True"{print $2}' | sort | tail -1)
       dash_started=$(kubectl -n spark-dashboard get pods -l app=spark-dashboard \
