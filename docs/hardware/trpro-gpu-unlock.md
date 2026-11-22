@@ -133,7 +133,8 @@ that run their GEMMs in plain bf16/fp16 should gain more.
 ### RTX 3080 20GB
 
 Measured 2026-11-22. 4096² matmul on the free card at 320 W: bf16 105.3 TFLOPS @ 1,680 MHz, fp16
-102.3 TFLOPS; a locked 3080 tops out near 59.5. Capped at 240 W since (`power-limit.yaml`).
+102.3 TFLOPS; a locked 3080 tops out near 59.5. Capped at 240 W since (`power-limit.yaml`): bf16 91.1 TFLOPS
+@ 1,440 MHz, fp16 87.7 TFLOPS.
 
 `tools/bench.sh` on Gemma 4 26B-A4B (`vllm-gemma`, 16 seqs, int8 KV), total tok/s:
 
