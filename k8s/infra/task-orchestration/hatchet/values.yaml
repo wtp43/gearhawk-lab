@@ -13,6 +13,17 @@ scheduler:
   envFrom:
     - secretRef:
         name: hatchet-config
+  # A queue refill reads 2 x this many items (default 100). Behind a 200-item head of one rate-limited vendor, the
+  # other vendors' runs waited while http slots sat idle (memx run, 2026-11-27).
+  env:
+    SERVER_SINGLE_QUEUE_LIMIT: "5000"
+  # No CPU limit: the active scheduler used about one core under that load.
+  resources:
+    requests:
+      cpu: "1"
+      memory: 1Gi
+    limits:
+      memory: 4Gi
 sharedConfig:
   # you can disable shared config by setting this to false
   enabled: true
